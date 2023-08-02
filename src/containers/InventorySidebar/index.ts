@@ -1,0 +1,1 @@
+export { InventorySidebar } from "./InventorySidebar"
