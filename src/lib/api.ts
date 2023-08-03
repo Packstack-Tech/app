@@ -106,7 +106,7 @@ export const getPacks = () => http.get<Pack[]>("/packs")
 
 export const getPack = (id?: string | number) => http.get<Pack>(`/pack/${id}`)
 
-export const getTripPacks = (tripId: string | number) =>
+export const getTripPacks = (tripId?: string | number) =>
   http.get<Pack[]>(`/pack/trip/${tripId}`)
 
 export const createPack = (data: PackPayload) => http.post<Pack>("/pack", data)

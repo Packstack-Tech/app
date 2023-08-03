@@ -1,5 +1,3 @@
-"use client"
-
 import { create } from "zustand"
 import { PackItem, PackItemEditableKeys } from "@/types/pack"
 import { TripPack } from "@/types/pack"

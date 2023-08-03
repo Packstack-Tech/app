@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   createPack,
   assignPack,
@@ -7,9 +7,9 @@ import {
   getPacks,
   getTripPacks,
   updatePack,
-  updatePackItem
-} from '@/lib/api'
-import { PackPayload, UpdatePackItemPayload } from '@/types/api'
+  updatePackItem,
+} from "@/lib/api"
+import { PackPayload, UpdatePackItemPayload } from "@/types/api"
 
 // export const PACKS_QUERY = 'packs-query'
 
@@ -35,24 +35,28 @@ import { PackPayload, UpdatePackItemPayload } from '@/types/api'
 //   )
 // }
 
-export const TRIP_PACKS_QUERY = 'trip-packs-query'
+export const TRIP_PACKS_QUERY = "trip-packs-query"
 
-export const useTripPacksQuery = (tripId: number | string) => {
+export const useTripPacksQuery = (tripId?: number | string) => {
   return useQuery({
     queryKey: [TRIP_PACKS_QUERY, tripId],
     queryFn: async () => {
       const res = await getTripPacks(tripId)
       return res.data
-    }
+    },
+    enabled: !!tripId,
   })
 }
 
 export const useCreatePack = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (data: PackPayload) => {
       const res = await createPack(data)
       return res.data
-    }
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY] }),
   })
 }
 
@@ -70,7 +74,7 @@ export const useUpdatePack = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY, data.id] })
-    }
+    },
   })
 }
 

@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom"
 import { AppLayout } from "@/containers/Layout/App"
 import { AuthLayout } from "@/containers/Layout/Auth"
 import { LoginPage } from "@/pages/Login"
-import { PackPage } from "@/pages/Pack"
+import { PackPage } from "@/pages/PackPage"
 
 export const router = createBrowserRouter([
   {

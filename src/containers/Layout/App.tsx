@@ -1,13 +1,11 @@
 import { useEffect } from "react"
-import { useUserQuery } from "@/queries/user"
 import { Outlet, useNavigate } from "react-router-dom"
+import { useUserQuery } from "@/queries/user"
 import { Header } from "@/containers/Header"
-import { useInventory } from "@/queries/item"
 
 export const AppLayout = () => {
   const navigate = useNavigate()
-  const { isLoading, isSuccess, isError } = useUserQuery()
-  useInventory(isSuccess)
+  const { isLoading, isError } = useUserQuery()
 
   useEffect(() => {
     if (!localStorage.getItem("jwt") || isError) {

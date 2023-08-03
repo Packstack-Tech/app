@@ -59,7 +59,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
     },
   })
 
-  const onSubmit = (values: TripFormValues) => {
+  const onSubmit = async (values: TripFormValues) => {
     const payload = {
       title: values.location,
       location: values.location,
@@ -73,18 +73,15 @@ export const TripForm: FC<Props> = ({ trip }) => {
     }
 
     if (!trip) {
-      createTrip.mutate(payload, {
-        onSuccess: async (data) => {
-          packs.forEach(async ({ title, items }) => {
-            await createPack.mutateAsync({
-              title,
-              items,
-              trip_id: data.id,
-            })
-          })
-          navigate(`/pack/${data.id}`)
-        },
+      const newTrip = await createTrip.mutateAsync(payload)
+      packs.forEach(async ({ title, items }) => {
+        await createPack.mutateAsync({
+          title,
+          items,
+          trip_id: newTrip.id,
+        })
       })
+      navigate(`/pack/${newTrip.id}`, { replace: true })
     } else {
       updateTrip.mutate(
         { id: trip.id, ...payload },

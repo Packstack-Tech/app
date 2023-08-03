@@ -1,5 +1,4 @@
-"use client"
-
+import { useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -8,6 +7,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
+import { useUpdateItemSort } from "@/queries/item"
 import {
   Table,
   TableBody,
@@ -15,11 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table"
-
 import { fuzzyFilter } from "@/components/Tables/lib/fuzzyFilter"
 import { ItemRow } from "./ItemRow"
-import { useState } from "react"
-import { useUpdateItemSort } from "@/queries/item"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

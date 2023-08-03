@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   getTripFeed,
   getTrip,
@@ -9,9 +9,9 @@ import {
   deleteTripImage,
   deleteTrip,
   updateTripImage,
-  toggleTripPublish
-} from '@/lib/api'
-import { CreateTrip, EditTrip, Trip } from '@/types/trip'
+  toggleTripPublish,
+} from "@/lib/api"
+import { CreateTrip, EditTrip, Trip } from "@/types/trip"
 
 // export const TRIP_FEED = 'trip-feed'
 // export const useTripFeed = () => {
@@ -21,23 +21,27 @@ import { CreateTrip, EditTrip, Trip } from '@/types/trip'
 //   })
 // }
 
-export const TRIP_QUERY = 'trip-query'
-export const useTripQuery = (id: string | number) => {
+export const TRIP_QUERY = "trip-query"
+export const useTripQuery = (id?: string | number) => {
   return useQuery({
     queryKey: [TRIP_QUERY, id],
     queryFn: async () => {
       const res = await getTrip(id)
       return res.data
-    }
+    },
+    enabled: !!id,
   })
 }
 
 export const useCreateTrip = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (params: CreateTrip) => {
       const res = await createTrip(params)
       return res.data
-    }
+    },
+    onSuccess: ({ id }) =>
+      queryClient.invalidateQueries({ queryKey: [TRIP_QUERY, id] }),
   })
 }
 
@@ -49,7 +53,7 @@ export const useUpdateTrip = () => {
       return res.data
     },
     onSuccess: (data) =>
-      queryClient.invalidateQueries({ queryKey: [TRIP_QUERY, data.id] })
+      queryClient.invalidateQueries({ queryKey: [TRIP_QUERY, data.id] }),
   })
 }
 
