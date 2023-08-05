@@ -31,7 +31,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
     set((state) => {
       const count = state.packs.length
       const packs = [...state.packs, { title: `Pack ${count + 1}`, items: [] }]
-      return { ...state, packs }
+      return { ...state, selectedIndex: count, packs }
     }),
   removePack: (index) =>
     set((state) => {

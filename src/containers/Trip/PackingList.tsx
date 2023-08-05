@@ -29,7 +29,7 @@ export const PackingList = () => {
 
   return (
     <div>
-      <div>
+      <div className="mb-4">
         <PackTabs packs={availablePacks} />
       </div>
       {categorizedItems.map(({ category, items }) => {
