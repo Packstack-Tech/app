@@ -1,5 +1,3 @@
-"use client"
-
 import { FC, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -18,6 +16,13 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/Form"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/Dialog"
 
 import { Textarea } from "@/components/ui/Textarea"
 import { Checkbox } from "@/components/ui/Checkbox"
@@ -54,10 +59,21 @@ const schema = z.object({
 
 type Props = {
   item?: Item
+  open: boolean
+  title: string
+  onOpenChange: (open: boolean) => void
   onClose: () => void
+  children?: React.ReactNode
 }
 
-export const ItemForm: FC<Props> = ({ item, onClose }) => {
+export const ItemForm: FC<Props> = ({
+  item,
+  title,
+  open,
+  onOpenChange,
+  onClose,
+  children,
+}) => {
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
   const form = useForm<ItemFormValues>({
@@ -125,114 +141,198 @@ export const ItemForm: FC<Props> = ({ item, onClose }) => {
     }
   }
 
+  // NOTE add modal={false} to Dialog to scroll interior content w/ scrollwheel
+
   return (
-    <ScrollArea className="max-h-[80vh] w-[100%] pr-3">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="my-4">
-                <FormLabel>Item name</FormLabel>
-                <FormControl>
-                  <Input placeholder="backpack, tent, etc." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormItem className="flex flex-col my-4">
-            <FormLabel>Manufacturer</FormLabel>
-
-            <Combobox
-              value={form.watch("brand_id")}
-              options={brandOptions}
-              onSelect={({ label, value, isNew }) => {
-                if (isNew) {
-                  form.setValue("brand_new", label)
-                } else {
-                  form.setValue("brand_id", value as number)
-                }
-              }}
-              onRemove={() => {
-                form.setValue("brand_id", undefined)
-                form.setValue("brand_new", undefined)
-                form.setValue("product_id", undefined)
-                form.setValue("product_new", undefined)
-              }}
-            />
-            <FormMessage />
-          </FormItem>
-
-          <FormItem className="flex flex-col my-4">
-            <FormLabel>Product</FormLabel>
-
-            <Combobox
-              value={form.watch("product_id")}
-              options={productOptions}
-              disabled={noBrandSelected}
-              onSelect={({ label, value, isNew }) => {
-                if (isNew) {
-                  form.setValue("product_new", label)
-                } else {
-                  form.setValue("product_id", value as number)
-                }
-              }}
-              onRemove={() => {
-                form.setValue("product_id", undefined)
-                form.setValue("product_new", undefined)
-              }}
-            />
-
-            <FormDescription>
-              {noBrandSelected
-                ? "Product name requires a manufacturer"
-                : "Select or create the product name"}
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-
-          <FormItem className="flex flex-col my-4">
-            <FormLabel>Category</FormLabel>
-
-            <Combobox
-              value={form.watch("category_id")}
-              options={categoryOptions}
-              onSelect={({ label, value, isNew }) => {
-                if (isNew) {
-                  form.setValue("category_new", label)
-                } else {
-                  form.setValue("category_id", value as number)
-                }
-              }}
-              onRemove={() => {
-                form.setValue("category_id", undefined)
-                form.setValue("category_new", undefined)
-              }}
-            />
-
-            <FormMessage />
-          </FormItem>
-
-          <div className="flex gap-2 items-end my-4">
-            <div className="flex flex-1 items-end gap-0.5">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {children}
+      <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="max-h-[60vh] w-[100%] px-4" type="always">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
               <FormField
                 control={form.control}
-                name="weight"
+                name="name"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Weight</FormLabel>
-                    <Input
-                      {...field}
-                      type="number"
-                      step=".01"
-                      placeholder="0.00"
-                      onFocus={() => {
-                        if (!field.value) field.onChange("")
-                      }}
-                    />
+                  <FormItem className="my-4">
+                    <FormLabel>Item name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="backpack, tent, etc." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormItem className="flex flex-col my-4">
+                <FormLabel>Manufacturer</FormLabel>
+
+                <Combobox
+                  value={form.watch("brand_id")}
+                  options={brandOptions}
+                  onSelect={({ label, value, isNew }) => {
+                    if (isNew) {
+                      form.setValue("brand_new", label)
+                    } else {
+                      form.setValue("brand_id", value as number)
+                    }
+                  }}
+                  onRemove={() => {
+                    form.setValue("brand_id", undefined)
+                    form.setValue("brand_new", undefined)
+                    form.setValue("product_id", undefined)
+                    form.setValue("product_new", undefined)
+                  }}
+                />
+                <FormMessage />
+              </FormItem>
+
+              <FormItem className="flex flex-col my-4">
+                <FormLabel>Product</FormLabel>
+
+                <Combobox
+                  value={form.watch("product_id")}
+                  options={productOptions}
+                  disabled={noBrandSelected}
+                  onSelect={({ label, value, isNew }) => {
+                    if (isNew) {
+                      form.setValue("product_new", label)
+                    } else {
+                      form.setValue("product_id", value as number)
+                    }
+                  }}
+                  onRemove={() => {
+                    form.setValue("product_id", undefined)
+                    form.setValue("product_new", undefined)
+                  }}
+                />
+
+                <FormDescription>
+                  {noBrandSelected
+                    ? "Product name requires a manufacturer"
+                    : "Select or create the product name"}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+
+              <FormItem className="flex flex-col my-4">
+                <FormLabel>Category</FormLabel>
+
+                <Combobox
+                  value={form.watch("category_id")}
+                  options={categoryOptions}
+                  onSelect={({ label, value, isNew }) => {
+                    if (isNew) {
+                      form.setValue("category_new", label)
+                    } else {
+                      form.setValue("category_id", value as number)
+                    }
+                  }}
+                  onRemove={() => {
+                    form.setValue("category_id", undefined)
+                    form.setValue("category_new", undefined)
+                  }}
+                />
+
+                <FormMessage />
+              </FormItem>
+
+              <div className="flex gap-2 items-end my-4">
+                <div className="flex flex-1 items-end gap-0.5">
+                  <FormField
+                    control={form.control}
+                    name="weight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Weight</FormLabel>
+                        <Input
+                          {...field}
+                          type="number"
+                          step=".01"
+                          placeholder="0.00"
+                          onFocus={() => {
+                            if (!field.value) field.onChange("")
+                          }}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="unit"
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-16">
+                            <SelectValue placeholder="Unit" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="g">g</SelectItem>
+                          <SelectItem value="kg">kg</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Price</FormLabel>
+                      <Input
+                        {...field}
+                        type="number"
+                        step=".01"
+                        placeholder="0.00"
+                        onFocus={() => {
+                          if (!field.value) field.onChange("")
+                        }}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="consumable"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-2 space-y-0 my-4">
+                    <FormControl>
+                      <Checkbox
+                        id="consumable"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel htmlFor="consumable" className="font-normal">
+                      Consumable
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="product_url"
+                render={({ field }) => (
+                  <FormItem className="my-4">
+                    <FormLabel>Product URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -240,101 +340,28 @@ export const ItemForm: FC<Props> = ({ item, onClose }) => {
 
               <FormField
                 control={form.control}
-                name="unit"
+                name="notes"
                 render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <FormItem className="my-4">
+                    <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <SelectTrigger className="w-16">
-                        <SelectValue placeholder="Unit" />
-                      </SelectTrigger>
+                      <Textarea placeholder="https://" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="g">g</SelectItem>
-                      <SelectItem value="kg">kg</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Price</FormLabel>
-                  <Input
-                    {...field}
-                    type="number"
-                    step=".01"
-                    placeholder="0.00"
-                    onFocus={() => {
-                      if (!field.value) field.onChange("")
-                    }}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="consumable"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0 my-4">
-                <FormControl>
-                  <Checkbox
-                    id="consumable"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel htmlFor="consumable" className="font-normal">
-                  Consumable
-                </FormLabel>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="product_url"
-            render={({ field }) => (
-              <FormItem className="my-4">
-                <FormLabel>Product URL</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem className="my-4">
-                <FormLabel>Notes</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="https://" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex justify-end my-4">
+            </form>
+          </Form>
+        </ScrollArea>
+        <DialogFooter>
+          <div className="flex justify-end">
             <Button type="submit" variant="secondary">
               Save
             </Button>
           </div>
-        </form>
-      </Form>
-    </ScrollArea>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

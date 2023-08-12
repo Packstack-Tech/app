@@ -1,5 +1,3 @@
-"use client"
-
 import { FC } from "react"
 import { Cell } from "@tanstack/react-table"
 
@@ -7,7 +5,7 @@ import { Input } from "@/components/ui"
 import { PackItem } from "@/types/pack"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { shallow } from "zustand/shallow"
-import { FlameIcon } from "lucide-react"
+import { FlameIcon, ShirtIcon } from "lucide-react"
 
 type Props = {
   cell: Cell<PackItem, unknown>
@@ -34,7 +32,7 @@ export const QuantityCell: FC<Props> = ({
   )
 }
 
-export const ConsumableCell: FC<Props> = ({
+export const WornCell: FC<Props> = ({
   cell: {
     row: { original },
   },
@@ -48,12 +46,22 @@ export const ConsumableCell: FC<Props> = ({
 
   return (
     <button onClick={onClick}>
-      <FlameIcon
-        color={original.worn ? "orange" : "gray"}
+      <ShirtIcon
+        color={original.worn ? "lightblue" : "gray"}
         size={20}
-        fill={original.worn ? "orange" : undefined}
+        fill={original.worn ? "lightblue" : undefined}
         strokeWidth={1}
       />
     </button>
   )
+}
+
+export const ConsumableCell: FC<Props> = ({
+  cell: {
+    row: { original },
+  },
+}) => {
+  if (!original.item.consumable) return null
+
+  return <FlameIcon color="orange" size={20} strokeWidth={1} />
 }

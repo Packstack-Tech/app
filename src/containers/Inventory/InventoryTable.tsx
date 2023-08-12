@@ -1,9 +1,8 @@
-'use client'
-import { FC } from 'react'
+import { FC } from "react"
 
-import { useCategorizedItems } from '@/hooks/useCategorizedItems'
-import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable'
-import { columns } from './columns'
+import { useCategorizedItems } from "@/hooks/useCategorizedItems"
+import { CategorizedItemsTable } from "@/components/Tables/CategorizedItemsTable"
+import { columns } from "./columns"
 
 type Props = {
   searchFilter?: string
@@ -12,14 +11,14 @@ type Props = {
 
 export const InventoryTable: FC<Props> = ({
   searchFilter,
-  onSearchFilterChange
+  onSearchFilterChange,
 }) => {
   const data = useCategorizedItems()
 
   return (
     <div>
       {(data || []).map(({ category, items }) => {
-        const categoryName = category?.category?.name || 'Uncategorized'
+        const categoryName = category?.category?.name || "Uncategorized"
         return (
           <CategorizedItemsTable
             key={categoryName}

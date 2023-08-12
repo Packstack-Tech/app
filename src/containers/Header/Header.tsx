@@ -5,8 +5,9 @@ export const Header = () => {
     <div className="p-4 bg-slate-900">
       <div className="flex justify-between">
         <div>Packstack</div>
-        <div>
-          <Link to="/auth/login">Login</Link>
+        <div className="flex gap-4">
+          <Link to="/inventory">Inventory</Link>
+          <Link to="/pack/new">Create Pack</Link>
         </div>
       </div>
     </div>

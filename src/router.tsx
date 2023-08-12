@@ -3,6 +3,7 @@ import { AppLayout } from "@/containers/Layout/App"
 import { AuthLayout } from "@/containers/Layout/Auth"
 import { LoginPage } from "@/pages/Login"
 import { PackPage } from "@/pages/PackPage"
+import { InventoryPage } from "@/pages/Inventory"
 
 export const router = createBrowserRouter([
   {
@@ -14,8 +15,8 @@ export const router = createBrowserRouter([
         element: <div>Home</div>,
       },
       {
-        path: "/about",
-        element: <div>About</div>,
+        path: "/inventory",
+        element: <InventoryPage />,
       },
       {
         path: "/pack/new",

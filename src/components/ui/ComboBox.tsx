@@ -7,6 +7,7 @@ import { useFuzzySearch } from "@/hooks/useFuzzySearch"
 import { Input } from "./Input"
 import { Popover, PopoverContent, PopoverAnchor } from "./Popover"
 import { Button } from "./Button"
+import { ScrollArea } from "./ScrollArea"
 
 type Props = {
   value?: number
@@ -70,8 +71,21 @@ export const Combobox: FC<Props> = ({
             placeholder="search..."
             onChange={(e) => setSearch(e.target.value)}
             onFocus={() => setFocused(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Tab") {
+                setFocused(false)
+              }
+              if (e.key === "Enter") {
+                if (filteredResults.length > 0) {
+                  onSelectItem(filteredResults[0])
+                } else {
+                  onCreateItem()
+                }
+              }
+            }}
+            // onBlur={() => setFocused(false)}
             disabled={selected || disabled}
-            className="disabled:opacity-100"
+            className="disabled:opacity-50"
           />
           {selected && (
             <button
@@ -84,37 +98,39 @@ export const Combobox: FC<Props> = ({
         </div>
       </PopoverAnchor>
       <PopoverContent
-        className="py-1 px-1 max-h-[240px] overflow-y-auto"
+        asChild
         onOpenAutoFocus={(e) => e.preventDefault()}
         onPointerDownOutside={() => {
           setSearch("")
           setFocused(false)
         }}
       >
-        {filteredResults.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => onSelectItem(option)}
-            className="block py-1 px-2 rounded-sm w-full text-left hover:text-white hover:bg-slate-600"
-          >
-            {option.label}
-          </button>
-        ))}
-        {filteredResults.length === 0 && search.length > 0 && (
-          <Button
-            onClick={onCreateItem}
-            size="sm"
-            variant="secondary"
-            className="w-full"
-          >
-            Create &quot;{search}&quot;
-          </Button>
-        )}
-        {filteredResults.length === 0 && search.length === 0 && (
-          <p className="text-xs p-2">
-            No options available. Type to create one.
-          </p>
-        )}
+        <ScrollArea className="p-1 max-h-[240px] overflow-y-auto">
+          {filteredResults.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => onSelectItem(option)}
+              className="block py-1 px-2 rounded-sm w-full text-left hover:text-white hover:bg-slate-600"
+            >
+              {option.label}
+            </button>
+          ))}
+          {filteredResults.length === 0 && search.length > 0 && (
+            <Button
+              onClick={onCreateItem}
+              size="sm"
+              variant="secondary"
+              className="w-full"
+            >
+              Create &quot;{search}&quot;
+            </Button>
+          )}
+          {filteredResults.length === 0 && search.length === 0 && (
+            <p className="text-xs p-2">
+              No options available. Type to create one.
+            </p>
+          )}
+        </ScrollArea>
       </PopoverContent>
     </Popover>
   )

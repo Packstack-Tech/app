@@ -1,41 +1,39 @@
-'use client'
+import { ColumnDef } from "@tanstack/react-table"
+import { Item } from "@/types/item"
 
-import { ColumnDef } from '@tanstack/react-table'
-import { Item } from '@/types/item'
-
-import { Action } from '@/app/app/inventory/_components/cells'
+import { Action } from "./cells"
 
 export const columns: ColumnDef<Item>[] = [
   {
-    header: 'Name',
-    accessorKey: 'name'
+    header: "Name",
+    accessorKey: "name",
   },
   {
-    header: 'Manufacturer',
-    accessorKey: 'brand.name'
+    header: "Manufacturer",
+    accessorKey: "brand.name",
   },
   {
-    header: 'Product',
-    accessorKey: 'product.name'
+    header: "Product",
+    accessorKey: "product.name",
   },
   {
-    header: 'Weight',
+    header: "Weight",
     accessorFn: (item) =>
-      !!item.weight ? `${item.weight?.toFixed(2)} ${item.unit}` : null,
+      item.weight ? `${item.weight?.toFixed(2)} ${item.unit}` : null,
     meta: {
-      align: 'right',
-      style: { textAlign: 'right' }
-    }
+      align: "right",
+      style: { textAlign: "right" },
+    },
   },
   {
-    header: 'Value',
-    accessorFn: ({ price }) => (!!price ? price?.toFixed(2) : null)
+    header: "Value",
+    accessorFn: ({ price }) => (price ? price?.toFixed(2) : null),
   },
   {
-    id: 'actions',
+    id: "actions",
     cell: ({ cell }) => <Action cell={cell} />,
     meta: {
-      align: 'right'
-    }
-  }
+      align: "right",
+    },
+  },
 ]

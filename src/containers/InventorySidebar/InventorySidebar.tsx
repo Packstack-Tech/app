@@ -3,12 +3,6 @@ import { Plus } from "lucide-react"
 import { shallow } from "zustand/shallow"
 import Fuse from "fuse.js"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/Dialog"
 import { ItemForm } from "@/containers/ItemForm"
 import { Button, Input } from "@/components/ui"
 import { Label } from "@/components/ui/Label"
@@ -93,14 +87,12 @@ export const InventorySidebar = () => {
           </ul>
         </div>
       ))}
-      <Dialog open={addItemOpen} onOpenChange={setAddItemOpen}>
-        <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <DialogTitle>Add Gear</DialogTitle>
-          </DialogHeader>
-          <ItemForm onClose={() => setAddItemOpen(false)} />
-        </DialogContent>
-      </Dialog>
+      <ItemForm
+        title="Add Gear"
+        open={addItemOpen}
+        onOpenChange={setAddItemOpen}
+        onClose={() => setAddItemOpen(false)}
+      />
     </>
   )
 }

@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { PackItem } from "@/types/pack"
-import { QuantityCell, ConsumableCell } from "./cells"
+import { QuantityCell, ConsumableCell, WornCell } from "./cells"
 
 export const columns: ColumnDef<PackItem>[] = [
   {
@@ -26,6 +26,14 @@ export const columns: ColumnDef<PackItem>[] = [
   {
     header: "Consumable",
     cell: ({ cell }) => <ConsumableCell cell={cell} />,
+    meta: {
+      align: "center",
+      style: { textAlign: "center" },
+    },
+  },
+  {
+    header: "Worn",
+    cell: ({ cell }) => <WornCell cell={cell} />,
     meta: {
       align: "center",
       style: { textAlign: "center" },
