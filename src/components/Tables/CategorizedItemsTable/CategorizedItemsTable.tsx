@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -35,6 +35,10 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
 }: DataTableProps<TData, TValue>) {
   const updateItemSort = useUpdateItemSort()
   const [categoryItems, setCategoryItems] = useState(data)
+
+  useEffect(() => {
+    setCategoryItems(data)
+  }, [data])
 
   const table = useReactTable({
     data: categoryItems,

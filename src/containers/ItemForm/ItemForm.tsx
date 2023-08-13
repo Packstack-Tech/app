@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/Select"
 import { Item, ItemForm as ItemFormValues } from "@/types/item"
 import { ScrollArea } from "@/components/ui/ScrollArea"
-import { useCreateItem, useUpdateItem } from "@/queries/item"
+import { useCreateItem, useDeleteItem, useUpdateItem } from "@/queries/item"
 
 // TODO add field max/min length
 const schema = z.object({
@@ -76,6 +76,10 @@ export const ItemForm: FC<Props> = ({
 }) => {
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
+  const deleteItem = useDeleteItem()
+
+  // TODO on select product, search for existing items and populate form
+
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -141,6 +145,13 @@ export const ItemForm: FC<Props> = ({
     }
   }
 
+  const onDelete = () => {
+    if (!item) return
+    deleteItem.mutate(item.id, {
+      onSuccess: onClose,
+    })
+  }
+
   // NOTE add modal={false} to Dialog to scroll interior content w/ scrollwheel
 
   return (
@@ -152,7 +163,7 @@ export const ItemForm: FC<Props> = ({
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] w-[100%] px-4" type="always">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(onSubmit)} id="item-form">
               <FormField
                 control={form.control}
                 name="name"
@@ -355,8 +366,18 @@ export const ItemForm: FC<Props> = ({
           </Form>
         </ScrollArea>
         <DialogFooter>
-          <div className="flex justify-end">
-            <Button type="submit" variant="secondary">
+          <div className={`flex ${item ? "justify-between" : "justify-end"}`}>
+            {item && (
+              <Button type="button" variant="outline" onClick={onDelete}>
+                Delete Item
+              </Button>
+            )}
+            <Button
+              type="submit"
+              variant="secondary"
+              form="item-form"
+              className="min-w-[25%]"
+            >
               Save
             </Button>
           </div>

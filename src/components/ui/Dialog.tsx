@@ -79,13 +79,7 @@ const DialogFooter = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex flex-col-reverse p-4 border-t sm:flex-row sm:justify-end sm:space-x-2",
-      className
-    )}
-    {...props}
-  />
+  <div className={cn("p-4 border-t", className)} {...props} />
 )
 DialogFooter.displayName = "DialogFooter"
 

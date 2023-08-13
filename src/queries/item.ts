@@ -42,13 +42,18 @@ export const useCreateItem = () => {
 
 export const useDeleteItem = () => {
   const queryClient = useQueryClient()
+  const { toast } = useToast()
   return useMutation({
     mutationFn: async (itemId: number) => {
       const res = await deleteItem(itemId)
       return res.data
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY }),
+    onSuccess: () => {
+      toast({
+        title: "✅ Item deleted",
+      })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+    },
   })
 }
 

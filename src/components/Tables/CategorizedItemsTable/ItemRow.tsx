@@ -1,10 +1,10 @@
-import { useMemo, useRef } from 'react'
-import { useDrag, useDrop } from 'react-dnd'
-import type { Identifier, XYCoord } from 'dnd-core'
-import { flexRender, Row } from '@tanstack/react-table'
-import { GripHorizontal } from 'lucide-react'
+import { useMemo, useRef } from "react"
+import { useDrag, useDrop } from "react-dnd"
+import type { Identifier, XYCoord } from "dnd-core"
+import { flexRender, Row } from "@tanstack/react-table"
+import { GripHorizontal } from "lucide-react"
 
-import { TableCell, TableRow } from '@/components/ui/Table'
+import { TableCell, TableRow } from "@/components/ui/Table"
 
 interface ItemRowProps<TData> {
   id: string
@@ -27,7 +27,7 @@ export function ItemRow<TData>({
   row,
   disabled,
   moveItem,
-  onDropItem
+  onDropItem,
 }: ItemRowProps<TData>) {
   const dragRef = useRef<HTMLDivElement>(null)
   const dropRef = useRef<HTMLTableRowElement>(null)
@@ -41,7 +41,7 @@ export function ItemRow<TData>({
     accept: itemType,
     collect(monitor) {
       return {
-        handlerId: monitor.getHandlerId()
+        handlerId: monitor.getHandlerId(),
       }
     },
     hover(item: DragItem, monitor) {
@@ -93,18 +93,18 @@ export function ItemRow<TData>({
       item.index = hoverIndex
     },
 
-    drop: onDropItem
+    drop: onDropItem,
   })
 
-  const [{ isDragging }, drag, preview] = useDrag({
+  const [{}, drag, preview] = useDrag({
     type: itemType,
     item: () => {
       return { id: row.id, idx }
     },
     collect: (monitor: any) => ({
-      isDragging: monitor.isDragging()
+      isDragging: monitor.isDragging(),
     }),
-    canDrag: () => !disabled
+    canDrag: () => !disabled,
   })
 
   preview(drop(dropRef))
@@ -114,13 +114,13 @@ export function ItemRow<TData>({
     <TableRow
       key={row.id}
       ref={dropRef}
-      data-state={row.getIsSelected() && 'selected'}
+      data-state={row.getIsSelected() && "selected"}
     >
-      <TableCell className="w-6">
+      <TableCell className="w-[5%] min-w-[40px]">
         <div
           ref={dragRef}
           className={`inline-block hover:cursor-grab ${
-            disabled ? 'opacity-10' : ''
+            disabled ? "opacity-10" : ""
           }`}
           data-handler-id={handlerId}
         >
