@@ -2,6 +2,7 @@ import {
   createItem,
   deleteItem,
   getInventory,
+  updateCategorySortOrder,
   updateItem,
   updateItemSortOrder,
 } from "@/lib/api"
@@ -91,18 +92,23 @@ export const useUpdateItemSort = () => {
   })
 }
 
-// export const useUpdateCategorySort = () => {
-//   const queryClient = useQueryClient()
-//   return useMutation(
-//     async (sortOrder: UpdateItemSortOrder) => {
-//       const res = await updateCategorySortOrder(sortOrder)
-//       return res.data
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries(INVENTORY_QUERY)
-//     }
-//   )
-// }
+export const useUpdateCategorySort = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (sortOrder: UpdateItemSortOrder) => {
+      const res = await updateCategorySortOrder(sortOrder)
+      return res.data
+    },
+
+    onSuccess: () => {
+      toast({
+        title: "Category order updated",
+      })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+    },
+  })
+}
 
 // export const useImportInventory = () => {
 //   const queryClient = useQueryClient()

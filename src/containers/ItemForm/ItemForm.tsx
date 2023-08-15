@@ -140,7 +140,10 @@ export const ItemForm: FC<Props> = ({
       )
     } else {
       createItem.mutate(data, {
-        onSuccess: onClose,
+        onSuccess: () => {
+          form.reset()
+          onClose()
+        },
       })
     }
   }
@@ -368,7 +371,12 @@ export const ItemForm: FC<Props> = ({
         <DialogFooter>
           <div className={`flex ${item ? "justify-between" : "justify-end"}`}>
             {item && (
-              <Button type="button" variant="outline" onClick={onDelete}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onDelete}
+                disabled={updateItem.isPending || createItem.isPending}
+              >
                 Delete Item
               </Button>
             )}
@@ -377,6 +385,7 @@ export const ItemForm: FC<Props> = ({
               variant="secondary"
               form="item-form"
               className="min-w-[25%]"
+              disabled={updateItem.isPending || createItem.isPending}
             >
               Save
             </Button>
