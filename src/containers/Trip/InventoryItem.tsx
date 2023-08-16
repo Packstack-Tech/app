@@ -3,14 +3,17 @@ import { Item } from "@/types/item"
 
 interface Props {
   item: Item
+  selected: boolean
   onClick: (item: Item) => void
 }
 
-export const InventoryItem: FC<Props> = ({ item, onClick }) => (
+export const InventoryItem: FC<Props> = ({ item, selected, onClick }) => (
   <li>
     <button
       onClick={() => onClick(item)}
-      className="p-2 rounded w-full text-left hover:bg-slate-900"
+      className={`py-2 w-full text-left hover:bg-slate-900 ${
+        selected ? "bg-slate-900" : ""
+      }`}
     >
       <div className="text-slate-100 text-sm font-semibold">{item.name}</div>
       <div className="text-slate-200 text-xs">

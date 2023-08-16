@@ -13,22 +13,37 @@ export const columns: ColumnDef<PackItem>[] = [
   {
     header: "Name",
     accessorKey: "item.name",
+    meta: {
+      style: {
+        width: "20%",
+      },
+    },
   },
   {
     header: "Product",
     accessorFn: ({ item }) =>
       `${item.brand?.name || ""} ${item.product?.name || ""}`,
+    meta: {
+      style: {
+        width: "20%",
+      },
+    },
   },
   {
     header: "Value",
     accessorFn: ({ item }) => (item.price ? item.price?.toFixed(2) : null),
+    meta: {
+      style: {
+        width: "10%",
+      },
+    },
   },
   {
     header: "Consumable",
     cell: ({ cell }) => <ConsumableCell cell={cell} />,
     meta: {
       align: "center",
-      style: { textAlign: "center" },
+      style: { textAlign: "center", width: "10%" },
     },
   },
   {
@@ -36,7 +51,7 @@ export const columns: ColumnDef<PackItem>[] = [
     cell: ({ cell }) => <WornCell cell={cell} />,
     meta: {
       align: "center",
-      style: { textAlign: "center" },
+      style: { textAlign: "center", width: "5%" },
     },
   },
   {
@@ -45,7 +60,7 @@ export const columns: ColumnDef<PackItem>[] = [
       item.weight ? `${item.weight?.toFixed(2)} ${item.unit}` : null,
     meta: {
       align: "right",
-      style: { textAlign: "right" },
+      style: { textAlign: "right", width: "15%" },
     },
   },
 ]

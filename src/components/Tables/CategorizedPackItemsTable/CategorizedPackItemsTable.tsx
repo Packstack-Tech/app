@@ -54,9 +54,9 @@ export function CategorizedPackItemsTable<TData, TValue>({
   if (!table.getRowModel().rows?.length) return null
 
   return (
-    <div className="mb-8">
-      <h3 className="font-bold text-primary mb-2">{category}</h3>
-      <div className="rounded-md border">
+    <div className="mb-4">
+      <h3 className="font-bold text-primary text-sm mb-2">{category}</h3>
+      <div className="rounded-md border border-slate-900">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

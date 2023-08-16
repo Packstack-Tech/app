@@ -112,7 +112,7 @@ export function ItemRow<TData>({
       ref={dropRef}
       data-state={row.getIsSelected() && "selected"}
     >
-      <TableCell className="w-6">
+      <TableCell className="w-4 pr-0">
         <div
           ref={dragRef}
           className={`inline-block hover:cursor-grab ${

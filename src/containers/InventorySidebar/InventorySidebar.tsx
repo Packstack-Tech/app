@@ -24,6 +24,7 @@ export const InventorySidebar = () => {
     shallow
   )
   const items = useCategorizedItems()
+  const selectedItems = packs[selectedIndex].items
 
   const fuseItems = useMemo(
     () =>
@@ -39,7 +40,8 @@ export const InventorySidebar = () => {
   }, [items, fuseItems, search])
 
   const onSelect = (item: Item) => {
-    if (packs[selectedIndex].items.find((i) => i.item_id === item.id)) {
+    const existingItem = selectedItems.find((i) => i.item_id === item.id)
+    if (existingItem) {
       removeItem(item.id)
     } else {
       addItem({
@@ -75,15 +77,25 @@ export const InventorySidebar = () => {
       {filteredItems.map((category) => (
         <div
           key={category.category?.category_id || "undefined"}
-          className="mb-4"
+          className="mb-2"
         >
-          <Label className="text-primary">
+          <Label className="text-primary text-xs">
             {category.category?.category.name || "Uncategorized"}
           </Label>
           <ul>
-            {category.items.map((item) => (
-              <InventoryItem key={item.id} item={item} onClick={onSelect} />
-            ))}
+            {category.items.map((item) => {
+              const selected = selectedItems.find(
+                (rec) => rec.item_id === item.id
+              )
+              return (
+                <InventoryItem
+                  key={item.id}
+                  item={item}
+                  onClick={onSelect}
+                  selected={selected}
+                />
+              )
+            })}
           </ul>
         </div>
       ))}
