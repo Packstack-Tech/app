@@ -3,8 +3,12 @@ import { useDrag, useDrop } from "react-dnd"
 import type { Identifier, XYCoord } from "dnd-core"
 import { flexRender, Row } from "@tanstack/react-table"
 import { GripHorizontal } from "lucide-react"
+import { shallow } from "zustand/shallow"
 
+import { useTripPacks } from "@/hooks/useTripPacks"
 import { TableCell, TableRow } from "@/components/ui/Table"
+import { Checkbox } from "@/components/ui/Checkbox"
+import { PackItem } from "@/types/pack"
 
 interface ItemRowProps<TData> {
   id: string
@@ -27,9 +31,17 @@ export function ItemRow<TData>({
   disabled,
   moveItem,
 }: ItemRowProps<TData>) {
+  const { checklistMode, updateItem } = useTripPacks(
+    (state) => ({
+      checklistMode: state.checklistMode,
+      updateItem: state.updateItem,
+    }),
+    shallow
+  )
   const dragRef = useRef<HTMLDivElement>(null)
   const dropRef = useRef<HTMLTableRowElement>(null)
   const itemType = useMemo(() => `category-${id}`, [id])
+  const item = useMemo(() => row.original as PackItem, [row])
 
   const [{ handlerId }, drop] = useDrop<
     DragItem,
@@ -113,11 +125,17 @@ export function ItemRow<TData>({
       data-state={row.getIsSelected() && "selected"}
     >
       <TableCell className="w-4 pr-0">
+        {checklistMode && (
+          <Checkbox
+            onClick={() => updateItem(item.item_id, "checked", !item.checked)}
+            checked={item.checked}
+          />
+        )}
         <div
           ref={dragRef}
           className={`inline-block hover:cursor-grab ${
             disabled ? "opacity-10" : ""
-          }`}
+          } ${checklistMode ? "hidden" : ""}`}
           data-handler-id={handlerId}
         >
           <GripHorizontal size={18} />

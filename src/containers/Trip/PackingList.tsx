@@ -1,19 +1,25 @@
+import { useMemo } from "react"
 import { shallow } from "zustand/shallow"
 import { useCategorizedPackItems } from "@/hooks/useCategorizedPackItems"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { CategorizedPackItemsTable } from "@/components/Tables/CategorizedPackItemsTable"
+import { Checkbox } from "@/components/ui/Checkbox"
+import { Label } from "@/components/ui/Label"
+
 import { columns } from "./columns"
 import { PackTabs } from "../PackTabs/PackTabs"
-import { useMemo } from "react"
 
 export const PackingList = () => {
-  const { packs, selectedIndex } = useTripPacks(
-    (state) => ({
-      packs: state.packs,
-      selectedIndex: state.selectedIndex,
-    }),
-    shallow
-  )
+  const { packs, selectedIndex, checklistMode, toggleChecklistMode } =
+    useTripPacks(
+      (state) => ({
+        packs: state.packs,
+        selectedIndex: state.selectedIndex,
+        checklistMode: state.checklistMode,
+        toggleChecklistMode: state.toggleChecklistMode,
+      }),
+      shallow
+    )
 
   const availablePacks = useMemo(
     () =>
@@ -31,6 +37,16 @@ export const PackingList = () => {
     <div>
       <div className="mb-4">
         <PackTabs packs={availablePacks} />
+      </div>
+      <div className="flex my-2 gap-1.5 items-top">
+        <Checkbox
+          checked={checklistMode}
+          id="pack-checklist"
+          onClick={() => toggleChecklistMode()}
+        />
+        <Label id="pack-checklist" className="font-normal">
+          Display checklist
+        </Label>
       </div>
       {categorizedItems.map(({ category, items }) => {
         const categoryName = category?.category?.name || "Uncategorized"

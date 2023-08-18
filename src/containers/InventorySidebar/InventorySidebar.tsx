@@ -84,7 +84,7 @@ export const InventorySidebar = () => {
           </Label>
           <ul>
             {category.items.map((item) => {
-              const selected = selectedItems.find(
+              const selected = !!selectedItems.find(
                 (rec) => rec.item_id === item.id
               )
               return (

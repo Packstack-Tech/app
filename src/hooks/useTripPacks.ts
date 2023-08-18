@@ -5,6 +5,7 @@ import { TripPack } from "@/types/pack"
 interface TripPacksState {
   selectedIndex: number
   packs: TripPack[]
+  checklistMode: boolean
   addPack: () => void
   removePack: (index: number) => void
   updatePack: (index: number, key: string, value: any) => void
@@ -16,10 +17,12 @@ interface TripPacksState {
   addItem: (item: PackItem) => void
   removeItem: (id: number) => void
   setCategoryItems: (items: PackItem[]) => void
+  toggleChecklistMode: () => void
 }
 
 export const useTripPacks = create<TripPacksState>((set) => ({
   selectedIndex: 0,
+  checklistMode: false,
   // initialize with an empty pack
   packs: [
     {
@@ -113,4 +116,6 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       packs[state.selectedIndex] = { ...pack, items: packItems }
       return { ...state, packs }
     }),
+  toggleChecklistMode: () =>
+    set((state) => ({ ...state, checklistMode: !state.checklistMode })),
 }))

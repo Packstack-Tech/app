@@ -34,21 +34,21 @@ export const columns: ColumnDef<PackItem>[] = [
     accessorFn: ({ item }) => (item.price ? item.price?.toFixed(2) : null),
     meta: {
       style: {
-        width: "10%",
+        width: "15%",
       },
-    },
-  },
-  {
-    header: "Consumable",
-    cell: ({ cell }) => <ConsumableCell cell={cell} />,
-    meta: {
-      align: "center",
-      style: { textAlign: "center", width: "10%" },
     },
   },
   {
     header: "Worn",
     cell: ({ cell }) => <WornCell cell={cell} />,
+    meta: {
+      align: "center",
+      style: { textAlign: "center", width: "5%" },
+    },
+  },
+  {
+    id: "consumable",
+    cell: ({ cell }) => <ConsumableCell cell={cell} />,
     meta: {
       align: "center",
       style: { textAlign: "center", width: "5%" },
