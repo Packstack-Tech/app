@@ -6,6 +6,7 @@ interface TripPacksState {
   selectedIndex: number
   packs: TripPack[]
   checklistMode: boolean
+  hideHeaders: boolean
   addPack: () => void
   removePack: (index: number) => void
   updatePack: (index: number, key: string, value: any) => void
@@ -18,11 +19,13 @@ interface TripPacksState {
   removeItem: (id: number) => void
   setCategoryItems: (items: PackItem[]) => void
   toggleChecklistMode: () => void
+  toggleHideHeaders: () => void
 }
 
 export const useTripPacks = create<TripPacksState>((set) => ({
   selectedIndex: 0,
   checklistMode: false,
+  hideHeaders: false,
   // initialize with an empty pack
   packs: [
     {
@@ -118,4 +121,6 @@ export const useTripPacks = create<TripPacksState>((set) => ({
     }),
   toggleChecklistMode: () =>
     set((state) => ({ ...state, checklistMode: !state.checklistMode })),
+  toggleHideHeaders: () =>
+    set((state) => ({ ...state, hideHeaders: !state.hideHeaders })),
 }))

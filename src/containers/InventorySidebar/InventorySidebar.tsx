@@ -24,6 +24,7 @@ export const InventorySidebar = () => {
     shallow
   )
   const items = useCategorizedItems()
+  // TODO causes bug using <Link> to navigate to /pack/:id
   const selectedItems = packs[selectedIndex].items
 
   const fuseItems = useMemo(

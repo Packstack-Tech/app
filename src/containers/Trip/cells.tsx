@@ -44,6 +44,8 @@ export const WornCell: FC<Props> = ({
 
   const onClick = () => updateItem(original.item_id, "worn", !original.worn)
 
+  if (original.item.consumable) return null
+
   return (
     <button onClick={onClick}>
       <ShirtIcon

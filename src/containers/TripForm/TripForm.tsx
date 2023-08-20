@@ -1,5 +1,4 @@
 import { FC } from "react"
-import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { DateRange } from "react-day-picker"
 import { format } from "date-fns"
@@ -39,7 +38,6 @@ interface Props {
 
 // TODO define schema for validation
 export const TripForm: FC<Props> = ({ trip }) => {
-  const navigate = useNavigate()
   const { packs } = useTripPacks((store) => ({ packs: store.packs }), shallow)
   const createTrip = useCreateTrip()
   const createPack = useCreatePack()
@@ -81,7 +79,8 @@ export const TripForm: FC<Props> = ({ trip }) => {
           trip_id: newTrip.id,
         })
       })
-      navigate(`/pack/${newTrip.id}`, { replace: true })
+      window.location.replace(`/pack/${newTrip.id}`)
+      // navigate(`/pack/${newTrip.id}`, { replace: true })
     } else {
       updateTrip.mutate(
         { id: trip.id, ...payload },

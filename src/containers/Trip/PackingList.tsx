@@ -10,16 +10,24 @@ import { columns } from "./columns"
 import { PackTabs } from "../PackTabs/PackTabs"
 
 export const PackingList = () => {
-  const { packs, selectedIndex, checklistMode, toggleChecklistMode } =
-    useTripPacks(
-      (state) => ({
-        packs: state.packs,
-        selectedIndex: state.selectedIndex,
-        checklistMode: state.checklistMode,
-        toggleChecklistMode: state.toggleChecklistMode,
-      }),
-      shallow
-    )
+  const {
+    packs,
+    selectedIndex,
+    checklistMode,
+    hideHeaders,
+    toggleChecklistMode,
+    toggleHideHeaders,
+  } = useTripPacks(
+    (state) => ({
+      packs: state.packs,
+      selectedIndex: state.selectedIndex,
+      checklistMode: state.checklistMode,
+      toggleChecklistMode: state.toggleChecklistMode,
+      hideHeaders: state.hideHeaders,
+      toggleHideHeaders: state.toggleHideHeaders,
+    }),
+    shallow
+  )
 
   const availablePacks = useMemo(
     () =>
@@ -46,6 +54,16 @@ export const PackingList = () => {
         />
         <Label id="pack-checklist" className="font-normal">
           Display checklist
+        </Label>
+      </div>
+      <div className="flex my-2 gap-1.5 items-top">
+        <Checkbox
+          checked={hideHeaders}
+          id="hide-headers"
+          onClick={() => toggleHideHeaders()}
+        />
+        <Label id="hide-headers" className="font-normal">
+          Hide table headers
         </Label>
       </div>
       {categorizedItems.map(({ category, items }) => {

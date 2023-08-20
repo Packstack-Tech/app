@@ -12,6 +12,7 @@ import {
   toggleTripPublish,
 } from "@/lib/api"
 import { CreateTrip, EditTrip, Trip } from "@/types/trip"
+import { useToast } from "@/hooks/useToast"
 
 // export const TRIP_FEED = 'trip-feed'
 // export const useTripFeed = () => {
@@ -47,13 +48,18 @@ export const useCreateTrip = () => {
 
 export const useUpdateTrip = () => {
   const queryClient = useQueryClient()
+  const { toast } = useToast()
   return useMutation({
     mutationFn: async (params: EditTrip) => {
       const res = await editTrip(params)
       return res.data
     },
-    onSuccess: (data) =>
-      queryClient.invalidateQueries({ queryKey: [TRIP_QUERY, data.id] }),
+    onSuccess: (data) => {
+      toast({
+        title: "✅ Trip saved",
+      })
+      queryClient.invalidateQueries({ queryKey: [TRIP_QUERY, data.id] })
+    },
   })
 }
 

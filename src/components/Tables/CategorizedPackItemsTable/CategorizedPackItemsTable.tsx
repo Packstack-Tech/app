@@ -29,9 +29,11 @@ export function CategorizedPackItemsTable<TData, TValue>({
   data,
   category,
 }: DataTableProps<TData, TValue>) {
-  const { setCategoryItems } = useTripPacks((store) => ({
+  const { setCategoryItems, hideHeaders } = useTripPacks((store) => ({
     setCategoryItems: store.setCategoryItems,
+    hideHeaders: store.hideHeaders,
   }))
+
   const table = useReactTable({
     data,
     columns,
@@ -61,14 +63,15 @@ export function CategorizedPackItemsTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                <TableHead className="w-6" />
+                <TableHead className={`w-6 ${hideHeaders ? "h-0 p-0" : ""}`} />
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
                       style={(header.column.columnDef.meta as any)?.style}
+                      className={`${hideHeaders ? "h-0 p-0" : ""}`}
                     >
-                      {header.isPlaceholder
+                      {header.isPlaceholder || hideHeaders
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
@@ -80,6 +83,7 @@ export function CategorizedPackItemsTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
             {table.getRowModel().rows.map((row, idx) => (
               <ItemRow
