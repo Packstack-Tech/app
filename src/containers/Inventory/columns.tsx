@@ -2,8 +2,9 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Item } from "@/types/item"
 
 import { Action, ConsumableCell, NotesCell } from "./cells"
+import { Currency } from "@/lib/currencies"
 
-export const columns: ColumnDef<Item>[] = [
+export const columns = (currency: Currency): ColumnDef<Item>[] => [
   {
     header: "Name",
     accessorKey: "name",
@@ -33,7 +34,10 @@ export const columns: ColumnDef<Item>[] = [
   },
   {
     header: "Value",
-    accessorFn: ({ price }) => (price ? price?.toFixed(2) : null),
+    accessorFn: (item) => {
+      if (!item.price) return null
+      return `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`
+    },
     meta: {
       style: {
         width: "10%",
@@ -66,8 +70,11 @@ export const columns: ColumnDef<Item>[] = [
   },
   {
     header: "Weight",
-    accessorFn: (item) =>
-      item.weight ? `${item.weight?.toFixed(2)} ${item.unit}` : null,
+    accessorFn: (item) => {
+      if (!item.weight) return null
+      const weight = item.unit === "g" ? item.weight : item.weight.toFixed(2)
+      return `${weight} ${item.unit}`
+    },
     meta: {
       align: "right",
       style: { textAlign: "right", width: "10%" },

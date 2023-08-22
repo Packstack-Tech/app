@@ -1,8 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { PackItem } from "@/types/pack"
 import { QuantityCell, ConsumableCell, WornCell } from "./cells"
+import { Currency } from "@/lib/currencies"
 
-export const columns: ColumnDef<PackItem>[] = [
+export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
   {
     header: "Quantity",
     cell: ({ cell }) => <QuantityCell cell={cell} />,
@@ -31,7 +32,10 @@ export const columns: ColumnDef<PackItem>[] = [
   },
   {
     header: "Value",
-    accessorFn: ({ item }) => (item.price ? item.price?.toFixed(2) : null),
+    accessorFn: ({ item }) => {
+      if (!item.price) return null
+      return `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`
+    },
     meta: {
       style: {
         width: "15%",
@@ -56,8 +60,11 @@ export const columns: ColumnDef<PackItem>[] = [
   },
   {
     header: "Weight",
-    accessorFn: ({ item }) =>
-      item.weight ? `${item.weight?.toFixed(2)} ${item.unit}` : null,
+    accessorFn: ({ item }) => {
+      if (!item.weight) return null
+      const weight = item.unit === "g" ? item.weight : item.weight.toFixed(2)
+      return `${weight} ${item.unit}`
+    },
     meta: {
       align: "right",
       style: { textAlign: "right", width: "15%" },

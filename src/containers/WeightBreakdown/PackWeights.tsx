@@ -16,11 +16,7 @@ export const PackWeights: FC<Props> = ({ title, weights }) => (
     <Label className="block border-b font-semibold border-dashed">
       {title}
     </Label>
-    <div className="flex justify-between">
-      <p>Total</p>
-      <p>{weights.total.toFixed(2)} kg</p>
-    </div>
-    <div className="flex justify-between">
+    <div className="flex justify-between hover:bg-slate-900">
       <p>Base</p>
       <p>{weights.base.toFixed(2)} kg</p>
     </div>
@@ -31,6 +27,10 @@ export const PackWeights: FC<Props> = ({ title, weights }) => (
     <div className="flex justify-between">
       <p>Consumable</p>
       <p>{weights.consumable.toFixed(2)} kg</p>
+    </div>
+    <div className="flex justify-between">
+      <p>Total</p>
+      <p>{weights.total.toFixed(2)} kg</p>
     </div>
   </div>
 )

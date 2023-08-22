@@ -54,8 +54,8 @@ export const WeightBreakdown = () => {
 
   return (
     <div className="mt-4">
-      <h3>Weight Breakdown</h3>
-      <PackWeights title="Totals" weights={totals} />
+      <h3 className="mb-2">Weight Breakdown</h3>
+      <PackWeights title="Total" weights={totals} />
       {packs.length > 1 &&
         breakdowns.map(({ title, weights }) => (
           <PackWeights key={title} title={title} weights={weights} />

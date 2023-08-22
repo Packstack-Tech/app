@@ -75,8 +75,10 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   if (!table.getRowModel().rows?.length) return null
 
   return (
-    <div className="mb-8">
-      <h3 className="font-bold text-primary mb-2">{category}</h3>
+    <div className="mb-2">
+      <h3 className="font-bold text-primary text-sm mb-2 p-2 bg-primary-background">
+        {category}
+      </h3>
       <div className="rounded-md border border-slate-900">
         <Table>
           <TableHeader>

@@ -65,5 +65,5 @@ export const ConsumableCell: FC<Props> = ({
 }) => {
   if (!original.item.consumable) return null
 
-  return <FlameIcon color="orange" size={20} strokeWidth={1} />
+  return <FlameIcon color="white" size={20} strokeWidth={1} />
 }

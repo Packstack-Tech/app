@@ -55,9 +55,22 @@ export function CategorizedPackItemsTable<TData, TValue>({
 
   if (!table.getRowModel().rows?.length) return null
 
+  const categoryWeight = table.getRowModel().rows.reduce((acc, curr) => {
+    const row = curr.original as PackItem
+    if (!row.item.weight) return acc
+    const weight =
+      row.item.unit === "g" ? row.item.weight / 1000 : row.item.weight
+    return acc + weight * row.quantity
+  }, 0)
+
   return (
-    <div className="mb-4">
-      <h3 className="font-bold text-primary text-sm mb-2">{category}</h3>
+    <div className="mb-2">
+      <div className="rounded-sm mb-2 p-2 bg-primary-background flex justify-between items-center">
+        <h3 className="font-bold text-primary text-sm">{category}</h3>
+        <span className="text-xs text-primary">
+          {categoryWeight.toFixed(2)} kg
+        </span>
+      </div>
       <div className="rounded-md border border-slate-900">
         <Table>
           <TableHeader>

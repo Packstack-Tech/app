@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { userLogin, getUser } from "@/lib/api"
 import { LoginRequest } from "@/types/api"
+import { getCurrency } from "@/lib/currencies"
 
 export const USER_QUERY = "user"
 export const useUserQuery = () => {
@@ -10,6 +11,7 @@ export const useUserQuery = () => {
       const res = await getUser()
       return res.data
     },
+    select: (data) => ({ ...data, currency: getCurrency(data.currency) }),
     retry: false,
     enabled: !!localStorage.getItem("jwt"),
   })
