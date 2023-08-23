@@ -4,6 +4,7 @@ import { AuthLayout } from "@/containers/Layout/Auth"
 import { LoginPage } from "@/pages/Login"
 import { PackPage } from "@/pages/PackPage"
 import { InventoryPage } from "@/pages/Inventory"
+import { Dashboard } from "@/pages/Dashboard"
 
 export const router = createBrowserRouter([
   {
@@ -11,8 +12,9 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       {
+        index: true,
         path: "/",
-        element: <div>Home</div>,
+        element: <Dashboard />,
       },
       {
         path: "/inventory",

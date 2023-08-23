@@ -11,7 +11,14 @@ export const useUserQuery = () => {
       const res = await getUser()
       return res.data
     },
-    select: (data) => ({ ...data, currency: getCurrency(data.currency) }),
+    select: (data) => {
+      const trips = [...data.trips]
+      trips.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+      return { ...data, currency: getCurrency(data.currency), trips }
+    },
     retry: false,
     enabled: !!localStorage.getItem("jwt"),
   })

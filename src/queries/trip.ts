@@ -12,6 +12,7 @@ import {
   toggleTripPublish,
 } from "@/lib/api"
 import { CreateTrip, EditTrip, Trip } from "@/types/trip"
+import { USER_QUERY } from "./user"
 import { useToast } from "@/hooks/useToast"
 
 // export const TRIP_FEED = 'trip-feed'
@@ -160,18 +161,19 @@ export const useUpdateTrip = () => {
 //   )
 // }
 
-// export const useDeleteTrip = () => {
-//   const queryClient = useQueryClient()
-//   return useMutation(
-//     async (params: number) => {
-//       const res = await deleteTrip(params)
-//       return res.data
-//     },
-//     {
-//       onSuccess: () => {
-//         queryClient.invalidateQueries(PROFILE_QUERY)
-//         queryClient.invalidateQueries(TRIP_FEED)
-//       }
-//     }
-//   )
-// }
+export const useDeleteTrip = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (params: number) => {
+      const res = await deleteTrip(params)
+      return res.data
+    },
+    onSuccess: () => {
+      toast({
+        title: "Trip deleted",
+      })
+      queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
+    },
+  })
+}
