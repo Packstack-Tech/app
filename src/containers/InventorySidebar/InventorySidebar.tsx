@@ -62,7 +62,7 @@ export const InventorySidebar = () => {
         <h3>Inventory</h3>
         <Button
           variant="outline"
-          className="flex gap-1 items-center px-2"
+          className="gap-1"
           size="sm"
           onClick={() => setAddItemOpen(true)}
         >

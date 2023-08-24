@@ -9,7 +9,7 @@ export const InventoryPage = () => {
   const [open, setOpen] = useState(false)
   const [filter, setFilter] = useState("")
   return (
-    <div className="p-4">
+    <div className="px-4 py-2">
       <div className="flex justify-between mb-2">
         <Input
           placeholder="Search gear..."

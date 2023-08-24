@@ -1,17 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-  getTripFeed,
-  getTrip,
-  createTrip,
-  editTrip,
-  uploadTripImage,
-  updateImageOrder,
-  deleteTripImage,
-  deleteTrip,
-  updateTripImage,
-  toggleTripPublish,
-} from "@/lib/api"
-import { CreateTrip, EditTrip, Trip } from "@/types/trip"
+import { getTrip, createTrip, editTrip, deleteTrip, cloneTrip } from "@/lib/api"
+import { CreateTrip, EditTrip } from "@/types/trip"
 import { USER_QUERY } from "./user"
 import { useToast } from "@/hooks/useToast"
 
@@ -160,6 +149,23 @@ export const useUpdateTrip = () => {
 //     }
 //   )
 // }
+
+export const useCloneTrip = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (tripId: number) => {
+      const res = await cloneTrip(tripId)
+      return res.data
+    },
+    onSuccess: () => {
+      toast({
+        title: "Trip cloned",
+      })
+      queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
+    },
+  })
+}
 
 export const useDeleteTrip = () => {
   const queryClient = useQueryClient()

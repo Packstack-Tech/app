@@ -66,6 +66,9 @@ export const createTrip = (data: CreateTrip) => http.post<Trip>("/trip", data)
 
 export const editTrip = (data: EditTrip) => http.put<Trip>("/trip", data)
 
+export const cloneTrip = (tripId: number) =>
+  http.post<Trip>(`/trip/${tripId}/clone`)
+
 export const uploadTripImage = (data: UploadImage) => {
   const formData = new FormData()
   formData.append("file", data.file)
