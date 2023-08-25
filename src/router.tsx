@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom"
 import { AppLayout } from "@/containers/Layout/App"
 import { AuthLayout } from "@/containers/Layout/Auth"
+import { RegisterPage } from "@/pages/Register"
 import { LoginPage } from "@/pages/Login"
 import { PackPage } from "@/pages/PackPage"
 import { InventoryPage } from "@/pages/Inventory"
@@ -40,7 +41,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "register",
-        element: <div>Register</div>,
+        element: <RegisterPage />,
       },
     ],
   },

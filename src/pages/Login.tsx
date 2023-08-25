@@ -33,7 +33,7 @@ export const LoginPage = () => {
         <label>Password</label>
         <Input {...register("password", { required: true })} type="password" />
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-4">
         <Button type="submit" disabled={login.isPending}>
           Login
         </Button>

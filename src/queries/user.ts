@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { userLogin, getUser } from "@/lib/api"
-import { LoginRequest } from "@/types/api"
+import { userLogin, getUser, userRegister } from "@/lib/api"
+import { LoginRequest, RegisterRequest } from "@/types/api"
 import { getCurrency } from "@/lib/currencies"
 
 export const USER_QUERY = "user"
@@ -50,15 +50,17 @@ export const useUserLogin = () => {
   })
 }
 
-// export const useUserRegister = () => {
-//   const queryClient = useQueryClient()
-//   return useMutation(async (params: RegisterRequest) => {
-//     const res = await userRegister(params)
-//     localStorage.setItem('jwt', res.data.token)
-//     queryClient.setQueryData(USER_QUERY, res.data.user)
-//     return res.data
-//   })
-// }
+export const useUserRegister = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (params: RegisterRequest) => {
+      const res = await userRegister(params)
+      localStorage.setItem("jwt", res.data.token)
+      queryClient.setQueryData([USER_QUERY], res.data.user)
+      return res.data
+    },
+  })
+}
 
 // export const useUploadAvatar = () => {
 //   const queryClient = useQueryClient()
