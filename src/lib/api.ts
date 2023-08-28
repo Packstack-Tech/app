@@ -17,6 +17,7 @@ import {
   UpdatePackItemPayload,
   UploadInventory,
   ImportInventoryResponse,
+  PasswordReset,
 } from "@/types/api"
 import { User } from "@/types/user"
 import { Trip, CreateTrip, EditTrip } from "@/types/trip"
@@ -52,6 +53,12 @@ export const userLogin = (data: LoginRequest) =>
 
 export const userRegister = (data: RegisterRequest) =>
   http.post<AuthResponse>("/user", data)
+
+export const requestPasswordReset = (email: string) =>
+  http.post("/user/request-password-reset", { email })
+
+export const resetPassword = (data: PasswordReset) =>
+  http.post("/user/reset-password", data)
 
 /**
  * Trip endpoints

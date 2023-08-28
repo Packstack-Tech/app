@@ -1,7 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { userLogin, getUser, userRegister } from "@/lib/api"
-import { LoginRequest, RegisterRequest } from "@/types/api"
+import {
+  userLogin,
+  getUser,
+  userRegister,
+  requestPasswordReset,
+  resetPassword,
+} from "@/lib/api"
+import { LoginRequest, PasswordReset, RegisterRequest } from "@/types/api"
 import { getCurrency } from "@/lib/currencies"
+import { useToast } from "@/hooks/useToast"
 
 export const USER_QUERY = "user"
 export const useUserQuery = () => {
@@ -58,6 +65,31 @@ export const useUserRegister = () => {
       localStorage.setItem("jwt", res.data.token)
       queryClient.setQueryData([USER_QUERY], res.data.user)
       return res.data
+    },
+  })
+}
+
+export const useRequestPasswordReset = () => {
+  return useMutation({
+    mutationFn: async (email: string) => {
+      const res = await requestPasswordReset(email)
+      return res.data
+    },
+  })
+}
+
+export const useResetPassword = () => {
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (params: PasswordReset) => {
+      const res = await resetPassword(params)
+      return res.data
+    },
+    onSuccess: () => {
+      toast({
+        title: "Password reset",
+        description: "Your password has been reset. Please log in.",
+      })
     },
   })
 }

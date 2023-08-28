@@ -6,6 +6,8 @@ import { LoginPage } from "@/pages/Login"
 import { PackPage } from "@/pages/PackPage"
 import { InventoryPage } from "@/pages/Inventory"
 import { Dashboard } from "@/pages/Dashboard"
+import { RequestPasswordReset } from "@/pages/RequestPasswordReset"
+import { ResetPassword } from "@/pages/ResetPassword"
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +44,14 @@ export const router = createBrowserRouter([
       {
         path: "register",
         element: <RegisterPage />,
+      },
+      {
+        path: "request-password-reset",
+        element: <RequestPasswordReset />,
+      },
+      {
+        path: "reset-password/:callback_id",
+        element: <ResetPassword />,
       },
     ],
   },
