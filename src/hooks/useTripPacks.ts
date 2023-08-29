@@ -6,7 +6,7 @@ interface TripPacksState {
   selectedIndex: number
   packs: TripPack[]
   checklistMode: boolean
-  hideHeaders: boolean
+  synced: boolean
   addPack: () => void
   removePack: (index: number) => void
   updatePack: (index: number, key: string, value: any) => void
@@ -19,13 +19,12 @@ interface TripPacksState {
   removeItem: (id: number) => void
   setCategoryItems: (items: PackItem[]) => void
   toggleChecklistMode: () => void
-  toggleHideHeaders: () => void
 }
 
 export const useTripPacks = create<TripPacksState>((set) => ({
   selectedIndex: 0,
   checklistMode: false,
-  hideHeaders: false,
+  synced: true,
   // initialize with an empty pack
   packs: [
     {
@@ -37,7 +36,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
     set((state) => {
       const count = state.packs.length
       const packs = [...state.packs, { title: `Pack ${count + 1}`, items: [] }]
-      return { ...state, selectedIndex: count, packs }
+      return { ...state, selectedIndex: count, packs, synced: false }
     }),
   removePack: (index) =>
     set((state) => {
@@ -47,7 +46,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       const packs = state.packs.filter((_, i) => i !== index)
       const selectedIndex =
         index === state.selectedIndex ? 0 : state.selectedIndex
-      return { ...state, selectedIndex, packs }
+      return { ...state, selectedIndex, packs, synced: false }
     }),
   updatePack: (index, key, value) =>
     set((state) => {
@@ -56,10 +55,10 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       const modifiedPack = { ...pack, [key]: value }
       const packs = [...state.packs]
       packs[index] = modifiedPack
-      return { ...state, packs }
+      return { ...state, packs, synced: false }
     }),
   selectPack: (index) => set((state) => ({ ...state, selectedIndex: index })),
-  setPacks: (packs) => set((state) => ({ ...state, packs })),
+  setPacks: (packs) => set((state) => ({ ...state, packs, synced: true })),
 
   addItem: (item) =>
     set((state) => {
@@ -67,7 +66,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       const modifiedPack = { ...pack, items: [...pack.items, item] }
       const packs = [...state.packs]
       packs[state.selectedIndex] = modifiedPack
-      return { ...state, packs }
+      return { ...state, packs, synced: false }
     }),
   removeItem: (id) =>
     set((state) => {
@@ -78,7 +77,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       }
       const packs = [...state.packs]
       packs[state.selectedIndex] = modifiedPack
-      return { ...state, packs }
+      return { ...state, packs, synced: false }
     }),
   updateItem: (
     id: number,
@@ -96,7 +95,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       const modifiedPack = { ...pack, items: modifiedItems }
       const packs = [...state.packs]
       packs[state.selectedIndex] = modifiedPack
-      return { ...state, packs }
+      return { ...state, packs, synced: false }
     }),
   setItems: (items) =>
     set((state) => {
@@ -104,7 +103,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       const modifiedPack = { ...pack, items }
       const packs = [...state.packs]
       packs[state.selectedIndex] = modifiedPack
-      return { ...state, packs }
+      return { ...state, packs, synced: false }
     }),
 
   setCategoryItems: (updatedItems) =>
@@ -117,10 +116,8 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       packItems.push(...updatedItems)
       const packs = [...state.packs]
       packs[state.selectedIndex] = { ...pack, items: packItems }
-      return { ...state, packs }
+      return { ...state, packs, synced: false }
     }),
   toggleChecklistMode: () =>
     set((state) => ({ ...state, checklistMode: !state.checklistMode })),
-  toggleHideHeaders: () =>
-    set((state) => ({ ...state, hideHeaders: !state.hideHeaders })),
 }))

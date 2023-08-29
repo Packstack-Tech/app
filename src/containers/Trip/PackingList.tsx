@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { FC, useMemo } from "react"
 import { shallow } from "zustand/shallow"
 import { useCategorizedPackItems } from "@/hooks/useCategorizedPackItems"
 import { useTripPacks } from "@/hooks/useTripPacks"
@@ -10,27 +10,27 @@ import { columns } from "./columns"
 import { PackTabs } from "../PackTabs/PackTabs"
 import { useUserQuery } from "@/queries/user"
 import { getCurrency } from "@/lib/currencies"
+import { Button } from "@/components/ui"
+import { useCreateTrip, useUpdateTrip } from "@/queries/trip"
 
-export const PackingList = () => {
+type Props = {
+  editing?: boolean
+}
+
+export const PackingList: FC<Props> = ({ editing }) => {
   const { data } = useUserQuery()
-  const {
-    packs,
-    selectedIndex,
-    checklistMode,
-    hideHeaders,
-    toggleChecklistMode,
-    toggleHideHeaders,
-  } = useTripPacks(
-    (state) => ({
-      packs: state.packs,
-      selectedIndex: state.selectedIndex,
-      checklistMode: state.checklistMode,
-      toggleChecklistMode: state.toggleChecklistMode,
-      hideHeaders: state.hideHeaders,
-      toggleHideHeaders: state.toggleHideHeaders,
-    }),
-    shallow
-  )
+  const { isPending: creatingTrip } = useCreateTrip()
+  const { isPending: updatingTrip } = useUpdateTrip()
+  const { packs, selectedIndex, checklistMode, toggleChecklistMode } =
+    useTripPacks(
+      (state) => ({
+        packs: state.packs,
+        selectedIndex: state.selectedIndex,
+        checklistMode: state.checklistMode,
+        toggleChecklistMode: state.toggleChecklistMode,
+      }),
+      shallow
+    )
 
   const availablePacks = useMemo(
     () =>
@@ -51,8 +51,18 @@ export const PackingList = () => {
 
   return (
     <div>
-      <div className="mb-2">
+      <div className="mb-2 flex gap-4 justify-between">
         <PackTabs packs={availablePacks} />
+        {!editing && (
+          <Button
+            type="submit"
+            form="pack-form"
+            variant="secondary"
+            disabled={creatingTrip || updatingTrip}
+          >
+            Save
+          </Button>
+        )}
       </div>
       <div className="flex gap-4 items-center border rounded-sm border-slate-900 mb-2 p-2">
         <div className="flex gap-1.5 items-top">
@@ -63,16 +73,6 @@ export const PackingList = () => {
           />
           <Label id="pack-checklist" className="font-normal text-xs mb-0">
             Display checklist
-          </Label>
-        </div>
-        <div className="flex gap-1.5 items-top">
-          <Checkbox
-            checked={hideHeaders}
-            id="hide-headers"
-            onClick={() => toggleHideHeaders()}
-          />
-          <Label id="hide-headers" className="font-normal text-xs mb-0">
-            Hide table headers
           </Label>
         </div>
       </div>

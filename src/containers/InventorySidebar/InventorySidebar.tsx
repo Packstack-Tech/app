@@ -76,11 +76,8 @@ export const InventorySidebar = () => {
         />
       </div>
       {filteredItems.map((category) => (
-        <div
-          key={category.category?.category_id || "undefined"}
-          className="mb-1"
-        >
-          <Label className="text-primary text-xs bg-primary-background p-1 block">
+        <div key={category.category?.category_id || "undefined"}>
+          <Label className="text-slate-300 text-xs rounded-sm bg-slate-900 mb-1 p-1 block">
             {category.category?.category.name || "Uncategorized"}
           </Label>
           <ul>

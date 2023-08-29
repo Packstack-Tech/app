@@ -124,7 +124,7 @@ export function ItemRow<TData>({
       ref={dropRef}
       data-state={row.getIsSelected() && "selected"}
     >
-      <TableCell className="w-4 pr-0">
+      <TableCell className="w-4 pr-0 pt-2">
         {checklistMode && (
           <Checkbox
             onClick={() => updateItem(item.item_id, "checked", !item.checked)}

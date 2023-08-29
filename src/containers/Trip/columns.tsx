@@ -8,7 +8,7 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
     header: "Quantity",
     cell: ({ cell }) => <QuantityCell cell={cell} />,
     meta: {
-      style: { width: "96px" },
+      style: { width: "10%" },
     },
   },
   {

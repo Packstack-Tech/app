@@ -19,7 +19,6 @@ export const PackPage = () => {
   const { data: packsData, isLoading: packsLoading } = useTripPacksQuery(id)
 
   useEffect(() => {
-    console.log(packsData)
     if (packsData) {
       setPacks(packsData)
     }

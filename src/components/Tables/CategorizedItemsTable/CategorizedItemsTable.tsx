@@ -75,11 +75,11 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   if (!table.getRowModel().rows?.length) return null
 
   return (
-    <div className="mb-2">
-      <h3 className="font-bold text-primary text-sm mb-2 p-2 bg-primary-background">
+    <div className="mb-4">
+      <h3 className="font-bold text-primary rounded-t-sm px-2 py-1 bg-slate-900 text-sm">
         {category}
       </h3>
-      <div className="rounded-md border border-slate-900">
+      <div className="rounded-b-sm border border-slate-900">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

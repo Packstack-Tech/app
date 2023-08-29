@@ -64,7 +64,7 @@
   }
 
   h3 {
-    @apply font-semibold text-sm text-slate-100;
+    @apply font-semibold text-sm text-slate-100 text-primary;
   }
 
   label {

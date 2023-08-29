@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { DateRange } from "react-day-picker"
 import { format } from "date-fns"
@@ -25,6 +25,7 @@ import { useCreateTrip, useUpdateTrip } from "@/queries/trip"
 import { useCreatePack, useUpdatePack } from "@/queries/pack"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { shallow } from "zustand/shallow"
+import { useToast } from "@/hooks/useToast"
 
 type TripFormValues = {
   location: string
@@ -36,9 +37,16 @@ interface Props {
   trip?: Trip
 }
 
-// TODO define schema for validation
+// TODO define ZOD schema for validation
 export const TripForm: FC<Props> = ({ trip }) => {
-  const { packs } = useTripPacks((store) => ({ packs: store.packs }), shallow)
+  const { toast } = useToast()
+  const { packs, synced } = useTripPacks(
+    (store) => ({
+      packs: store.packs,
+      synced: store.synced,
+    }),
+    shallow
+  )
   const createTrip = useCreateTrip()
   const createPack = useCreatePack()
   const updateTrip = useUpdateTrip()
@@ -57,53 +65,60 @@ export const TripForm: FC<Props> = ({ trip }) => {
     },
   })
 
-  const onSubmit = async (values: TripFormValues) => {
-    const payload = {
-      title: values.location,
-      location: values.location,
-      start_date: values.dates?.from
-        ? format(values.dates.from, "yyyy-MM-dd")
-        : undefined,
-      end_date: values.dates?.to
-        ? format(values.dates.to, "yyyy-MM-dd")
-        : undefined,
-      distance: values.distance,
+  const getPackPayload = ({ location, dates, distance }: TripFormValues) => ({
+    title: location,
+    location: location,
+    start_date: dates?.from ? format(dates.from, "yyyy-MM-dd") : undefined,
+    end_date: dates?.to ? format(dates.to, "yyyy-MM-dd") : undefined,
+    distance,
+  })
+
+  const onFieldUpdate = () => {
+    if (!trip) return
+    const formData = form.getValues()
+    const payload = getPackPayload(formData)
+    updateTrip.mutate({ id: trip.id, ...payload })
+  }
+
+  // Auto-save when editing existing trip
+  useEffect(() => {
+    async function savePacks(tripId: number) {
+      packs.forEach(async (pack) => {
+        if (pack.id) {
+          await updatePack.mutateAsync({
+            id: pack.id,
+            data: pack,
+          })
+        } else {
+          await createPack.mutateAsync({
+            title: pack.title,
+            items: pack.items,
+            trip_id: tripId,
+          })
+        }
+      })
+      toast({
+        title: "Pack updated",
+      })
     }
 
-    if (!trip) {
-      const newTrip = await createTrip.mutateAsync(payload)
-      packs.forEach(async ({ title, items }) => {
-        await createPack.mutateAsync({
-          title,
-          items,
-          trip_id: newTrip.id,
-        })
-      })
-      window.location.replace(`/pack/${newTrip.id}`)
-      // navigate(`/pack/${newTrip.id}`, { replace: true })
-    } else {
-      updateTrip.mutate(
-        { id: trip.id, ...payload },
-        {
-          onSuccess: async (data) => {
-            packs.forEach(async (pack) => {
-              if (pack.id) {
-                await updatePack.mutateAsync({
-                  id: pack.id,
-                  data: pack,
-                })
-              } else {
-                await createPack.mutateAsync({
-                  title: pack.title,
-                  items: pack.items,
-                  trip_id: data.id,
-                })
-              }
-            })
-          },
-        }
-      )
+    if (trip?.id && !synced) {
+      savePacks(trip.id)
     }
+  }, [trip, synced, packs])
+
+  // saves new pack and redirects to pack page
+  const onSubmit = async (data: TripFormValues) => {
+    const payload = getPackPayload(data)
+    const newTrip = await createTrip.mutateAsync(payload)
+    packs.forEach(async ({ title, items }) => {
+      await createPack.mutateAsync({
+        title,
+        items,
+        trip_id: newTrip.id,
+      })
+    })
+    window.location.replace(`/pack/${newTrip.id}`)
   }
 
   return (
@@ -118,7 +133,11 @@ export const TripForm: FC<Props> = ({ trip }) => {
               <FormItem className="mb-2">
                 <FormLabel htmlFor={field.name}>Location</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Trail or region..." />
+                  <Input
+                    {...field}
+                    placeholder="Trail or region..."
+                    onBlur={() => onFieldUpdate()}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -162,7 +181,10 @@ export const TripForm: FC<Props> = ({ trip }) => {
                       mode="range"
                       defaultMonth={field.value?.from}
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(e) => {
+                        field.onChange(e)
+                        onFieldUpdate()
+                      }}
                       numberOfMonths={2}
                     />
                   </PopoverContent>
@@ -183,6 +205,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
                     type="number"
                     step=".01"
                     placeholder="Distance"
+                    onBlur={() => onFieldUpdate()}
                     onFocus={() => {
                       if (!field.value) field.onChange("")
                     }}

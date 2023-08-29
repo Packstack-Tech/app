@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useState } from "react"
 import { Cell } from "@tanstack/react-table"
 
 import { Input } from "@/components/ui"
@@ -20,14 +20,24 @@ export const QuantityCell: FC<Props> = ({
     (store) => ({ updateItem: store.updateItem }),
     shallow
   )
+  const [value, setValue] = useState(original.quantity.toString())
+  const [error, setError] = useState(false)
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const quantity = parseFloat(e.target.value.trim())
+    if (isNaN(quantity)) {
+      setError(true)
+      return
+    }
+    setError(false)
+    updateItem(original.item_id, "quantity", quantity)
+  }
 
   return (
     <Input
-      type="number"
-      step=".01"
-      value={original.quantity}
-      className="pr-2"
-      onChange={(e) => updateItem(original.item_id, "quantity", e.target.value)}
+      value={value}
+      className={`px-2 py-1 h-auto ${error ? "border-red-500" : ""}`}
+      onBlur={onChange}
+      onChange={(e) => setValue(e.target.value)}
     />
   )
 }
@@ -49,9 +59,8 @@ export const WornCell: FC<Props> = ({
   return (
     <button onClick={onClick}>
       <ShirtIcon
-        color={original.worn ? "lightblue" : "gray"}
+        color={original.worn ? "white" : "#555"}
         size={20}
-        fill={original.worn ? "lightblue" : undefined}
         strokeWidth={1}
       />
     </button>
@@ -63,7 +72,7 @@ export const ConsumableCell: FC<Props> = ({
     row: { original },
   },
 }) => {
-  if (!original.item.consumable) return null
+  if (!original.item.consumable) return <div className="w-[20px]" />
 
   return <FlameIcon color="white" size={20} strokeWidth={1} />
 }
