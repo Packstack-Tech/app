@@ -22,3 +22,7 @@ export const handleException = (
     options.onUnknownError?.(error)
   }
 }
+
+export const dateToUtc = (date: Date) => {
+  return new Date(date.getTime() + date.getTimezoneOffset() * 60000)
+}

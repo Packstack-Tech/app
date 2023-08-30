@@ -26,6 +26,7 @@ import { useCreatePack, useUpdatePack } from "@/queries/pack"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { shallow } from "zustand/shallow"
 import { useToast } from "@/hooks/useToast"
+import { dateToUtc } from "@/lib/utils"
 
 type TripFormValues = {
   location: string
@@ -57,8 +58,8 @@ export const TripForm: FC<Props> = ({ trip }) => {
       location: trip?.location || "",
       dates: trip?.start_date
         ? {
-            from: new Date(trip.start_date),
-            to: trip.end_date ? new Date(trip.end_date) : undefined,
+            from: dateToUtc(new Date(trip.start_date)),
+            to: trip.end_date ? dateToUtc(new Date(trip.end_date)) : undefined,
           }
         : undefined,
       distance: trip?.distance || 0,

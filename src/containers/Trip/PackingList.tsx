@@ -32,15 +32,15 @@ export const PackingList: FC<Props> = ({ editing }) => {
       shallow
     )
 
-  const availablePacks = useMemo(
-    () =>
-      packs.map(({ id, title }, idx) => ({
-        index: idx,
-        id,
-        title,
-      })),
-    [packs]
-  )
+  const availablePacks = useMemo(() => {
+    const records = packs.map(({ id, title }, idx) => ({
+      index: idx,
+      id,
+      title,
+    }))
+    records.sort((a, b) => a.title.localeCompare(b.title))
+    return records
+  }, [packs])
 
   const tableCols = useMemo(
     () => columns(data?.currency || getCurrency("USD")),
