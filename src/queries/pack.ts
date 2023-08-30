@@ -8,8 +8,11 @@ import {
   getTripPacks,
   updatePack,
   updatePackItem,
+  getUnassignedPacks,
+  generatePack,
 } from "@/lib/api"
 import { PackPayload, UpdatePackItemPayload } from "@/types/api"
+import { useToast } from "@/hooks/useToast"
 
 // export const PACKS_QUERY = 'packs-query'
 
@@ -78,6 +81,36 @@ export const useUpdatePack = () => {
   })
 }
 
+export const UNASSIGNED_PACKS_QUERY = "unassigned-packs-query"
+
+export const useUnassignedPacks = () => {
+  return useQuery({
+    queryKey: [UNASSIGNED_PACKS_QUERY],
+    queryFn: async () => {
+      const res = await getUnassignedPacks()
+      return res.data
+    },
+  })
+}
+
+export const useGeneratePack = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await generatePack(id)
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY] })
+      queryClient.invalidateQueries({ queryKey: [UNASSIGNED_PACKS_QUERY] })
+      toast({
+        title: "✅ Pack converted",
+      })
+    },
+  })
+}
+
 // type UpdatePackItem = {
 //   packId: number
 //   itemId: number
@@ -112,18 +145,20 @@ export const useUpdatePack = () => {
 //   )
 // }
 
-// export const useDeletePack = () => {
-//   const queryClient = useQueryClient()
-//   return useMutation(
-//     async (id: number) => {
-//       const res = await deletePack(id)
-//       return res.data
-//     },
-//     {
-//       onSuccess: () => {
-//         queryClient.invalidateQueries(PACKS_QUERY)
-//         queryClient.invalidateQueries(PROFILE_QUERY)
-//       }
-//     }
-//   )
-// }
+export const useDeletePack = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await deletePack(id)
+      return res.data
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [UNASSIGNED_PACKS_QUERY] })
+      toast({
+        title: "Pack deleted.",
+      })
+    },
+  })
+}

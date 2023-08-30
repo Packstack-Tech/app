@@ -135,6 +135,12 @@ export const assignPack = (packId: number, trip_id?: number) =>
 
 export const deletePack = (packId: number) => http.delete(`/pack/${packId}`)
 
+export const generatePack = (packId: number) =>
+  http.post<Trip>(`/pack/${packId}/generate`)
+
+export const getUnassignedPacks = () =>
+  http.get<Pack[]>("/pack/legacy/unassigned")
+
 /**
  * Category endpoints
  */
