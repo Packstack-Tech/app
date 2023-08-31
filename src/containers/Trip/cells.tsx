@@ -5,7 +5,7 @@ import { Input } from "@/components/ui"
 import { PackItem } from "@/types/pack"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { shallow } from "zustand/shallow"
-import { FlameIcon, ShirtIcon } from "lucide-react"
+import { FlameIcon, ShirtIcon, XCircleIcon } from "lucide-react"
 
 type Props = {
   cell: Cell<PackItem, unknown>
@@ -67,12 +67,40 @@ export const WornCell: FC<Props> = ({
   )
 }
 
-export const ConsumableCell: FC<Props> = ({
+export const WeightCell: FC<Props> = ({
   cell: {
     row: { original },
   },
 }) => {
-  if (!original.item.consumable) return <div className="w-[20px]" />
+  const { item } = original
+  if (!item.weight) return "-"
+  const weight = item.unit === "g" ? item.weight : item.weight.toFixed(2)
+  return (
+    <div className="inline-flex items-center gap-1">
+      {item.consumable && <FlameIcon color="white" size={16} strokeWidth={1} />}
+      <span>
+        {weight} {item.unit}
+      </span>
+    </div>
+  )
+}
 
-  return <FlameIcon color="white" size={20} strokeWidth={1} />
+export const RemoveItemCell: FC<Props> = ({
+  cell: {
+    row: { original },
+  },
+}) => {
+  const { removeItem } = useTripPacks(
+    (store) => ({ removeItem: store.removeItem }),
+    shallow
+  )
+
+  return (
+    <button
+      onClick={() => removeItem(original.item_id)}
+      className="text-slate-300 mt-1.5 hover:text-slate-100"
+    >
+      <XCircleIcon size={16} strokeWidth={1} />
+    </button>
+  )
 }
