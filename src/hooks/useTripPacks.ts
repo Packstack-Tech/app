@@ -58,7 +58,11 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       return { ...state, packs, synced: false }
     }),
   selectPack: (index) => set((state) => ({ ...state, selectedIndex: index })),
-  setPacks: (packs) => set((state) => ({ ...state, packs, synced: true })),
+  setPacks: (packs) =>
+    set((state) => {
+      packs.sort((a, b) => a.title.localeCompare(b.title))
+      return { ...state, packs, synced: true }
+    }),
 
   addItem: (item) =>
     set((state) => {

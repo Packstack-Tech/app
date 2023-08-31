@@ -49,7 +49,11 @@ export function CategorizedPackItemsTable<TData, TValue>({
     const dragItem = newItems[dragIndex]
     newItems.splice(dragIndex, 1)
     newItems.splice(hoverIndex, 0, dragItem)
-    setCategoryItems(newItems as PackItem[])
+    const sortedItems = newItems.map((item, idx) => ({
+      ...(item as PackItem),
+      sort_order: idx,
+    }))
+    setCategoryItems(sortedItems as PackItem[])
   }
 
   if (!table.getRowModel().rows?.length) return null
