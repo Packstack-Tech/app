@@ -8,6 +8,7 @@ import { InventoryPage } from "@/pages/Inventory"
 import { Dashboard } from "@/pages/Dashboard"
 import { RequestPasswordReset } from "@/pages/RequestPasswordReset"
 import { ResetPassword } from "@/pages/ResetPassword"
+import { Settings } from "@/pages/Settings"
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
       {
         path: "/pack/:id",
         element: <PackPage />,
+      },
+      {
+        path: "/settings",
+        element: <Settings />,
       },
     ],
   },
