@@ -105,7 +105,7 @@ export const Combobox: FC<Props> = ({
           setFocused(false)
         }}
       >
-        <ScrollArea className="p-1 max-h-[240px] overflow-y-auto">
+        <ScrollArea className="p-1 h-[240px]">
           {filteredResults.map((option) => (
             <button
               key={option.value}
