@@ -40,6 +40,24 @@ export const Action: FC<Props> = ({
   )
 }
 
+export const WeightCell: FC<Props> = ({
+  cell: {
+    row: { original },
+  },
+}) => {
+  const { weight, unit, consumable } = original
+  if (!weight) return "-"
+  const displayWeight = unit === "g" ? weight : weight.toFixed(2)
+  return (
+    <div className="inline-flex items-center gap-1">
+      {consumable && <FlameIcon color="white" size={16} strokeWidth={1} />}
+      <span>
+        {displayWeight} {unit}
+      </span>
+    </div>
+  )
+}
+
 export const ConsumableCell: FC<Props> = ({
   cell: {
     row: { original },

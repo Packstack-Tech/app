@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Item } from "@/types/item"
 
-import { Action, ConsumableCell, NotesCell } from "./cells"
+import { Action, NotesCell, WeightCell } from "./cells"
 import { Currency } from "@/lib/currencies"
 
 export const columns = (currency: Currency): ColumnDef<Item>[] => [
@@ -19,7 +19,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     accessorKey: "brand.name",
     meta: {
       style: {
-        width: "15%",
+        width: "20%",
       },
     },
   },
@@ -28,7 +28,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     accessorKey: "product.name",
     meta: {
       style: {
-        width: "15%",
+        width: "20%",
       },
     },
   },
@@ -40,7 +40,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     },
     meta: {
       style: {
-        width: "10%",
+        width: "15%",
       },
     },
   },
@@ -52,29 +52,13 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
       align: "center",
       style: {
         textAlign: "center",
-        width: "10%",
-      },
-    },
-  },
-  {
-    header: "Consumable",
-    accessorKey: "consumable",
-    cell: ({ cell }) => <ConsumableCell cell={cell} />,
-    meta: {
-      align: "center",
-      style: {
-        textAlign: "center",
-        width: "10%",
+        width: "5%",
       },
     },
   },
   {
     header: "Weight",
-    accessorFn: (item) => {
-      if (!item.weight) return null
-      const weight = item.unit === "g" ? item.weight : item.weight.toFixed(2)
-      return `${weight} ${item.unit}`
-    },
+    cell: ({ cell }) => <WeightCell cell={cell} />,
     meta: {
       align: "right",
       style: { textAlign: "right", width: "10%" },
@@ -86,7 +70,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     meta: {
       align: "right",
       style: {
-        width: "80px",
+        width: "10%",
       },
     },
   },
