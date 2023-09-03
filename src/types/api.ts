@@ -33,6 +33,7 @@ export type UploadImage = {
 export type UpdateUser = {
   display_name?: string
   username?: string
+  email?: string
   unit_temperature?: string
   unit_distance?: string
   bio?: string | null
@@ -42,7 +43,6 @@ export type UpdateUser = {
   reddit_url?: string
   snap_url?: string
   personal_url?: string
-  hide_table_headers?: boolean
 }
 
 export type UpdateTripPhotoOrder = {

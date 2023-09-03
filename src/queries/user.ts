@@ -5,8 +5,14 @@ import {
   userRegister,
   requestPasswordReset,
   resetPassword,
+  updateUser,
 } from "@/lib/api"
-import { LoginRequest, PasswordReset, RegisterRequest } from "@/types/api"
+import {
+  LoginRequest,
+  PasswordReset,
+  RegisterRequest,
+  UpdateUser,
+} from "@/types/api"
 import { getCurrency } from "@/lib/currencies"
 import { useToast } from "@/hooks/useToast"
 
@@ -103,18 +109,20 @@ export const useResetPassword = () => {
 //   })
 // }
 
-// export const useUpdateUser = () => {
-//   const queryClient = useQueryClient()
-//   return useMutation(
-//     async (params: UpdateUser) => {
-//       const res = await updateUser(params)
-//       queryClient.setQueryData(USER_QUERY, res.data)
-//       return res.data
-//     },
-//     {
-//       onSuccess: () => {
-//         queryClient.invalidateQueries([PROFILE_QUERY])
-//       }
-//     }
-//   )
-// }
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (params: UpdateUser) => {
+      const res = await updateUser(params)
+      // queryClient.setQueryData(USER_QUERY, res.data)
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
+      toast({
+        title: "✅ Settings updated",
+      })
+    },
+  })
+}
