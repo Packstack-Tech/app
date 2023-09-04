@@ -65,7 +65,7 @@ export const PackingList: FC<Props> = ({ editing }) => {
         )}
       </div>
       <div className="flex gap-4 items-center border rounded-sm border-slate-900 mb-2 p-2">
-        <div className="flex gap-1.5 items-top">
+        <div className="flex gap-1.5">
           <Checkbox
             checked={checklistMode}
             id="pack-checklist"

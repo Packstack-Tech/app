@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react"
+import { FC, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -39,6 +39,7 @@ import {
 import { Item, ItemForm as ItemFormValues } from "@/types/item"
 import { ScrollArea } from "@/components/ui/ScrollArea"
 import { useCreateItem, useDeleteItem, useUpdateItem } from "@/queries/item"
+import { Label } from "@/components/ui/Label"
 
 // TODO add field max/min length
 const schema = z.object({
@@ -74,6 +75,7 @@ export const ItemForm: FC<Props> = ({
   onClose,
   children,
 }) => {
+  const [another, setAnother] = useState(false)
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
   const deleteItem = useDeleteItem()
@@ -131,7 +133,6 @@ export const ItemForm: FC<Props> = ({
 
   const onSubmit = (data: ItemFormValues) => {
     if (item) {
-      // update endpoint
       updateItem.mutate(
         { ...data, id: item.id },
         {
@@ -142,7 +143,9 @@ export const ItemForm: FC<Props> = ({
       createItem.mutate(data, {
         onSuccess: () => {
           form.reset()
-          onClose()
+          if (!another) {
+            onClose()
+          }
         },
       })
     }
@@ -154,8 +157,6 @@ export const ItemForm: FC<Props> = ({
       onSuccess: onClose,
     })
   }
-
-  // NOTE add modal={false} to Dialog to scroll interior content w/ scrollwheel
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -369,7 +370,7 @@ export const ItemForm: FC<Props> = ({
           </Form>
         </ScrollArea>
         <DialogFooter>
-          <div className={`flex ${item ? "justify-between" : "justify-end"}`}>
+          <div className={`flex justify-between items-center`}>
             {item && (
               <Button
                 type="button"
@@ -379,6 +380,21 @@ export const ItemForm: FC<Props> = ({
               >
                 Delete Item
               </Button>
+            )}
+            {!item && (
+              <div className="inline-flex gap-1.5">
+                <Checkbox
+                  id="create-another"
+                  checked={another}
+                  onCheckedChange={() => setAnother(!another)}
+                />
+                <Label
+                  htmlFor="create-another"
+                  className="font-normal text-xs mb-0"
+                >
+                  Create another
+                </Label>
+              </div>
             )}
             <Button
               type="submit"

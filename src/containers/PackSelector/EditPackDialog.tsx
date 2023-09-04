@@ -22,7 +22,7 @@ export const EditPackDialog: FC<Props> = ({ title, open, onClose, onSave }) => {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit pack</DialogTitle>
+          <DialogTitle>Rename pack</DialogTitle>
         </DialogHeader>
         <div className="p-2">
           <Input value={value} onChange={(e) => setValue(e.target.value)} />

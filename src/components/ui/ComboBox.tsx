@@ -105,7 +105,9 @@ export const Combobox: FC<Props> = ({
           setFocused(false)
         }}
       >
-        <ScrollArea className="p-1 h-[240px]">
+        <ScrollArea
+          className={`p-1 ${filteredResults.length > 0 ? "h-[240px]" : ""}`}
+        >
           {filteredResults.map((option) => (
             <button
               key={option.value}

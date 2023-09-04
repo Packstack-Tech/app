@@ -1,18 +1,18 @@
-import { FC, useState } from 'react'
-import { MoreVertical } from 'lucide-react'
+import { FC, useState } from "react"
+import { MoreVertical } from "lucide-react"
 
-import { useTripPacks } from '@/hooks/useTripPacks'
-import { TripPackRecord } from '@/types/pack'
+import { useTripPacks } from "@/hooks/useTripPacks"
+import { TripPackRecord } from "@/types/pack"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/DropdownMenu'
+  DropdownMenuTrigger,
+} from "@/components/ui/DropdownMenu"
 
-import { EditPackDialog } from './EditPackDialog'
-import { DeletePackDialog } from './DeletePackDialog'
-import { shallow } from 'zustand/shallow'
+import { EditPackDialog } from "./EditPackDialog"
+import { DeletePackDialog } from "./DeletePackDialog"
+import { shallow } from "zustand/shallow"
 
 interface Props {
   pack: TripPackRecord
@@ -26,18 +26,18 @@ export const PackSelector: FC<Props> = ({ pack }) => {
       selectedIndex: store.selectedIndex,
       selectPack: store.selectPack,
       updatePack: store.updatePack,
-      removePack: store.removePack
+      removePack: store.removePack,
     }),
     shallow
   )
 
   const isSelected = selectedIndex === pack.index
-  const selectedStyle = isSelected ? 'border-primary' : ''
+  const selectedStyle = isSelected ? "border-primary" : ""
 
   const handleEdit = (value: string) => {
     const packName = value.trim()
     if (!packName) return
-    updatePack(pack.index, 'title', packName)
+    updatePack(pack.index, "title", packName)
     setEditOpen(false)
   }
 
@@ -65,7 +65,7 @@ export const PackSelector: FC<Props> = ({ pack }) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setEditOpen(true)}>
-              Edit
+              Rename
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
               Delete
