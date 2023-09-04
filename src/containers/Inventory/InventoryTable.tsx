@@ -16,7 +16,7 @@ export const InventoryTable: FC<Props> = ({
   onSearchFilterChange,
 }) => {
   const { data: userData } = useUserQuery()
-  const data = useCategorizedItems()
+  const data = useCategorizedItems({})
 
   const tableCols = useMemo(
     () => columns(userData?.currency || getCurrency("USD")),

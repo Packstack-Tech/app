@@ -13,7 +13,7 @@ import { useUpdateCategorySort } from "@/queries/item"
 import { ScrollArea } from "@/components/ui/ScrollArea"
 
 export const UpdateCategoryOrder = () => {
-  const initCategories = useCategorizedItems()
+  const initCategories = useCategorizedItems({})
   const updateCategorySort = useUpdateCategorySort()
   const [categories, setCategories] = useState(initCategories)
 
@@ -34,10 +34,12 @@ export const UpdateCategoryOrder = () => {
   }
 
   const onDropItem = () => {
-    const sortOrder = categories.map((category, idx) => ({
-      id: category.category?.id || 0,
-      sort_order: idx,
-    }))
+    const sortOrder = categories
+      .filter((rec) => !!rec.category)
+      .map((category, idx) => ({
+        id: category.category?.id || 0,
+        sort_order: idx,
+      }))
     updateCategorySort.mutate(sortOrder)
   }
 
@@ -59,7 +61,7 @@ export const UpdateCategoryOrder = () => {
                 moveItem={moveItem}
                 onDropItem={onDropItem}
                 category={rec}
-                idx={idx}
+                idx={idx + 1}
               />
             ))}
         </ScrollArea>

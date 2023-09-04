@@ -1,7 +1,6 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { Plus } from "lucide-react"
 import { shallow } from "zustand/shallow"
-import Fuse from "fuse.js"
 
 import { ItemForm } from "@/containers/ItemForm"
 import { Button, Input } from "@/components/ui"
@@ -23,22 +22,8 @@ export const InventorySidebar = () => {
     }),
     shallow
   )
-  const items = useCategorizedItems()
-  // TODO causes bug using <Link> to navigate to /pack/:id
+  const items = useCategorizedItems({ filter: search })
   const selectedItems = packs[selectedIndex].items
-
-  const fuseItems = useMemo(
-    () =>
-      new Fuse(items, {
-        keys: ["items.name", "items.product.name"],
-      }),
-    [items]
-  )
-
-  const filteredItems = useMemo(() => {
-    if (!search) return items
-    return fuseItems.search(search).map((result) => result.item)
-  }, [items, fuseItems, search])
 
   const onSelect = (item: Item) => {
     const existingItem = selectedItems.find((i) => i.item_id === item.id)
@@ -75,7 +60,7 @@ export const InventorySidebar = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      {filteredItems.map((category) => (
+      {items.map((category) => (
         <div key={category.category?.category_id || "undefined"}>
           <Label className="text-slate-300 text-xs rounded-sm bg-slate-900 mb-1 p-1 block">
             {category.category?.category.name || "Uncategorized"}

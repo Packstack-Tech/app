@@ -1,38 +1,49 @@
 import { useMemo } from "react"
+import Fuse from "fuse.js"
 import { useInventory } from "@/queries/item"
 import { CategoryItems, CategorizedItems } from "@/types/category"
 
-export const useCategorizedItems = (
+type Options = {
+  filter?: string
   uncategorizedToBottom?: boolean
-): CategoryItems[] => {
+}
+
+export const useCategorizedItems = ({
+  filter,
+  uncategorizedToBottom,
+}: Options): CategoryItems[] => {
   const { data } = useInventory()
   const uncategorizedPosition = uncategorizedToBottom ? Infinity : 0
 
-  const items = useMemo(() => {
-    if (!data) return []
-    return data
-  }, [data])
-
-  const categorizedItems = useMemo(
+  const fuseItems = useMemo(
     () =>
-      items.reduce<CategorizedItems>((acc, curr) => {
-        const catId = curr.category_id?.toString() || "uncategorized"
-        if (acc[catId]) {
-          return {
-            ...acc,
-            [catId]: { ...acc[catId], items: [...acc[catId].items, curr] },
-          }
-        }
+      new Fuse(data || [], {
+        keys: ["name", "product.name", "brand.name"],
+      }),
+    [data]
+  )
+
+  const categorizedItems = useMemo(() => {
+    const items = !filter
+      ? data
+      : fuseItems.search(filter).map((result) => result.item)
+    return (items || []).reduce<CategorizedItems>((acc, curr) => {
+      const catId = curr.category_id?.toString() || "uncategorized"
+      if (acc[catId]) {
         return {
           ...acc,
-          [catId]: {
-            category: curr.category,
-            items: [curr],
-          },
+          [catId]: { ...acc[catId], items: [...acc[catId].items, curr] },
         }
-      }, {} as CategorizedItems),
-    [items]
-  )
+      }
+      return {
+        ...acc,
+        [catId]: {
+          category: curr.category,
+          items: [curr],
+        },
+      }
+    }, {} as CategorizedItems)
+  }, [data, fuseItems, filter])
 
   const sorted = useMemo(
     () =>
@@ -41,11 +52,13 @@ export const useCategorizedItems = (
           values.items.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
           return values
         })
-        .sort(
-          (a, b) =>
-            (a.category?.sort_order || uncategorizedPosition) -
+        .sort((a, b) => {
+          if (!a.category) return -1
+          return (
+            a.category.sort_order -
             (b.category?.sort_order || uncategorizedPosition)
-        ),
+          )
+        }),
     [categorizedItems, uncategorizedPosition]
   )
 
