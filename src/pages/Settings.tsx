@@ -1,5 +1,7 @@
 import { useForm } from "react-hook-form"
 import { SelectValue } from "@radix-ui/react-select"
+import { LogOut } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { DISTANCE, distances } from "@/lib/consts"
@@ -37,6 +39,7 @@ const schema = z.object({
 
 export const Settings = () => {
   const { data } = useUserQuery()
+  const navigate = useNavigate()
   const updateUser = useUpdateUser()
   const form = useForm<SettingsForm>({
     resolver: zodResolver(schema),
@@ -49,6 +52,11 @@ export const Settings = () => {
 
   const onSubmit = (data: SettingsForm) => {
     updateUser.mutate(data)
+  }
+
+  const onLogout = () => {
+    localStorage.removeItem("jwt")
+    navigate("/auth/login")
   }
 
   return (
@@ -129,7 +137,14 @@ export const Settings = () => {
               )}
             />
           </Form>
-          <div className="flex justify-end">
+          <div className="flex justify-between">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => onLogout()}
+            >
+              <LogOut size={12} /> Logout
+            </Button>
             <Button variant="secondary" disabled={updateUser.isPending}>
               Save
             </Button>

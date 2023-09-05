@@ -67,6 +67,10 @@
     @apply font-semibold text-sm text-slate-100 text-primary;
   }
 
+  h4 {
+    @apply font-semibold text-xl text-slate-50;
+  }
+
   label {
     @apply text-slate-200 text-sm inline-block mb-1;
   }

@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/AlertDialog"
 import { Button } from "@/components/ui"
+import { EmptyState } from "@/components/EmptyState"
 import { Trip } from "@/types/trip"
 
 const DATE_FORMAT = "MMM dd, yyyy"
@@ -53,6 +54,26 @@ export const PackingLists: FC<Props> = ({ trips }) => {
           <PlusIcon size={12} /> <span>Create Pack</span>
         </Button>
       </div>
+
+      <EmptyState
+        subheading="Packing lists"
+        heading="Create your first packing list"
+      >
+        <p>
+          Packing lists are easy to use but extremely customizable. We want to
+          offer a world-class experience that gives you confidence in your
+          upcoming trip.
+        </p>
+        <div className="flex justify-between items-center mt-3">
+          <Button variant="outline" onClick={() => navigate("/inventory")}>
+            Manage Inventory
+          </Button>
+          <Button className="gap-1" onClick={() => navigate("/pack/new")}>
+            <PlusIcon size={16} /> <span>Create Pack</span>
+          </Button>
+        </div>
+      </EmptyState>
+
       {(trips || []).map(({ created_at, start_date, end_date, id, title }) => {
         const created = format(new Date(created_at), DATE_FORMAT)
         const start = start_date
