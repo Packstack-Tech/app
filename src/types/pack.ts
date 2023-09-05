@@ -1,4 +1,4 @@
-import { Item } from './item'
+import { Item } from "./item"
 
 type BasePack = {
   title: string
@@ -35,6 +35,8 @@ export type TripPack = {
   title: string
   items: PackItem[]
 }
+
+export type TripPackKeys = keyof TripPack
 
 export type TripPackRecord = {
   id?: number

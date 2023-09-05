@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { PackItem, PackItemEditableKeys } from "@/types/pack"
+import { PackItem, PackItemEditableKeys, TripPackKeys } from "@/types/pack"
 import { TripPack } from "@/types/pack"
 
 interface TripPacksState {
@@ -9,11 +9,15 @@ interface TripPacksState {
   synced: boolean
   addPack: () => void
   removePack: (index: number) => void
-  updatePack: (index: number, key: string, value: any) => void
+  updatePack: (index: number, key: TripPackKeys, value: string) => void
   selectPack: (index: number) => void
   setPacks: (packs: TripPack[]) => void
 
-  updateItem: (id: number, key: PackItemEditableKeys, value: any) => void
+  updateItem: (
+    id: number,
+    key: PackItemEditableKeys,
+    value: number | boolean
+  ) => void
   setItems: (items: PackItem[]) => void
   addItem: (item: PackItem) => void
   removeItem: (id: number) => void
@@ -21,17 +25,17 @@ interface TripPacksState {
   toggleChecklistMode: () => void
 }
 
+export const initPack = {
+  title: "New pack",
+  items: [],
+}
+
 export const useTripPacks = create<TripPacksState>((set) => ({
   selectedIndex: 0,
   checklistMode: false,
   synced: true,
   // initialize with an empty pack
-  packs: [
-    {
-      title: "New pack",
-      items: [],
-    },
-  ],
+  packs: [initPack],
   addPack: () =>
     set((state) => {
       const count = state.packs.length

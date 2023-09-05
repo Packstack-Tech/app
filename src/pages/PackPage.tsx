@@ -5,7 +5,7 @@ import { shallow } from "zustand/shallow"
 import { Pack } from "./Pack"
 import { useTripQuery } from "@/queries/trip"
 import { useTripPacksQuery } from "@/queries/pack"
-import { useTripPacks } from "@/hooks/useTripPacks"
+import { useTripPacks, initPack } from "@/hooks/useTripPacks"
 
 export const PackPage = () => {
   const { id } = useParams()
@@ -22,9 +22,12 @@ export const PackPage = () => {
     if (packsData) {
       setPacks(packsData)
     }
-  }, [setPacks, packsData])
+    if (!id) {
+      setPacks([initPack])
+    }
+  }, [setPacks, packsData, id])
 
   if (tripLoading || packsLoading) return <div>Loading...</div>
 
-  return <Pack trip={tripData} />
+  return <Pack trip={id ? tripData : undefined} />
 }

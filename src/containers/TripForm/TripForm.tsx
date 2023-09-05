@@ -39,6 +39,17 @@ interface Props {
   trip?: Trip
 }
 
+const formDefaults = (trip?: Trip): TripFormValues => ({
+  location: trip?.location || "",
+  dates: trip?.start_date
+    ? {
+        from: dateToUtc(new Date(trip.start_date)),
+        to: trip.end_date ? dateToUtc(new Date(trip.end_date)) : undefined,
+      }
+    : undefined,
+  distance: trip?.distance || 0,
+})
+
 // TODO define ZOD schema for validation
 export const TripForm: FC<Props> = ({ trip }) => {
   const { toast } = useToast()
@@ -56,17 +67,12 @@ export const TripForm: FC<Props> = ({ trip }) => {
   const updatePack = useUpdatePack()
 
   const form = useForm<TripFormValues>({
-    defaultValues: {
-      location: trip?.location || "",
-      dates: trip?.start_date
-        ? {
-            from: dateToUtc(new Date(trip.start_date)),
-            to: trip.end_date ? dateToUtc(new Date(trip.end_date)) : undefined,
-          }
-        : undefined,
-      distance: trip?.distance || 0,
-    },
+    defaultValues: formDefaults(trip),
   })
+
+  useEffect(() => {
+    form.reset(formDefaults(trip))
+  }, [trip])
 
   const getPackPayload = ({ location, dates, distance }: TripFormValues) => ({
     title: location,
