@@ -12,6 +12,7 @@ import { useUserQuery } from "@/queries/user"
 import { getCurrency } from "@/lib/currencies"
 import { Button } from "@/components/ui"
 import { useCreateTrip, useUpdateTrip } from "@/queries/trip"
+import { EmptyState } from "@/components/EmptyState"
 
 type Props = {
   editing?: boolean
@@ -76,6 +77,13 @@ export const PackingList: FC<Props> = ({ editing }) => {
           </Label>
         </div>
       </div>
+      {categorizedItems.length === 0 && (
+        <EmptyState subheading="Empty pack" heading="Add gear to your pack">
+          <p>
+            Use the inventory sidebar on the right to add gear to your pack.
+          </p>
+        </EmptyState>
+      )}
       {categorizedItems.map(({ category, items }) => {
         const categoryName = category?.category?.name || "Uncategorized"
         return (

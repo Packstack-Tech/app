@@ -1,10 +1,12 @@
 import { FC, useMemo } from "react"
 
 import { useCategorizedItems } from "@/hooks/useCategorizedItems"
-import { CategorizedItemsTable } from "@/components/Tables/CategorizedItemsTable"
-import { columns } from "./columns"
 import { useUserQuery } from "@/queries/user"
 import { getCurrency } from "@/lib/currencies"
+import { CategorizedItemsTable } from "@/components/Tables/CategorizedItemsTable"
+import { columns } from "./columns"
+
+import { EmptyState } from "@/components/EmptyState"
 
 type Props = {
   searchFilter?: string
@@ -25,7 +27,21 @@ export const InventoryTable: FC<Props> = ({
 
   return (
     <div>
-      {(data || []).map(({ category, items }) => {
+      {data.length === 0 && (
+        <div className="max-w-lg mx-auto mt-6">
+          <EmptyState
+            subheading="Inventory"
+            heading="Add gear to your inventory"
+          >
+            <p>
+              Your inventory is a collection of all the gear you own.
+              Categorizing your gear makes it easier to find, and also allows us
+              to create comprehensive weight breakdowns for you.
+            </p>
+          </EmptyState>
+        </div>
+      )}
+      {data.map(({ category, items }) => {
         const categoryName = category?.category?.name || "Uncategorized"
         return (
           <CategorizedItemsTable

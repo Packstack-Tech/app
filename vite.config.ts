@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
@@ -13,8 +14,16 @@ const aliases = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), sentryVitePlugin({
+    org: "packstack-3s",
+    project: "frontend"
+  })],
+
   resolve: {
     alias: aliases
   },
+
+  build: {
+    sourcemap: true
+  }
 })
