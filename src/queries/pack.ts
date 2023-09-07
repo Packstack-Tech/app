@@ -1,17 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   createPack,
-  assignPack,
   deletePack,
-  getPack,
-  getPacks,
   getTripPacks,
   updatePack,
-  updatePackItem,
   getUnassignedPacks,
   generatePack,
 } from "@/lib/api"
-import { PackPayload, UpdatePackItemPayload } from "@/types/api"
+import { PackPayload } from "@/types/api"
 import { useToast } from "@/hooks/useToast"
 
 // export const PACKS_QUERY = 'packs-query'

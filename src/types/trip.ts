@@ -1,6 +1,5 @@
-import { TripImage } from './image'
-import { PackCondition, PackGeography } from './resources'
-import { User } from './user'
+import { TripImage } from "./image"
+import { User } from "./user"
 
 type BaseTrip = {
   title: string
