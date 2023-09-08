@@ -9,6 +9,7 @@ interface Props {
   idx: number
   moveItem: (dragIndex: number | undefined, hoverIndex: number) => void
   onDropItem: () => void
+  disabled?: boolean
 }
 
 interface DragItem {
@@ -22,6 +23,7 @@ export const Category: FC<Props> = ({
   idx,
   moveItem,
   onDropItem,
+  disabled,
 }) => {
   const dragRef = useRef<HTMLDivElement>(null)
   const dropRef = useRef<HTMLDivElement>(null)
@@ -45,10 +47,8 @@ export const Category: FC<Props> = ({
       const dragIndex = item.index
       const hoverIndex = idx
 
-      // console.log(dragIndex, hoverIndex)
-
       // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
+      if (dragIndex === hoverIndex || disabled) {
         return
       }
 
@@ -100,6 +100,7 @@ export const Category: FC<Props> = ({
     collect: (monitor: any) => ({
       isDragging: monitor.isDragging(),
     }),
+    canDrag: () => !disabled,
   })
 
   preview(drop(dropRef))
@@ -111,11 +112,11 @@ export const Category: FC<Props> = ({
         <div
           ref={dragRef}
           data-handler-id={handlerId}
-          className="hover:cursor-grab"
+          className={`${!disabled ? "hover:cursor-grab" : "opacity-50"}`}
         >
           <GripHorizontal size={16} />
         </div>
-        <span>{category.category?.category.name}</span>
+        <span>{category.category?.category.name || "Uncategorized"}</span>
       </div>
     </div>
   )

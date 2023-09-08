@@ -48,22 +48,21 @@ export const UpdateCategoryOrder = () => {
       <DialogTrigger asChild>
         <Button variant="outline">Category Order</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="w-80">
         <DialogHeader>
           <DialogTitle>Category Order</DialogTitle>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] w-[100%]" type="auto">
-          {categories
-            .filter((cat) => !!cat.category)
-            .map((rec, idx) => (
-              <Category
-                key={rec.category?.category_id}
-                moveItem={moveItem}
-                onDropItem={onDropItem}
-                category={rec}
-                idx={idx + 1}
-              />
-            ))}
+          {categories.map((rec, idx) => (
+            <Category
+              key={rec.category?.category_id || "uncategorized"}
+              moveItem={moveItem}
+              onDropItem={onDropItem}
+              category={rec}
+              idx={idx}
+              disabled={updateCategorySort.isPending || !rec.category}
+            />
+          ))}
         </ScrollArea>
       </DialogContent>
     </Dialog>
