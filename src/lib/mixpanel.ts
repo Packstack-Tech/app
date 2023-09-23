@@ -1,5 +1,8 @@
 import mixpanel from "mixpanel-browser"
-mixpanel.init("YOUR_MIXPANEL_TOKEN")
+mixpanel.init("e608ccade885e850a86efc9c098cd296", {
+  track_pageview: true,
+  persistence: "localStorage",
+})
 
 export const Mixpanel = {
   identify: (id: string) => {
