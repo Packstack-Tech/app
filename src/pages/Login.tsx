@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { Button, Input } from "@/components/ui"
 import { useUserLogin } from "@/queries/user"
 import { handleException } from "@/lib/utils"
+import { Mixpanel } from "@/lib/mixpanel"
 
 type LoginForm = {
   emailOrUsername: string
@@ -18,7 +19,15 @@ export const LoginPage = () => {
 
   const onSubmit = (data: LoginForm) => {
     login.mutate(data, {
-      onSuccess: () => navigate("/"),
+      onSuccess: ({ user }) => {
+        Mixpanel.identify(`${user.id}`)
+        Mixpanel.track("User:Login")
+        Mixpanel.people.set({
+          $name: user.username,
+          $email: user.email,
+        })
+        navigate("/")
+      },
       onError: (error) => {
         handleException(error, {
           onHttpError: ({ response }) => setError(response?.data.detail),

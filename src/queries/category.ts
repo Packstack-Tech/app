@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
-import { getCategories } from '@/lib/api'
+import { useQuery } from "@tanstack/react-query"
+import { getCategories } from "@/lib/api"
 
-const CATEGORY_QUERY = 'categories'
+const CATEGORY_QUERY = "categories"
 export const useCategories = () => {
   return useQuery({
     queryKey: [CATEGORY_QUERY],
@@ -14,7 +14,7 @@ export const useCategories = () => {
         return 0
       })
       return res.data
-    }
+    },
   })
 }
 

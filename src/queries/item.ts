@@ -10,6 +10,7 @@ import { UpdateItemSortOrder } from "@/types/api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { EditItem, ItemForm } from "@/types/item"
 import { useToast } from "@/hooks/useToast"
+import { Mixpanel } from "@/lib/mixpanel"
 
 const INVENTORY_QUERY = ["inventory-query"]
 
@@ -30,6 +31,7 @@ export const useCreateItem = () => {
   return useMutation({
     mutationFn: async (item: ItemForm) => {
       const res = await createItem(item)
+      Mixpanel.track("Item:Create")
       return res.data
     },
     onSuccess: () => {
@@ -64,6 +66,7 @@ export const useUpdateItem = () => {
   return useMutation({
     mutationFn: async (item: EditItem) => {
       const res = await updateItem(item)
+      Mixpanel.track("Item:Update")
       return res.data
     },
     onSuccess: () => {
@@ -98,6 +101,7 @@ export const useUpdateCategorySort = () => {
   return useMutation({
     mutationFn: async (sortOrder: UpdateItemSortOrder) => {
       const res = await updateCategorySortOrder(sortOrder)
+      Mixpanel.track("Category:Update")
       return res.data
     },
 

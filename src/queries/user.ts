@@ -15,6 +15,7 @@ import {
 } from "@/types/api"
 import { getCurrency } from "@/lib/currencies"
 import { useToast } from "@/hooks/useToast"
+import { Mixpanel } from "@/lib/mixpanel"
 
 export const USER_QUERY = "user"
 export const useUserQuery = () => {
@@ -22,6 +23,7 @@ export const useUserQuery = () => {
     queryKey: [USER_QUERY],
     queryFn: async () => {
       const res = await getUser()
+      Mixpanel.identify(`${res.data.id}`)
       return res.data
     },
     select: (data) => {

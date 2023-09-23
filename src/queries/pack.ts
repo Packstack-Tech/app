@@ -9,6 +9,7 @@ import {
 } from "@/lib/api"
 import { PackPayload } from "@/types/api"
 import { useToast } from "@/hooks/useToast"
+import { Mixpanel } from "@/lib/mixpanel"
 
 // export const PACKS_QUERY = 'packs-query'
 
@@ -52,6 +53,7 @@ export const useCreatePack = () => {
   return useMutation({
     mutationFn: async (data: PackPayload) => {
       const res = await createPack(data)
+      Mixpanel.track("Pack:Create")
       return res.data
     },
     onSuccess: () =>
@@ -95,6 +97,7 @@ export const useGeneratePack = () => {
   return useMutation({
     mutationFn: async (id: number) => {
       const res = await generatePack(id)
+      Mixpanel.track("Pack:Generate")
       return res.data
     },
     onSuccess: () => {
@@ -147,6 +150,7 @@ export const useDeletePack = () => {
   return useMutation({
     mutationFn: async (id: number) => {
       const res = await deletePack(id)
+      Mixpanel.track("Pack:Delete")
       return res.data
     },
 

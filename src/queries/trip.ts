@@ -3,6 +3,7 @@ import { getTrip, createTrip, editTrip, deleteTrip, cloneTrip } from "@/lib/api"
 import { CreateTrip, EditTrip } from "@/types/trip"
 import { USER_QUERY } from "./user"
 import { useToast } from "@/hooks/useToast"
+import { Mixpanel } from "@/lib/mixpanel"
 
 // export const TRIP_FEED = 'trip-feed'
 // export const useTripFeed = () => {
@@ -29,6 +30,7 @@ export const useCreateTrip = () => {
   return useMutation({
     mutationFn: async (params: CreateTrip) => {
       const res = await createTrip(params)
+      Mixpanel.track("Trip:Create")
       return res.data
     },
     onSuccess: ({ id }) =>
