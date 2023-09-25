@@ -1,6 +1,5 @@
 import mixpanel from "mixpanel-browser"
 mixpanel.init("e608ccade885e850a86efc9c098cd296", {
-  debug: true,
   track_pageview: true,
   persistence: "localStorage",
 })
