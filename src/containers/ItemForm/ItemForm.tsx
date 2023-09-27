@@ -36,10 +36,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select"
-import { Item, ItemForm as ItemFormValues } from "@/types/item"
+import { Item, ItemForm as ItemFormValues, Unit } from "@/types/item"
 import { ScrollArea } from "@/components/ui/ScrollArea"
 import { useCreateItem, useDeleteItem, useUpdateItem } from "@/queries/item"
 import { Label } from "@/components/ui/Label"
+import { convertWeight } from "@/lib/weight"
 
 // TODO add field max/min length
 const schema = z.object({
@@ -282,7 +283,18 @@ export const ItemForm: FC<Props> = ({
                     name="unit"
                     render={({ field }) => (
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(v) => {
+                          const weight = convertWeight(
+                            form.getValues("weight"),
+                            field.value,
+                            v as Unit
+                          )
+                          // round weight to 2 decimal places as number
+                          const roundedWeight =
+                            Math.round(weight.weight * 100) / 100
+                          form.setValue("weight", roundedWeight)
+                          field.onChange(v)
+                        }}
                         defaultValue={field.value}
                       >
                         <FormControl>
