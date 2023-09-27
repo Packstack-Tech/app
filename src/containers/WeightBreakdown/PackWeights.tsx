@@ -24,15 +24,21 @@ export const PackWeights: FC<Props> = ({
     </Label>
     <div className="flex justify-between hover:bg-slate-900">
       <p>Base</p>
-      <p>{weights.base.toFixed(2)} kg</p>
+      <p>
+        {weights.base.toFixed(2)} {aggregateWeightUnit}
+      </p>
     </div>
     <div className="flex justify-between">
       <p>Worn</p>
-      <p>{weights.worn.toFixed(2)} kg</p>
+      <p>
+        {weights.worn.toFixed(2)} {aggregateWeightUnit}
+      </p>
     </div>
     <div className="flex justify-between">
       <p>Consumable</p>
-      <p>{weights.consumable.toFixed(2)} kg</p>
+      <p>
+        {weights.consumable.toFixed(2)} {aggregateWeightUnit}
+      </p>
     </div>
     <div className="flex justify-between">
       <p className="text-primary">Total</p>
