@@ -80,7 +80,7 @@ export function CategorizedPackItemsTable<TData, TValue>({
       <div className="rounded-t-sm px-2 py-1 bg-slate-900 flex justify-between items-center">
         <h3 className="font-bold text-primary text-sm">{category}</h3>
         <span className="text-xs text-primary">
-          {categoryWeight.toFixed(2)} kg
+          {categoryWeight.toFixed(2)} {aggregateWeightUnit}
         </span>
       </div>
       <div className="rounded-b-sm border border-slate-900">
