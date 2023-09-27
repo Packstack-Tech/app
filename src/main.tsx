@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/Toaster"
 
 Sentry.init({
   dsn: "https://184194c188dacdabf7eacf38c54d26fc@o313912.ingest.sentry.io/4505836676186112",
+  enabled: import.meta.env.PROD,
   integrations: [
     new Sentry.BrowserTracing({
       // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
