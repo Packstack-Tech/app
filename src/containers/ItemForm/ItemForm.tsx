@@ -293,6 +293,8 @@ export const ItemForm: FC<Props> = ({
                         <SelectContent>
                           <SelectItem value="g">g</SelectItem>
                           <SelectItem value="kg">kg</SelectItem>
+                          <SelectItem value="oz">oz</SelectItem>
+                          <SelectItem value="lb">lb</SelectItem>
                         </SelectContent>
                       </Select>
                     )}

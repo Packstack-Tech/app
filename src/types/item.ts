@@ -1,7 +1,7 @@
-import { ItemCategory } from './category'
-import { Brand, Product } from './resources'
+import { ItemCategory } from "./category"
+import { Brand, Product } from "./resources"
 
-export type Unit = 'g' | 'kg'
+export type Unit = "g" | "kg" | "oz" | "lb"
 
 export type ItemForm = {
   name: string

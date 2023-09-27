@@ -74,12 +74,14 @@ export const WeightCell: FC<Props> = ({
 }) => {
   const { item } = original
   if (!item.weight) return "-"
-  const weight = item.unit === "g" ? item.weight : item.weight.toFixed(2)
+  const displayWeight = ["g", "oz"].includes(item.unit)
+    ? item.weight
+    : item.weight.toFixed(2)
   return (
     <div className="inline-flex items-center gap-1">
       {item.consumable && <FlameIcon color="white" size={16} strokeWidth={1} />}
       <span>
-        {weight} {item.unit}
+        {displayWeight} {item.unit}
       </span>
     </div>
   )

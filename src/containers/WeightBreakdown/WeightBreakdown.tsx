@@ -1,6 +1,7 @@
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { shallow } from "zustand/shallow"
 import { PackWeights } from "./PackWeights"
+import { getAggregateUnit, convertWeight } from "@/lib/weight"
 
 type Weights = {
   worn: number
@@ -11,19 +12,26 @@ type Weights = {
 export const WeightBreakdown = () => {
   const { packs } = useTripPacks((store) => ({ packs: store.packs }), shallow)
 
+  // TODO: Use default weight unit from user settings
+  const weightUnit = packs[0]?.items[0]?.item.unit || "g"
+  const aggregateWeightUnit = getAggregateUnit(weightUnit)
+
   const breakdowns = packs.map(({ items, title }) => {
     const weightCategories = items.reduce(
       (acc, { item, quantity, worn }) => {
-        const weight = !item.weight
-          ? 0
-          : (item.unit === "g" ? item.weight / 1000 : item.weight) * quantity
+        const weight = convertWeight(
+          item.weight || 0,
+          item.unit,
+          aggregateWeightUnit
+        )
+        const quantityWeight = weight.weight * quantity
 
         return {
-          worn: worn ? acc.worn + weight : acc.worn,
+          worn: worn ? acc.worn + quantityWeight : acc.worn,
           consumable: item.consumable
-            ? acc.consumable + weight
+            ? acc.consumable + quantityWeight
             : acc.consumable,
-          total: acc.total + weight,
+          total: acc.total + quantityWeight,
         }
       },
       { worn: 0, consumable: 0, total: 0 } as Weights
@@ -55,10 +63,19 @@ export const WeightBreakdown = () => {
   return (
     <div className="mt-4">
       <h3 className="mb-2">Weight Breakdown</h3>
-      <PackWeights title="Total" weights={totals} />
+      <PackWeights
+        title="Total"
+        weights={totals}
+        aggregateWeightUnit={aggregateWeightUnit}
+      />
       {packs.length > 1 &&
         breakdowns.map(({ title, weights }) => (
-          <PackWeights key={title} title={title} weights={weights} />
+          <PackWeights
+            key={title}
+            title={title}
+            weights={weights}
+            aggregateWeightUnit={aggregateWeightUnit}
+          />
         ))}
     </div>
   )

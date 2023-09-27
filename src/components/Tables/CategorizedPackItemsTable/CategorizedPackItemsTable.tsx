@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table"
+import { getAggregateUnit, convertWeight } from "@/lib/weight"
 
 import { fuzzyFilter } from "@/components/Tables/lib/fuzzyFilter"
 import { ItemRow } from "./ItemRow"
@@ -58,12 +59,20 @@ export function CategorizedPackItemsTable<TData, TValue>({
 
   if (!table.getRowModel().rows?.length) return null
 
+  const aggregateWeightUnit = getAggregateUnit(
+    (table.getRowModel().rows[0].original as PackItem).item.unit
+  )
+
   const categoryWeight = table.getRowModel().rows.reduce((acc, curr) => {
     const row = curr.original as PackItem
     if (!row.item.weight) return acc
-    const weight =
-      row.item.unit === "g" ? row.item.weight / 1000 : row.item.weight
-    return acc + weight * row.quantity
+
+    const weight = convertWeight(
+      row.item.weight,
+      row.item.unit,
+      aggregateWeightUnit
+    )
+    return acc + weight.weight * row.quantity
   }, 0)
 
   return (
