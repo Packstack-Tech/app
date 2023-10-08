@@ -22,6 +22,7 @@ export type EditTrip = CreateTrip & {
 
 export type Trip = BaseTrip & {
   id: number
+  uuid: string
   user_id: number
   published: boolean
   removed: boolean

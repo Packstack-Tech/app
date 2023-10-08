@@ -16,7 +16,7 @@ export const Pack: FC<Props> = ({ trip }) => (
       <WeightBreakdown />
     </div>
     <div className="grow p-4">
-      <PackingList editing={!!trip} />
+      <PackingList trip={trip} />
     </div>
     <div className="flex-none w-64 border-l border-slate-900 p-4">
       <InventorySidebar />
