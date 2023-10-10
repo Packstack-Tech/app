@@ -85,7 +85,10 @@ export const NotesCell: FC<Props> = ({
           className="hover:cursor-pointer"
         />
       </PopoverTrigger>
-      <PopoverContent className="w-[120px]" align="center">
+      <PopoverContent
+        className="w-[240px] p-2 text-left text-xs"
+        align="center"
+      >
         <p>{original.notes}</p>
       </PopoverContent>
     </Popover>
