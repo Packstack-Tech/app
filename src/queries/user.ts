@@ -24,6 +24,10 @@ export const useUserQuery = () => {
     queryFn: async () => {
       const res = await getUser()
       Mixpanel.identify(`${res.data.id}`)
+      Mixpanel.people.set({
+        $name: res.data.username,
+        $email: res.data.email,
+      })
       return res.data
     },
     select: (data) => {
@@ -38,20 +42,6 @@ export const useUserQuery = () => {
     enabled: !!localStorage.getItem("jwt"),
   })
 }
-
-// export const PROFILE_QUERY = 'profile'
-// export const useUserProfile = (username: string, initialData?: User) => {
-//   return useQuery(
-//     [PROFILE_QUERY, username],
-//     async () => {
-//       const res = await getProfile(username)
-//       return res.data
-//     },
-//     {
-//       initialData
-//     }
-//   )
-// }
 
 export const useUserLogin = () => {
   const queryClient = useQueryClient()
