@@ -12,6 +12,8 @@ type Weights = {
 export const WeightBreakdown = () => {
   const { packs } = useTripPacks((store) => ({ packs: store.packs }), shallow)
 
+  const allItems = packs.flatMap(({ items }) => items)
+
   // TODO: Use default weight unit from user settings
   const weightUnit = packs[0]?.items[0]?.item.unit || "g"
   const aggregateWeightUnit = getAggregateUnit(weightUnit)
@@ -62,18 +64,20 @@ export const WeightBreakdown = () => {
 
   return (
     <div className="mt-4">
-      <h3 className="mb-2">Weight Breakdown</h3>
+      <h3 className="mb-2">Pack Weights</h3>
       <PackWeights
         title="Total"
         weights={totals}
         aggregateWeightUnit={aggregateWeightUnit}
+        items={allItems}
       />
       {packs.length > 1 &&
-        breakdowns.map(({ title, weights }) => (
+        breakdowns.map(({ title, weights }, idx) => (
           <PackWeights
             key={title}
             title={title}
             weights={weights}
+            items={packs[idx].items}
             aggregateWeightUnit={aggregateWeightUnit}
           />
         ))}

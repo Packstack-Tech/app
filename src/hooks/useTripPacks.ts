@@ -50,7 +50,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       const packs = state.packs.filter((_, i) => i !== index)
       const selectedIndex =
         index === state.selectedIndex ? 0 : state.selectedIndex
-      return { ...state, selectedIndex, packs, synced: false }
+      return { ...state, selectedIndex, packs }
     }),
   updatePack: (index, key, value) =>
     set((state) => {

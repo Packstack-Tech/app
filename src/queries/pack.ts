@@ -156,6 +156,7 @@ export const useDeletePack = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [UNASSIGNED_PACKS_QUERY] })
+      queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY] })
       toast({
         title: "Pack deleted.",
       })

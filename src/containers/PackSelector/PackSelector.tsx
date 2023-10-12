@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
+import { useDeletePack } from "@/queries/pack"
 
 import { EditPackDialog } from "./EditPackDialog"
 import { DeletePackDialog } from "./DeletePackDialog"
@@ -21,6 +22,7 @@ interface Props {
 export const PackSelector: FC<Props> = ({ pack }) => {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const deletePack = useDeletePack()
   const { selectedIndex, selectPack, updatePack, removePack } = useTripPacks(
     (store) => ({
       selectedIndex: store.selectedIndex,
@@ -42,6 +44,9 @@ export const PackSelector: FC<Props> = ({ pack }) => {
   }
 
   const handleDelete = () => {
+    if (pack.id) {
+      deletePack.mutate(pack.id)
+    }
     removePack(pack.index)
     setDeleteOpen(false)
   }
