@@ -1,12 +1,14 @@
 import { FC, useMemo } from "react"
 import { shallow } from "zustand/shallow"
+import { CopyToClipboard } from "react-copy-to-clipboard"
+import { Link } from "lucide-react"
 import { useCategorizedPackItems } from "@/hooks/useCategorizedPackItems"
+import { useCategorizedWeights } from "@/hooks/useCategorizedWeights"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { CategorizedPackItemsTable } from "@/components/Tables/CategorizedPackItemsTable"
 import { Checkbox } from "@/components/ui/Checkbox"
 import { Label } from "@/components/ui/Label"
-import { CopyToClipboard } from "react-copy-to-clipboard"
-import { Link } from "lucide-react"
+import { BreakdownDialog } from "@/containers/BreakdownDialog"
 
 import { columns } from "./columns"
 import { PackTabs } from "../PackTabs/PackTabs"
@@ -54,6 +56,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
   )
 
   const categorizedItems = useCategorizedPackItems(packs[selectedIndex].items)
+  const categorizedWeights = useCategorizedWeights(categorizedItems)
 
   return (
     <div>
@@ -81,22 +84,25 @@ export const PackingList: FC<Props> = ({ trip }) => {
             Display checklist
           </Label>
         </div>
-        {!!trip && (
-          <CopyToClipboard
-            text={`https://packstack.io/pack/${trip.uuid}`}
-            onCopy={() =>
-              toast({
-                title: "Link copied",
-                duration: 1000,
-              })
-            }
-          >
-            <button className="flex gap-1 text-xs items-center text-primary active:text-white">
-              <Link width={10} />
-              Copy shareable link
-            </button>
-          </CopyToClipboard>
-        )}
+        <div className="flex items-center gap-3">
+          <BreakdownDialog data={categorizedWeights} />
+          {!!trip && (
+            <CopyToClipboard
+              text={`https://packstack.io/pack/${trip.uuid}`}
+              onCopy={() =>
+                toast({
+                  title: "Link copied",
+                  duration: 1000,
+                })
+              }
+            >
+              <button className="flex gap-1 text-xs items-center text-primary active:text-white">
+                <Link width={10} />
+                Copy shareable link
+              </button>
+            </CopyToClipboard>
+          )}
+        </div>
       </div>
       {categorizedItems.length === 0 && (
         <EmptyState subheading="Empty pack" heading="Add gear to your pack">

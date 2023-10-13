@@ -1,13 +1,6 @@
 import { useMemo } from "react"
 import { convertWeight, getAggregateUnit } from "@/lib/weight"
-import { CategoryPackItems } from "@/types/category"
-import { Unit } from "@/types/item"
-
-export type CategoryWeight = {
-  label: string
-  value: number
-  unit: Unit
-}
+import { CategoryPackItems, CategoryWeight } from "@/types/category"
 
 export const useCategorizedWeights = (data: CategoryPackItems[]) => {
   return useMemo(

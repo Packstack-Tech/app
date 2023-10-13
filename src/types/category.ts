@@ -1,4 +1,4 @@
-import { Item } from "./item"
+import { Item, Unit } from "./item"
 import { PackItem } from "./pack"
 
 export type Category = {
@@ -31,4 +31,10 @@ export type CategorizedItems = {
 
 export type CategorizedPackItems = {
   [key: string]: CategoryPackItems
+}
+
+export type CategoryWeight = {
+  label: string
+  value: number
+  unit: Unit
 }
