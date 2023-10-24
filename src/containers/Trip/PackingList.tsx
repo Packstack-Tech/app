@@ -19,6 +19,7 @@ import { useCreateTrip, useUpdateTrip } from "@/queries/trip"
 import { EmptyState } from "@/components/EmptyState"
 import { Trip } from "@/types/trip"
 import { useToast } from "@/hooks/useToast"
+import { Mixpanel } from "@/lib/mixpanel"
 
 type Props = {
   trip?: Trip
@@ -89,12 +90,13 @@ export const PackingList: FC<Props> = ({ trip }) => {
           {!!trip && (
             <CopyToClipboard
               text={`https://packstack.io/pack/${trip.uuid}`}
-              onCopy={() =>
+              onCopy={() => {
+                Mixpanel.track("Trip:Copy shareable link", { id: trip.uuid })
                 toast({
                   title: "Link copied",
                   duration: 1000,
                 })
-              }
+              }}
             >
               <button className="flex gap-1 text-xs items-center text-primary active:text-white">
                 <Link width={10} />

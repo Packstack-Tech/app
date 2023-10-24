@@ -24,6 +24,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/Select"
 import { ScrollArea } from "@/components/ui/ScrollArea"
+import { Mixpanel } from "@/lib/mixpanel"
 
 type SettingsForm = {
   email: string
@@ -51,7 +52,11 @@ export const Settings = () => {
   })
 
   const onSubmit = (data: SettingsForm) => {
-    updateUser.mutate(data)
+    updateUser.mutate(data, {
+      onSuccess: () => {
+        Mixpanel.track("Settings:Updated", { ...data })
+      },
+    })
   }
 
   const onLogout = () => {

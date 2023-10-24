@@ -9,6 +9,7 @@ import {
 import { CategoryWeight } from "@/types/category"
 import { FC } from "react"
 import { PieChart } from "lucide-react"
+import { Mixpanel } from "@/lib/mixpanel"
 
 interface Props {
   data: CategoryWeight[]
@@ -23,7 +24,10 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="flex gap-1 text-xs items-center text-primary active:text-white">
+        <button
+          className="flex gap-1 text-xs items-center text-primary active:text-white"
+          onClick={() => Mixpanel.track("Pack:View breakdown")}
+        >
           <PieChart size={12} /> View breakdown
         </button>
       </DialogTrigger>

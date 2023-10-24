@@ -9,6 +9,7 @@ import { useCategorizedItems } from "@/hooks/useCategorizedItems"
 import { InventoryItem } from "../Trip/InventoryItem"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { Item } from "@/types/item"
+import { Mixpanel } from "@/lib/mixpanel"
 
 export const InventorySidebar = () => {
   const [addItemOpen, setAddItemOpen] = useState(false)
@@ -49,9 +50,13 @@ export const InventorySidebar = () => {
           variant="outline"
           className="gap-1"
           size="sm"
-          onClick={() => setAddItemOpen(true)}
+          onClick={() => {
+            setAddItemOpen(true)
+            Mixpanel.track("Trip:Inventory:Add gear button:tapped")
+          }}
         >
-          <Plus size={12} /> <span>Add Gear</span>
+          <Plus size={12} />
+          <span>Add Gear</span>
         </Button>
       </div>
       <div className="mb-2">
