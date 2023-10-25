@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react"
+import { FC, useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -68,6 +68,19 @@ type Props = {
   children?: React.ReactNode
 }
 
+const formDefaults = (item?: Item) => ({
+  name: item?.name || "",
+  brand_id: item?.brand_id || undefined,
+  product_id: item?.product_id || undefined,
+  category_id: item?.category?.category_id || undefined,
+  weight: item?.weight || 0,
+  unit: item?.unit || "g",
+  price: item?.price || 0,
+  consumable: item?.consumable || false,
+  product_url: item?.product_url || "",
+  notes: item?.notes || "",
+})
+
 export const ItemForm: FC<Props> = ({
   item,
   title,
@@ -85,19 +98,12 @@ export const ItemForm: FC<Props> = ({
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: item?.name || "",
-      brand_id: item?.brand_id || undefined,
-      product_id: item?.product_id || undefined,
-      category_id: item?.category?.category_id || undefined,
-      weight: item?.weight || 0,
-      unit: item?.unit || "g",
-      price: item?.price || 0,
-      consumable: item?.consumable || false,
-      product_url: item?.product_url || "",
-      notes: item?.notes || "",
-    },
+    defaultValues: formDefaults(item),
   })
+
+  useEffect(() => {
+    form.reset(formDefaults(item))
+  }, [item])
 
   const { data: brands } = useBrands()
   const { data: categories } = useCategories()
