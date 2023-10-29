@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui"
+import { useState, useEffect, FC } from "react"
 import {
   Dialog,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogContent,
 } from "@/components/ui/Dialog"
 import { useCategorizedItems } from "@/hooks/useCategorizedItems"
@@ -12,7 +10,12 @@ import { Category } from "./Category"
 import { useUpdateCategorySort } from "@/queries/item"
 import { ScrollArea } from "@/components/ui/ScrollArea"
 
-export const UpdateCategoryOrder = () => {
+interface Props {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export const UpdateCategoryOrder: FC<Props> = ({ open, onOpenChange }) => {
   const initCategories = useCategorizedItems({})
   const updateCategorySort = useUpdateCategorySort()
   const [categories, setCategories] = useState(initCategories)
@@ -44,10 +47,7 @@ export const UpdateCategoryOrder = () => {
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Category Order</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-80">
         <DialogHeader>
           <DialogTitle>Category Order</DialogTitle>

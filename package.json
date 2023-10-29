@@ -37,6 +37,7 @@
     "date-fns": "^2.30.0",
     "eslint": "8.41.0",
     "eslint-config-next": "13.4.4",
+    "file-saver": "^2.0.5",
     "fuse.js": "^6.6.2",
     "lucide-react": "^0.241.0",
     "mixpanel-browser": "^2.47.0",
@@ -57,6 +58,7 @@
     "zustand": "^4.3.8"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.6",
     "@types/mixpanel-browser": "^2.47.1",
     "@types/node": "^20.4.5",
     "@types/react": "^18.2.15",
