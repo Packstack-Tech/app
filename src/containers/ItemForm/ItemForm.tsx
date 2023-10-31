@@ -38,7 +38,12 @@ import {
 } from "@/components/ui/Select"
 import { Item, ItemForm as ItemFormValues, Unit } from "@/types/item"
 import { ScrollArea } from "@/components/ui/ScrollArea"
-import { useCreateItem, useDeleteItem, useUpdateItem } from "@/queries/item"
+import {
+  useCreateItem,
+  useDeleteItem,
+  useUpdateItem,
+  useProductDetails,
+} from "@/queries/item"
 import { Label } from "@/components/ui/Label"
 import { convertWeight } from "@/lib/weight"
 
@@ -93,8 +98,7 @@ export const ItemForm: FC<Props> = ({
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
   const deleteItem = useDeleteItem()
-
-  // TODO on select product, search for existing items and populate form
+  const productDetails = useProductDetails()
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(schema),
@@ -137,6 +141,19 @@ export const ItemForm: FC<Props> = ({
       })),
     [categories]
   )
+
+  const onSelectProduct = (id: number) => {
+    const brandId = form.getValues("brand_id")
+    productDetails.mutate(
+      { productId: id, brandId },
+      {
+        onSuccess: (data) => {
+          form.setValue("weight", data.median)
+          form.setValue("unit", data.unit)
+        },
+      }
+    )
+  }
 
   const onSubmit = (data: ItemFormValues) => {
     if (item) {
@@ -223,7 +240,9 @@ export const ItemForm: FC<Props> = ({
                     if (isNew) {
                       form.setValue("product_new", label)
                     } else {
-                      form.setValue("product_id", value as number)
+                      const id = value as number
+                      form.setValue("product_id", id)
+                      onSelectProduct(id)
                     }
                   }}
                   onRemove={() => {
@@ -275,6 +294,7 @@ export const ItemForm: FC<Props> = ({
                           type="number"
                           step=".01"
                           placeholder="0.00"
+                          disabled={productDetails.isPending}
                           onFocus={() => {
                             if (!field.value) field.onChange("")
                           }}
@@ -302,6 +322,8 @@ export const ItemForm: FC<Props> = ({
                           field.onChange(v)
                         }}
                         defaultValue={field.value}
+                        value={field.value}
+                        disabled={productDetails.isPending}
                       >
                         <FormControl>
                           <SelectTrigger className="w-16">

@@ -46,3 +46,9 @@ export type Item = {
   brand?: Brand
   product?: Product
 }
+
+export type ProductDetails = {
+  median: number
+  items: number
+  unit: Unit
+}

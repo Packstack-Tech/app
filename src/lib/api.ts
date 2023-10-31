@@ -24,7 +24,7 @@ import { Trip, CreateTrip, EditTrip } from "@/types/trip"
 import { Resources, Brand, BrandProducts, Product } from "@/types/resources"
 import { TripImage } from "@/types/image"
 import { Category, ItemCategory } from "@/types/category"
-import { EditItem, Item, ItemForm } from "@/types/item"
+import { EditItem, Item, ItemForm, ProductDetails } from "@/types/item"
 import { Pack } from "@/types/pack"
 
 /**
@@ -197,6 +197,11 @@ export const importInventory = (data: UploadInventory) => {
     },
   })
 }
+
+export const getProductDetails = (data: {
+  brandId?: number
+  productId?: number
+}) => http.post<ProductDetails>(`/item/product-details`, data)
 
 /**
  * Misc endpoints

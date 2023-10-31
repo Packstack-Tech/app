@@ -2,6 +2,7 @@ import {
   createItem,
   deleteItem,
   getInventory,
+  getProductDetails,
   updateCategorySortOrder,
   updateItem,
   updateItemSortOrder,
@@ -111,6 +112,25 @@ export const useUpdateCategorySort = () => {
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
     },
+  })
+}
+
+type ProductDetailParams = {
+  brandId?: number
+  productId?: number
+}
+
+const PRODUCT_DETAILS_QUERY = "product-details-query"
+
+export const useProductDetails = () => {
+  return useMutation({
+    mutationKey: [PRODUCT_DETAILS_QUERY],
+    mutationFn: async (params: ProductDetailParams) => {
+      const res = await getProductDetails(params)
+      return res.data
+    },
+    retry: false,
+    onSuccess: (data) => Mixpanel.track("ProductDetails:Fetch", data),
   })
 }
 
