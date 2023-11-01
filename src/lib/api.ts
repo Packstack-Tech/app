@@ -3,27 +3,18 @@ import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
-  CreateCategory,
-  CreateBrand,
-  DeleteTripImageResponse,
   UploadAvatar,
-  UploadImage,
   UpdateUser,
-  UpdateTripPhotoOrder,
-  UpdateTripImage,
-  CreateProduct,
   UpdateItemSortOrder,
   PackPayload,
-  UpdatePackItemPayload,
   UploadInventory,
   ImportInventoryResponse,
   PasswordReset,
 } from "@/types/api"
 import { User } from "@/types/user"
 import { Trip, CreateTrip, EditTrip } from "@/types/trip"
-import { Resources, Brand, BrandProducts, Product } from "@/types/resources"
-import { TripImage } from "@/types/image"
-import { Category, ItemCategory } from "@/types/category"
+import { Brand, BrandProducts } from "@/types/resources"
+import { Category } from "@/types/category"
 import { EditItem, Item, ItemForm, ProductDetails } from "@/types/item"
 import { Pack } from "@/types/pack"
 
@@ -64,8 +55,6 @@ export const resetPassword = (data: PasswordReset) =>
  * Trip endpoints
  */
 
-export const getTripFeed = () => http.get<Trip[]>("/trip")
-
 export const getTrip = (tripId?: string | number) =>
   http.get<Trip>(`/trip/${tripId}`)
 
@@ -76,43 +65,12 @@ export const editTrip = (data: EditTrip) => http.put<Trip>("/trip", data)
 export const cloneTrip = (tripId: number) =>
   http.post<Trip>(`/trip/${tripId}/clone`)
 
-export const uploadTripImage = (data: UploadImage) => {
-  const formData = new FormData()
-  formData.append("file", data.file)
-
-  return http.post<TripImage>(
-    `/trip/${data.entity_id}/upload-image`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  )
-}
-
-export const updateTripImage = (data: UpdateTripImage) =>
-  http.put<TripImage>(`/trip/${data.pack_id}/image/${data.image_id}`, {
-    caption: data.caption,
-  })
-
-export const deleteTripImage = (tripId: number, imageId: number) =>
-  http.delete<DeleteTripImageResponse>(`/trip/${tripId}/image/${imageId}`)
-
-export const updateImageOrder = (data: UpdateTripPhotoOrder) =>
-  http.post<boolean>(`/trip/${data.pack_id}/sort-photos`, data.sort_order)
-
 export const deleteTrip = (tripId: number) =>
   http.delete<boolean>(`/trip/${tripId}`)
-
-export const toggleTripPublish = (tripId: number) =>
-  http.put<Trip>(`/trip/${tripId}/publish`)
 
 /**
  * Pack endpoints
  */
-
-export const getPacks = () => http.get<Pack[]>("/packs")
 
 export const getPack = (id?: string | number) => http.get<Pack>(`/pack/${id}`)
 
@@ -123,15 +81,6 @@ export const createPack = (data: PackPayload) => http.post<Pack>("/pack", data)
 
 export const updatePack = (packId: number, data: PackPayload) =>
   http.put(`/pack/${packId}`, data)
-
-export const updatePackItem = (
-  packId: number,
-  itemId: number,
-  data: UpdatePackItemPayload
-) => http.put<boolean>(`/pack/${packId}/item/${itemId}`, data)
-
-export const assignPack = (packId: number, trip_id?: number) =>
-  http.put<Pack>(`/pack/${packId}/assign`, { trip_id })
 
 export const deletePack = (packId: number) => http.delete(`/pack/${packId}`)
 
@@ -147,17 +96,14 @@ export const getUnassignedPacks = () =>
 
 export const getCategories = () => http.get<Category[]>("/category")
 
-export const createCategory = (data: CreateCategory) =>
-  http.post<ItemCategory>("/category", data)
-
 /**
  * Brand endpoints
  */
 
 export const getBrands = () => http.get<Brand[]>("/resources/brands")
 
-export const createBrand = (data: CreateBrand) =>
-  http.post<Brand>("/resources/brand", data)
+export const searchBrands = (query: string) =>
+  http.get<Brand[]>(`/resources/brand/search/${query}`)
 
 /**
  * Product endpoints
@@ -166,8 +112,10 @@ export const createBrand = (data: CreateBrand) =>
 export const getProducts = (brandId?: number) =>
   http.get<BrandProducts>(`/resources/brand/${brandId}`)
 
-export const createProduct = (data: CreateProduct) =>
-  http.post<Product>("/resources/product", data)
+export const getProductDetails = (data: {
+  brandId?: number
+  productId?: number
+}) => http.post<ProductDetails>(`/resources/product-details`, data)
 
 /**
  * Item endpoints
@@ -197,14 +145,3 @@ export const importInventory = (data: UploadInventory) => {
     },
   })
 }
-
-export const getProductDetails = (data: {
-  brandId?: number
-  productId?: number
-}) => http.post<ProductDetails>(`/item/product-details`, data)
-
-/**
- * Misc endpoints
- */
-
-export const getResources = () => http.get<Resources>("/resources")

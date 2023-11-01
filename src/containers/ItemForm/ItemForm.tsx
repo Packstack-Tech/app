@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { useBrands, useProducts } from "@/queries/resources"
+import { useProducts, useSearchBrands } from "@/queries/resources"
 
 import { Input } from "@/components/ui"
 import { Button } from "@/components/ui"
@@ -94,11 +94,13 @@ export const ItemForm: FC<Props> = ({
   onClose,
   children,
 }) => {
+  const [brandSearch, setBrandSearch] = useState("")
   const [another, setAnother] = useState(false)
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
   const deleteItem = useDeleteItem()
   const productDetails = useProductDetails()
+  const searchBrands = useSearchBrands(brandSearch)
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(schema),
@@ -109,7 +111,7 @@ export const ItemForm: FC<Props> = ({
     form.reset(formDefaults(item))
   }, [item])
 
-  const { data: brands } = useBrands()
+  // const { data: brands } = useBrands()
   const { data: categories } = useCategories()
   const { data: brand } = useProducts(form.watch("brand_id"))
 
@@ -117,11 +119,11 @@ export const ItemForm: FC<Props> = ({
 
   const brandOptions = useMemo(
     () =>
-      (brands || []).map(({ id, name }) => ({
+      (searchBrands.data || []).map(({ id, name }) => ({
         label: name,
         value: id,
       })),
-    [brands]
+    [searchBrands.data]
   )
 
   const productOptions = useMemo(
@@ -212,6 +214,8 @@ export const ItemForm: FC<Props> = ({
                 <Combobox
                   value={form.watch("brand_id")}
                   options={brandOptions}
+                  onSearch={setBrandSearch}
+                  isLoading={searchBrands.isLoading}
                   onSelect={({ label, value, isNew }) => {
                     if (isNew) {
                       form.setValue("brand_new", label)

@@ -14,6 +14,9 @@ type Props = {
   options: Option[]
   disabled?: boolean
   onSelect: (value: CreateableOption) => void
+  onSearch?: (value: string) => void
+  isLoading?: boolean
+  placeholder?: string
   onRemove: () => void
 }
 
@@ -21,12 +24,19 @@ export const Combobox: FC<Props> = ({
   value,
   options,
   disabled,
+  isLoading,
+  placeholder,
   onSelect,
+  onSearch,
   onRemove,
 }) => {
   const [search, setSearch] = useState("")
   const [selected, setSelected] = useState(false)
   const [focused, setFocused] = useState(false)
+
+  useEffect(() => {
+    if (onSearch) onSearch(search)
+  }, [onSearch, search])
 
   useEffect(() => {
     if (value) {
@@ -36,10 +46,12 @@ export const Combobox: FC<Props> = ({
         setSelected(true)
       }
     } else {
-      setSearch("")
-      setSelected(false)
+      if (!onSearch) {
+        setSearch("")
+        setSelected(false)
+      }
     }
-  }, [value, options])
+  }, [value, options, onSearch])
 
   const filteredResults = useFuzzySearch(options, search)
 
@@ -68,7 +80,7 @@ export const Combobox: FC<Props> = ({
         <div className="relative">
           <Input
             value={search}
-            placeholder="search..."
+            placeholder={placeholder || "Search..."}
             onChange={(e) => setSearch(e.target.value)}
             onFocus={() => setFocused(true)}
             onKeyDown={(e) => {
@@ -117,7 +129,7 @@ export const Combobox: FC<Props> = ({
               {option.label}
             </button>
           ))}
-          {filteredResults.length === 0 && search.length > 0 && (
+          {filteredResults.length === 0 && search.length > 0 && !isLoading && (
             <Button
               onClick={onCreateItem}
               size="sm"
@@ -127,11 +139,18 @@ export const Combobox: FC<Props> = ({
               Create &quot;{search}&quot;
             </Button>
           )}
-          {filteredResults.length === 0 && search.length === 0 && (
-            <p className="text-xs p-2">
-              No options available. Type to create one.
-            </p>
+          {isLoading && <p className="text-xs p-2">Loading results...</p>}
+          {!isLoading && onSearch && !search && (
+            <p className="text-xs p-2">Begin typing to search...</p>
           )}
+          {!isLoading &&
+            !onSearch &&
+            filteredResults.length === 0 &&
+            search.length === 0 && (
+              <p className="text-xs p-2">
+                No options available. Type to create one.
+              </p>
+            )}
         </ScrollArea>
       </PopoverContent>
     </Popover>
