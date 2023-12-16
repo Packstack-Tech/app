@@ -111,7 +111,6 @@ export const ItemForm: FC<Props> = ({
     form.reset(formDefaults(item))
   }, [item])
 
-  // const { data: brands } = useBrands()
   const { data: categories } = useCategories()
   const { data: brand } = useProducts(form.watch("brand_id"))
 

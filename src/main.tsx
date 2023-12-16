@@ -11,7 +11,7 @@ import "./index.css"
 import { Toaster } from "@/components/ui/Toaster"
 
 Sentry.init({
-  dsn: "https://184194c188dacdabf7eacf38c54d26fc@o313912.ingest.sentry.io/4505836676186112",
+  dsn: import.meta.env.VITE_SENTRY_DSN,
   enabled: import.meta.env.PROD,
   integrations: [
     new Sentry.BrowserTracing({
