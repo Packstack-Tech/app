@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { DISTANCE, distances } from "@/lib/consts"
+import { DISTANCE, distances, weightUnits } from "@/lib/consts"
 
 import { Box, Button, Input } from "@/components/ui"
 import { useUpdateUser, useUserQuery } from "@/queries/user"
@@ -25,17 +25,20 @@ import {
 } from "@/components/ui/Select"
 import { ScrollArea } from "@/components/ui/ScrollArea"
 import { Mixpanel } from "@/lib/mixpanel"
+import { SYSTEM_UNIT } from "@/lib/consts"
 
 type SettingsForm = {
   email: string
   currency: string
   unit_distance: DISTANCE
+  unit_weight: SYSTEM_UNIT
 }
 
 const schema = z.object({
   email: z.string().email(),
   currency: z.string(),
   unit_distance: z.string(),
+  unit_weight: z.enum(["IMPERIAL", "METRIC"]),
 })
 
 export const Settings = () => {
@@ -48,6 +51,7 @@ export const Settings = () => {
       email: data?.email || "",
       currency: data?.currency.code || "",
       unit_distance: data?.unit_distance || DISTANCE.Kilometers,
+      unit_weight: data?.unit_weight || "METRIC",
     },
   })
 
@@ -86,6 +90,36 @@ export const Settings = () => {
 
             <FormField
               control={form.control}
+              name="unit_weight"
+              render={({ field }) => (
+                <FormItem className="my-4">
+                  <FormLabel>Weight Unit</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder="Select weight unit..."
+                          defaultValue={field.value}
+                        />
+                        <SelectContent>
+                          {weightUnits.map(({ label, value }) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </SelectTrigger>
+                    </FormControl>
+                  </Select>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="currency"
               render={({ field }) => (
                 <FormItem className="my-4">
@@ -112,6 +146,7 @@ export const Settings = () => {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="unit_distance"
@@ -142,6 +177,7 @@ export const Settings = () => {
               )}
             />
           </Form>
+
           <div className="flex justify-between">
             <Button
               variant="outline"
