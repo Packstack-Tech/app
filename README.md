@@ -1,8 +1,8 @@
-# Get Started
+# Intro
 
-Packstack is built with React, Typescript and Vite
+Packstack is a gear management system and packing list builder for backpackers and outdoor enthusiasts. The UI is built with React, Typescript and Vite.
 
-### Environment variables
+### Getting started
 
 First, set up your local env variables
 
@@ -15,7 +15,7 @@ VITE_SENTRY_DSN=
 
 _*Note:*_ Once the server is dockerized, documentation will be added for setting up the backend and database locally.
 
-### Start the development server
+### Start the server
 
 `npm i`
 `npm run dev`
