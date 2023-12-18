@@ -74,4 +74,8 @@
   label {
     @apply text-slate-200 text-sm inline-block mb-1;
   }
+
+  .link {
+    @apply text-primary underline;
+  }
 }

@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui"
 import { EmptyState } from "@/components/EmptyState"
 import { Trip } from "@/types/trip"
+import { DonationMessage } from "../DonationMessage"
 
 const DATE_FORMAT = "MMM dd, yyyy"
 
@@ -43,6 +44,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
 
   return (
     <div>
+      <DonationMessage />
       <div className="mb-2 flex justify-between items-center">
         <h2>Packing Lists</h2>
         <Button

@@ -156,6 +156,19 @@ export const Settings = () => {
           </div>
         </form>
       </Box>
+      <Box className="mt-8">
+        <p>
+          Packstack is open-source software. You can find the code repository on{" "}
+          <a
+            href="https://github.com/Packstack-Tech/app"
+            target="_blank"
+            className="link"
+          >
+            Github
+          </a>
+          .
+        </p>
+      </Box>
     </div>
   )
 }
