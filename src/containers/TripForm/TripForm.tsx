@@ -23,11 +23,11 @@ import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/Calendar"
 import { useCreateTrip, useUpdateTrip } from "@/queries/trip"
 import { useCreatePack, useUpdatePack } from "@/queries/pack"
-import { useUserQuery } from "@/queries/user"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { shallow } from "zustand/shallow"
 import { useToast } from "@/hooks/useToast"
 import { dateToUtc } from "@/lib/utils"
+import { useUser } from "@/hooks/useUser"
 
 type TripFormValues = {
   location: string
@@ -53,7 +53,7 @@ const formDefaults = (trip?: Trip): TripFormValues => ({
 // TODO define ZOD schema for validation
 export const TripForm: FC<Props> = ({ trip }) => {
   const { toast } = useToast()
-  const { data: user } = useUserQuery()
+  const user = useUser()
   const { packs, synced } = useTripPacks(
     (store) => ({
       packs: store.packs,
@@ -208,7 +208,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
             render={({ field }) => (
               <FormItem className="my-2">
                 <FormLabel htmlFor={field.name}>
-                  Distance ({user?.unit_distance})
+                  Distance ({user.unit_distance})
                 </FormLabel>
                 <FormControl>
                   <Input

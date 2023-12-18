@@ -12,12 +12,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table"
-import { getAggregateUnit, convertWeight } from "@/lib/weight"
+import { convertWeight } from "@/lib/weight"
 
 import { fuzzyFilter } from "@/components/Tables/lib/fuzzyFilter"
 import { ItemRow } from "./ItemRow"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { PackItem } from "@/types/pack"
+import { useUser } from "@/hooks/useUser"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -30,6 +31,7 @@ export function CategorizedPackItemsTable<TData, TValue>({
   data,
   category,
 }: DataTableProps<TData, TValue>) {
+  const user = useUser()
   const { setCategoryItems } = useTripPacks((store) => ({
     setCategoryItems: store.setCategoryItems,
   }))
@@ -59,10 +61,6 @@ export function CategorizedPackItemsTable<TData, TValue>({
 
   if (!table.getRowModel().rows?.length) return null
 
-  const aggregateWeightUnit = getAggregateUnit(
-    (table.getRowModel().rows[0].original as PackItem).item.unit
-  )
-
   const categoryWeight = table.getRowModel().rows.reduce((acc, curr) => {
     const row = curr.original as PackItem
     if (!row.item.weight) return acc
@@ -70,7 +68,7 @@ export function CategorizedPackItemsTable<TData, TValue>({
     const weight = convertWeight(
       row.item.weight,
       row.item.unit,
-      aggregateWeightUnit
+      user.conversion_unit
     )
     return acc + weight.weight * row.quantity
   }, 0)
@@ -80,7 +78,7 @@ export function CategorizedPackItemsTable<TData, TValue>({
       <div className="rounded-t-sm px-2 py-1 bg-slate-900 flex justify-between items-center">
         <h3 className="font-bold text-primary text-sm">{category}</h3>
         <span className="text-xs text-primary">
-          {categoryWeight.toFixed(2)} {aggregateWeightUnit}
+          {categoryWeight.toFixed(2)} {user.conversion_unit}
         </span>
       </div>
       <div className="rounded-b-sm border border-slate-900">
