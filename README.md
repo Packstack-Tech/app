@@ -17,5 +17,5 @@ _*Note:*_ Once the server is dockerized, documentation will be added for setting
 
 ### Start the server
 
-`npm i`
-`npm run dev`
+- `npm i`
+- `npm run dev`
