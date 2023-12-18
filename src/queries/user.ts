@@ -16,6 +16,7 @@ import {
 import { getCurrency } from "@/lib/currencies"
 import { useToast } from "@/hooks/useToast"
 import { Mixpanel } from "@/lib/mixpanel"
+import { getConversionUnit } from "@/lib/weight"
 
 export const USER_QUERY = "user"
 export const useUserQuery = () => {
@@ -36,7 +37,13 @@ export const useUserQuery = () => {
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
-      return { ...data, currency: getCurrency(data.currency), trips }
+      const conversion_unit = getConversionUnit(data.unit_weight)
+      return {
+        ...data,
+        currency: getCurrency(data.currency),
+        trips,
+        conversion_unit,
+      }
     },
     retry: false,
     enabled: !!localStorage.getItem("jwt"),

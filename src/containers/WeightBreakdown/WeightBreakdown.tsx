@@ -1,7 +1,8 @@
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { shallow } from "zustand/shallow"
 import { PackWeights } from "./PackWeights"
-import { getAggregateUnit, convertWeight } from "@/lib/weight"
+import { convertWeight } from "@/lib/weight"
+import { useUser } from "@/hooks/useUser"
 
 type Weights = {
   worn: number
@@ -10,11 +11,8 @@ type Weights = {
 }
 
 export const WeightBreakdown = () => {
+  const user = useUser()
   const { packs } = useTripPacks((store) => ({ packs: store.packs }), shallow)
-
-  // TODO: Use default weight unit from user settings
-  const weightUnit = packs[0]?.items[0]?.item.unit || "g"
-  const aggregateWeightUnit = getAggregateUnit(weightUnit)
 
   const breakdowns = packs.map(({ items, title }) => {
     const weightCategories = items.reduce(
@@ -22,7 +20,7 @@ export const WeightBreakdown = () => {
         const weight = convertWeight(
           item.weight || 0,
           item.unit,
-          aggregateWeightUnit
+          user.conversion_unit
         )
         const quantityWeight = weight.weight * quantity
 
@@ -66,7 +64,7 @@ export const WeightBreakdown = () => {
       <PackWeights
         title="Total"
         weights={totals}
-        aggregateWeightUnit={aggregateWeightUnit}
+        aggregateWeightUnit={user.conversion_unit}
       />
       {packs.length > 1 &&
         breakdowns.map(({ title, weights }) => (
@@ -74,7 +72,7 @@ export const WeightBreakdown = () => {
             key={title}
             title={title}
             weights={weights}
-            aggregateWeightUnit={aggregateWeightUnit}
+            aggregateWeightUnit={user.conversion_unit}
           />
         ))}
     </div>

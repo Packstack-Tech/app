@@ -1,6 +1,8 @@
 import { DISTANCE, SYSTEM_UNIT } from "@/lib/consts"
 import { AvatarImage } from "./image"
 import { Trip } from "./trip"
+import { Currency } from "@/lib/currencies"
+import { Unit } from "./item"
 
 export type User = {
   id: number
@@ -25,4 +27,9 @@ export type User = {
   personal_url: string | null
   avatar: AvatarImage | null
   trips: Trip[]
+}
+
+export type UserInfo = Omit<User, "currency"> & {
+  currency: Currency
+  conversion_unit: Unit
 }

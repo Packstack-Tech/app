@@ -1,12 +1,11 @@
 import { FC, useMemo } from "react"
 
 import { useCategorizedItems } from "@/hooks/useCategorizedItems"
-import { useUserQuery } from "@/queries/user"
-import { getCurrency } from "@/lib/currencies"
 import { CategorizedItemsTable } from "@/components/Tables/CategorizedItemsTable"
 import { columns } from "./columns"
 
 import { EmptyState } from "@/components/EmptyState"
+import { useUser } from "@/hooks/useUser"
 
 type Props = {
   searchFilter?: string
@@ -17,13 +16,10 @@ export const InventoryTable: FC<Props> = ({
   searchFilter,
   onSearchFilterChange,
 }) => {
-  const { data: userData } = useUserQuery()
+  const user = useUser()
   const data = useCategorizedItems({})
 
-  const tableCols = useMemo(
-    () => columns(userData?.currency || getCurrency("USD")),
-    [userData?.currency]
-  )
+  const tableCols = useMemo(() => columns(user.currency), [user.currency])
 
   return (
     <div>

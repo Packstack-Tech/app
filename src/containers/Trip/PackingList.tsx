@@ -12,21 +12,20 @@ import { BreakdownDialog } from "@/containers/BreakdownDialog"
 
 import { columns } from "./columns"
 import { PackTabs } from "../PackTabs/PackTabs"
-import { useUserQuery } from "@/queries/user"
-import { getCurrency } from "@/lib/currencies"
 import { Button } from "@/components/ui"
 import { useCreateTrip, useUpdateTrip } from "@/queries/trip"
 import { EmptyState } from "@/components/EmptyState"
 import { Trip } from "@/types/trip"
 import { useToast } from "@/hooks/useToast"
 import { Mixpanel } from "@/lib/mixpanel"
+import { useUser } from "@/hooks/useUser"
 
 type Props = {
   trip?: Trip
 }
 
 export const PackingList: FC<Props> = ({ trip }) => {
-  const { data } = useUserQuery()
+  const user = useUser()
   const { toast } = useToast()
   const { isPending: creatingTrip } = useCreateTrip()
   const { isPending: updatingTrip } = useUpdateTrip()
@@ -51,10 +50,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
     [packs]
   )
 
-  const tableCols = useMemo(
-    () => columns(data?.currency || getCurrency("USD")),
-    [data?.currency]
-  )
+  const tableCols = useMemo(() => columns(user.currency), [user.currency])
 
   const categorizedItems = useCategorizedPackItems(packs[selectedIndex].items)
   const categorizedWeights = useCategorizedWeights(categorizedItems)

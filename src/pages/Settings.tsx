@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { DISTANCE, distances, weightUnits } from "@/lib/consts"
 
 import { Box, Button, Input } from "@/components/ui"
-import { useUpdateUser, useUserQuery } from "@/queries/user"
+import { useUpdateUser } from "@/queries/user"
 import {
   Form,
   FormControl,
@@ -26,6 +26,7 @@ import {
 import { ScrollArea } from "@/components/ui/ScrollArea"
 import { Mixpanel } from "@/lib/mixpanel"
 import { SYSTEM_UNIT } from "@/lib/consts"
+import { useUser } from "@/hooks/useUser"
 
 type SettingsForm = {
   email: string
@@ -42,16 +43,16 @@ const schema = z.object({
 })
 
 export const Settings = () => {
-  const { data } = useUserQuery()
+  const user = useUser()
   const navigate = useNavigate()
   const updateUser = useUpdateUser()
   const form = useForm<SettingsForm>({
     resolver: zodResolver(schema),
     defaultValues: {
-      email: data?.email || "",
-      currency: data?.currency.code || "",
-      unit_distance: data?.unit_distance || DISTANCE.Kilometers,
-      unit_weight: data?.unit_weight || "METRIC",
+      email: user.email || "",
+      currency: user.currency.code || "",
+      unit_distance: user.unit_distance || DISTANCE.Kilometers,
+      unit_weight: user.unit_weight || "METRIC",
     },
   })
 
