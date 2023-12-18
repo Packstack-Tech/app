@@ -1,4 +1,4 @@
-# Intro
+# Packstack
 
 Packstack is a gear management system and packing list builder for backpackers and outdoor enthusiasts. The UI is built with React, Typescript and Vite.
 
