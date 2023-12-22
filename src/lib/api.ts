@@ -145,3 +145,18 @@ export const importInventory = (data: UploadInventory) => {
     },
   })
 }
+
+export const importLighterpack = (data: UploadInventory) => {
+  const formData = new FormData()
+  formData.append("file", data.file)
+
+  return http.post<ImportInventoryResponse>(
+    "/item/import/lighterpack",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  )
+}

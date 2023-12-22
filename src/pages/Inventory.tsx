@@ -13,12 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 import { MoreHorizontal } from "lucide-react"
+import { ImportLighterpackModal } from "@/containers/ImportLighterpackModal"
 
 export const InventoryPage = () => {
   const { data: inventory } = useInventory()
   const [open, setOpen] = useState(false)
   const [openReorder, setOpenReorder] = useState(false)
+  const [openLighterpackImport, setOpenLighterpackImport] = useState(false)
   const [filter, setFilter] = useState("")
+
   return (
     <div className="px-4 py-2">
       <div className="flex justify-between mb-2">
@@ -47,6 +50,9 @@ export const InventoryPage = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setOpenLighterpackImport(true)}>
+                Import Lighterpack
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadInventory(inventory)}>
                 Export Items
               </DropdownMenuItem>
@@ -57,6 +63,10 @@ export const InventoryPage = () => {
           </DropdownMenu>
         </div>
       </div>
+      <ImportLighterpackModal
+        open={openLighterpackImport}
+        onOpenChange={setOpenLighterpackImport}
+      />
       <UpdateCategoryOrder open={openReorder} onOpenChange={setOpenReorder} />
       <InventoryTable searchFilter={filter} />
     </div>
