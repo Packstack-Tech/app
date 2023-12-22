@@ -15,7 +15,7 @@ import { User } from "@/types/user"
 import { Trip, CreateTrip, EditTrip } from "@/types/trip"
 import { Brand, BrandProducts } from "@/types/resources"
 import { Category } from "@/types/category"
-import { EditItem, Item, ItemForm, ProductDetails } from "@/types/item"
+import { CreateItem, EditItem, Item, ProductDetails } from "@/types/item"
 import { Pack } from "@/types/pack"
 
 /**
@@ -123,7 +123,7 @@ export const getProductDetails = (data: {
 
 export const getInventory = () => http.get<Item[]>("/items")
 
-export const createItem = (data: ItemForm) => http.post<Item>("/item", data)
+export const createItem = (data: CreateItem) => http.post<Item>("/item", data)
 
 export const deleteItem = (itemId: number) => http.delete(`/item/${itemId}`)
 
