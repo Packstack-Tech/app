@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Button, Input } from "@/components/ui"
 import { InventoryTable } from "@/containers/Inventory/InventoryTable"
-import { UpdateCategoryOrder } from "@/containers/UpdateCategoryOrder"
+import { CategoryManagementModal } from "@/containers/CategoryManagementModal"
 import { ItemForm } from "@/containers/ItemForm"
 import { DialogTrigger } from "@/components/ui/Dialog"
 import { useInventory } from "@/queries/item"
@@ -54,10 +54,10 @@ export const InventoryPage = () => {
                 Import Lighterpack
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadInventory(inventory)}>
-                Export Items
+                Export Inventory
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setOpenReorder(true)}>
-                Reorder Categories
+                Manage Categories
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -67,7 +67,10 @@ export const InventoryPage = () => {
         open={openLighterpackImport}
         onOpenChange={setOpenLighterpackImport}
       />
-      <UpdateCategoryOrder open={openReorder} onOpenChange={setOpenReorder} />
+      <CategoryManagementModal
+        open={openReorder}
+        onOpenChange={setOpenReorder}
+      />
       <InventoryTable searchFilter={filter} />
     </div>
   )

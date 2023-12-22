@@ -15,7 +15,7 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-export const UpdateCategoryOrder: FC<Props> = ({ open, onOpenChange }) => {
+export const CategoryManagementModal: FC<Props> = ({ open, onOpenChange }) => {
   const initCategories = useCategorizedItems({})
   const updateCategorySort = useUpdateCategorySort()
   const [categories, setCategories] = useState(initCategories)

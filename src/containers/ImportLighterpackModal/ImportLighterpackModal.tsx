@@ -29,7 +29,7 @@ export const ImportLighterpackModal: FC<Props> = ({ open, onOpenChange }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-1/2">
+      <DialogContent className="w-xl">
         <DialogHeader>
           <DialogTitle>Import Lighterpack</DialogTitle>
         </DialogHeader>

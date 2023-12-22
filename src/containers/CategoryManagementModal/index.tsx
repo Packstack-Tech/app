@@ -1,0 +1,1 @@
+export { CategoryManagementModal } from "./CategoryManagementModal"
