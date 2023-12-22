@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Button, Input } from "@/components/ui"
 import { InventoryTable } from "@/containers/Inventory/InventoryTable"
-import { UpdateCategoryOrder } from "@/containers/UpdateCategoryOrder"
+import { CategoryManagementModal } from "@/containers/CategoryManagementModal"
 import { ItemForm } from "@/containers/ItemForm"
 import { DialogTrigger } from "@/components/ui/Dialog"
 import { useInventory } from "@/queries/item"
@@ -13,12 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 import { MoreHorizontal } from "lucide-react"
+import { ImportLighterpackModal } from "@/containers/ImportLighterpackModal"
 
 export const InventoryPage = () => {
   const { data: inventory } = useInventory()
   const [open, setOpen] = useState(false)
   const [openReorder, setOpenReorder] = useState(false)
+  const [openLighterpackImport, setOpenLighterpackImport] = useState(false)
   const [filter, setFilter] = useState("")
+
   return (
     <div className="px-4 py-2">
       <div className="flex justify-between mb-2">
@@ -47,17 +50,27 @@ export const InventoryPage = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setOpenLighterpackImport(true)}>
+                Import LighterPack
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadInventory(inventory)}>
-                Export Items
+                Export Inventory
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setOpenReorder(true)}>
-                Reorder Categories
+                Manage Categories
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
-      <UpdateCategoryOrder open={openReorder} onOpenChange={setOpenReorder} />
+      <ImportLighterpackModal
+        open={openLighterpackImport}
+        onOpenChange={setOpenLighterpackImport}
+      />
+      <CategoryManagementModal
+        open={openReorder}
+        onOpenChange={setOpenReorder}
+      />
       <InventoryTable searchFilter={filter} />
     </div>
   )

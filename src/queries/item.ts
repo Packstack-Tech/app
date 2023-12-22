@@ -3,11 +3,12 @@ import {
   deleteItem,
   getInventory,
   getProductDetails,
+  importLighterpack,
   updateCategorySortOrder,
   updateItem,
   updateItemSortOrder,
 } from "@/lib/api"
-import { UpdateItemSortOrder } from "@/types/api"
+import { UpdateItemSortOrder, UploadInventory } from "@/types/api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { EditItem, ItemForm } from "@/types/item"
 import { useToast } from "@/hooks/useToast"
@@ -134,15 +135,36 @@ export const useProductDetails = () => {
   })
 }
 
-// export const useImportInventory = () => {
-//   const queryClient = useQueryClient()
-//   return useMutation(
-//     async (data: UploadInventory) => {
-//       const res = await importInventory(data)
-//       return res.data
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries(INVENTORY_QUERY)
-//     }
-//   )
-// }
+export const useImportLighterpack = () => {
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationKey: ["import-lighterpack"],
+    mutationFn: async (data: UploadInventory) => {
+      const res = await importLighterpack(data)
+      return res.data
+    },
+    onSuccess: (resp) => {
+      if (resp.success) {
+        toast({
+          title: "✅ Inventory imported",
+        })
+        queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      } else {
+        const errors = resp.errors.map(
+          ({ line, error }) => `Row ${line}: ${error}`
+        )
+        toast({
+          title: "❌ Inventory import failed",
+          description: errors.join("\n"),
+        })
+      }
+    },
+    onError: () => {
+      toast({
+        title: "❌ Inventory import failed",
+        description: "An unexpected error occurred. Please try again.",
+      })
+    },
+  })
+}
