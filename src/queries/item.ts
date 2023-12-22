@@ -149,8 +149,10 @@ export const useImportLighterpack = () => {
         toast({
           title: "✅ Inventory imported",
         })
+        Mixpanel.track("Import:LighterPack:success", resp)
         queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       } else {
+        Mixpanel.track("Import:LighterPack:failure")
         const errors = resp.errors.map(
           ({ line, error }) => `Row ${line}: ${error}`
         )
@@ -161,6 +163,7 @@ export const useImportLighterpack = () => {
       }
     },
     onError: () => {
+      Mixpanel.track("Import:LighterPack:failure")
       toast({
         title: "❌ Inventory import failed",
         description: "An unexpected error occurred. Please try again.",
