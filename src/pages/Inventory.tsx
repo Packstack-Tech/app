@@ -51,7 +51,7 @@ export const InventoryPage = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => setOpenLighterpackImport(true)}>
-                Import Lighterpack
+                Import LighterPack
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadInventory(inventory)}>
                 Export Inventory

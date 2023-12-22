@@ -31,10 +31,10 @@ export const ImportLighterpackModal: FC<Props> = ({ open, onOpenChange }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-xl">
         <DialogHeader>
-          <DialogTitle>Import Lighterpack</DialogTitle>
+          <DialogTitle>Import LighterPack</DialogTitle>
         </DialogHeader>
         <DialogDescription className="mx-4 mt-4">
-          Import your gear from Lighterpack by uploading your CSV export.
+          Import your gear from LighterPack by uploading your CSV export.
         </DialogDescription>
         <div className="m-4">
           <Dropzone fileExtension="csv" onChange={setFile} />
