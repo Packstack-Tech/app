@@ -49,7 +49,7 @@ import { convertWeight } from "@/lib/weight"
 
 // TODO add field max/min length
 const schema = z.object({
-  name: z.string().min(1, "Name is required"),
+  itemname: z.string().min(1, "Name is required"),
   brand_id: z.number().optional(),
   brand_new: z.string().optional(),
   product_id: z.number().optional(),
@@ -74,7 +74,7 @@ type Props = {
 }
 
 const formDefaults = (item?: Item) => ({
-  name: item?.name || "",
+  itemname: item?.name || "",
   brand_id: item?.brand_id || undefined,
   product_id: item?.product_id || undefined,
   category_id: item?.category?.category_id || undefined,
@@ -157,22 +157,26 @@ export const ItemForm: FC<Props> = ({
   }
 
   const onSubmit = (data: ItemFormValues) => {
+    const { itemname, ...payload } = data
     if (item) {
       updateItem.mutate(
-        { ...data, id: item.id },
+        { ...payload, name: itemname, id: item.id },
         {
           onSuccess: onClose,
         }
       )
     } else {
-      createItem.mutate(data, {
-        onSuccess: () => {
-          form.reset()
-          if (!another) {
-            onClose()
-          }
-        },
-      })
+      createItem.mutate(
+        { ...payload, name: itemname },
+        {
+          onSuccess: () => {
+            form.reset()
+            if (!another) {
+              onClose()
+            }
+          },
+        }
+      )
     }
   }
 
@@ -195,7 +199,7 @@ export const ItemForm: FC<Props> = ({
             <form onSubmit={form.handleSubmit(onSubmit)} id="item-form">
               <FormField
                 control={form.control}
-                name="name"
+                name="itemname"
                 render={({ field }) => (
                   <FormItem className="my-4">
                     <FormLabel>Item name</FormLabel>

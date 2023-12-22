@@ -4,7 +4,7 @@ import { Brand, Product } from "./resources"
 export type Unit = "g" | "kg" | "oz" | "lb"
 
 export type ItemForm = {
-  name: string
+  itemname: string
   brand_id?: number
   brand_new?: string
   product_id?: number
@@ -19,7 +19,11 @@ export type ItemForm = {
   notes: string
 }
 
-export type EditItem = ItemForm & {
+export type CreateItem = Omit<ItemForm, "itemname"> & {
+  name: string
+}
+
+export type EditItem = CreateItem & {
   id: number
 }
 

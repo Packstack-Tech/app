@@ -10,7 +10,7 @@ import {
 } from "@/lib/api"
 import { UpdateItemSortOrder, UploadInventory } from "@/types/api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { EditItem, ItemForm } from "@/types/item"
+import { CreateItem, EditItem } from "@/types/item"
 import { useToast } from "@/hooks/useToast"
 import { Mixpanel } from "@/lib/mixpanel"
 
@@ -31,7 +31,7 @@ export const useCreateItem = () => {
   const queryClient = useQueryClient()
   const { toast } = useToast()
   return useMutation({
-    mutationFn: async (item: ItemForm) => {
+    mutationFn: async (item: CreateItem) => {
       const res = await createItem(item)
       Mixpanel.track("Item:Create")
       return res.data
