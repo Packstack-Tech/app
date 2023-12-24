@@ -6,14 +6,15 @@ import { Header } from "@/containers/Header"
 export const AppLayout = () => {
   const navigate = useNavigate()
   const { isLoading, isError } = useUserQuery()
+  const jwt = localStorage.getItem("jwt")
 
   useEffect(() => {
-    if (!localStorage.getItem("jwt") || isError) {
+    if (!jwt || isError) {
       navigate("/auth/login")
     }
-  }, [isError, navigate])
+  }, [jwt, isError, navigate])
 
-  if (isLoading) {
+  if (isLoading || !jwt) {
     return <div>Loading...</div>
   }
 

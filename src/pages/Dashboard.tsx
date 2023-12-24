@@ -12,7 +12,7 @@ export const Dashboard: FC = () => {
 
   return (
     <div className="max-w-lg mx-auto my-8">
-      <PackingLists trips={user.trips} />
+      <PackingLists trips={user.trips || []} />
       <LegacyPacks packs={legacyPacks || []} />
     </div>
   )
