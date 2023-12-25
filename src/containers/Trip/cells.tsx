@@ -2,10 +2,15 @@ import { FC, useState } from "react"
 import { Cell } from "@tanstack/react-table"
 
 import { Input } from "@/components/ui"
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/Popover"
 import { PackItem } from "@/types/pack"
 import { useTripPacks } from "@/hooks/useTripPacks"
 import { shallow } from "zustand/shallow"
-import { FlameIcon, ShirtIcon, XCircleIcon } from "lucide-react"
+import { FlameIcon, ShirtIcon, StickyNoteIcon, XCircleIcon } from "lucide-react"
 
 type Props = {
   cell: Cell<PackItem, unknown>
@@ -64,6 +69,34 @@ export const WornCell: FC<Props> = ({
         strokeWidth={1}
       />
     </button>
+  )
+}
+
+export const NotesCell: FC<Props> = ({
+  cell: {
+    row: { original },
+  },
+}) => {
+  const { item } = original
+  if (!item.notes) return null
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <StickyNoteIcon
+          color="lightblue"
+          size={20}
+          strokeWidth={1}
+          className="hover:cursor-pointer"
+        />
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[240px] p-2 text-left text-xs"
+        align="center"
+      >
+        <p>{item.notes}</p>
+      </PopoverContent>
+    </Popover>
   )
 }
 

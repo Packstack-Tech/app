@@ -1,6 +1,12 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { PackItem } from "@/types/pack"
-import { QuantityCell, WornCell, RemoveItemCell, WeightCell } from "./cells"
+import {
+  QuantityCell,
+  NotesCell,
+  WornCell,
+  RemoveItemCell,
+  WeightCell,
+} from "./cells"
 import { Currency } from "@/lib/currencies"
 
 export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
@@ -43,6 +49,18 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
     },
   },
   {
+    header: "Notes",
+    accessorKey: "notes",
+    cell: ({ cell }) => <NotesCell cell={cell} />,
+    meta: {
+      align: "center",
+      style: {
+        textAlign: "center",
+        width: "15%",
+      },
+    },
+  },
+  {
     header: "Worn",
     cell: ({ cell }) => <WornCell cell={cell} />,
     meta: {
@@ -55,7 +73,7 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
     cell: ({ cell }) => <WeightCell cell={cell} />,
     meta: {
       align: "right",
-      style: { textAlign: "right", width: "15%" },
+      style: { textAlign: "right", width: "10%" },
     },
   },
   {
