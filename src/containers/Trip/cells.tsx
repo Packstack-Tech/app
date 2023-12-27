@@ -1,4 +1,4 @@
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import { Cell } from "@tanstack/react-table"
 
 import { Input } from "@/components/ui"
@@ -36,6 +36,10 @@ export const QuantityCell: FC<Props> = ({
     setError(false)
     updateItem(original.item_id, "quantity", quantity)
   }
+
+  useEffect(() => {
+    setValue(original.quantity.toString())
+  }, [original.quantity])
 
   return (
     <Input
