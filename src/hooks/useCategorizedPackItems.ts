@@ -1,6 +1,7 @@
-import { useMemo } from "react"
-import { CategorizedPackItems, CategoryPackItems } from "@/types/category"
-import { PackItem } from "@/types/pack"
+import { useMemo } from 'react'
+
+import { CategorizedPackItems, CategoryPackItems } from '@/types/category'
+import { PackItem } from '@/types/pack'
 
 export const useCategorizedPackItems = (
   packItems: PackItem[]
@@ -8,7 +9,7 @@ export const useCategorizedPackItems = (
   const categorizedItems = useMemo(
     () =>
       packItems.reduce<CategorizedPackItems>((acc, curr) => {
-        const catId = curr.item.category_id?.toString() || "uncategorized"
+        const catId = curr.item.category_id?.toString() || 'uncategorized'
         if (acc[catId]) {
           return {
             ...acc,

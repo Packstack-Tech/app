@@ -1,76 +1,77 @@
-import { ColumnDef } from "@tanstack/react-table"
-import { Item } from "@/types/item"
+import { ColumnDef } from '@tanstack/react-table'
 
-import { Action, NotesCell, WeightCell } from "./cells"
-import { Currency } from "@/lib/currencies"
+import { Currency } from '@/lib/currencies'
+import { Item } from '@/types/item'
+
+import { Action, NotesCell, WeightCell } from './cells'
 
 export const columns = (currency: Currency): ColumnDef<Item>[] => [
   {
-    header: "Name",
-    accessorKey: "name",
+    header: 'Name',
+    accessorKey: 'name',
     meta: {
       style: {
-        width: "20%",
+        width: '20%',
       },
     },
   },
   {
-    header: "Manufacturer",
-    accessorKey: "brand.name",
+    header: 'Manufacturer',
+    accessorKey: 'brand.name',
     meta: {
       style: {
-        width: "20%",
+        width: '20%',
       },
     },
   },
   {
-    header: "Product",
-    accessorKey: "product.name",
+    header: 'Product',
+    accessorKey: 'product.name',
     meta: {
       style: {
-        width: "20%",
+        width: '20%',
       },
     },
   },
   {
-    header: "Value",
-    accessorFn: (item) => {
+    header: 'Value',
+    accessorFn: item => {
       if (!item.price) return null
       return `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`
     },
     meta: {
       style: {
-        width: "15%",
+        width: '15%',
       },
     },
   },
   {
-    header: "Notes",
-    accessorKey: "notes",
+    header: 'Notes',
+    accessorKey: 'notes',
     cell: ({ cell }) => <NotesCell cell={cell} />,
     meta: {
-      align: "center",
+      align: 'center',
       style: {
-        textAlign: "center",
-        width: "5%",
+        textAlign: 'center',
+        width: '5%',
       },
     },
   },
   {
-    header: "Weight",
+    header: 'Weight',
     cell: ({ cell }) => <WeightCell cell={cell} />,
     meta: {
-      align: "right",
-      style: { textAlign: "right", width: "10%" },
+      align: 'right',
+      style: { textAlign: 'right', width: '10%' },
     },
   },
   {
-    id: "actions",
+    id: 'actions',
     cell: ({ cell }) => <Action cell={cell} />,
     meta: {
-      align: "right",
+      align: 'right',
       style: {
-        width: "10%",
+        width: '10%',
       },
     },
   },

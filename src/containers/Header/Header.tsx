@@ -1,23 +1,24 @@
-import { NavLink } from "react-router-dom"
-import logo from "/packstack_logo_white.png"
+import { NavLink } from 'react-router-dom'
+
+import logo from '/packstack_logo_white.png'
 
 export const Header = () => {
   const authenticatedLinks = [
     {
-      name: "Packing Lists",
-      path: "/",
+      name: 'Packing Lists',
+      path: '/',
     },
     {
-      name: "Inventory",
-      path: "/inventory",
+      name: 'Inventory',
+      path: '/inventory',
     },
     {
-      name: "Create Pack",
-      path: "/pack/new",
+      name: 'Create Pack',
+      path: '/pack/new',
     },
     {
-      name: "Settings",
-      path: "/settings",
+      name: 'Settings',
+      path: '/settings',
     },
   ]
 
@@ -34,7 +35,7 @@ export const Header = () => {
               to={path}
               className={({ isActive }) =>
                 `py-4 text-sm font-semibold ${
-                  isActive ? "border-b-2 border-primary" : ""
+                  isActive ? 'border-b-2 border-primary' : ''
                 }`
               }
             >

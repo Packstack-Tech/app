@@ -1,24 +1,25 @@
-import { FC, useMemo } from "react"
-import { shallow } from "zustand/shallow"
-import { CopyToClipboard } from "react-copy-to-clipboard"
-import { Link } from "lucide-react"
-import { useCategorizedPackItems } from "@/hooks/useCategorizedPackItems"
-import { useCategorizedWeights } from "@/hooks/useCategorizedWeights"
-import { useTripPacks } from "@/hooks/useTripPacks"
-import { CategorizedPackItemsTable } from "@/components/Tables/CategorizedPackItemsTable"
-import { Checkbox } from "@/components/ui/Checkbox"
-import { Label } from "@/components/ui/Label"
-import { BreakdownDialog } from "@/containers/BreakdownDialog"
+import { FC, useMemo } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { Link } from 'lucide-react'
+import { shallow } from 'zustand/shallow'
 
-import { columns } from "./columns"
-import { PackTabs } from "../PackTabs/PackTabs"
-import { Button } from "@/components/ui"
-import { useCreateTrip, useUpdateTrip } from "@/queries/trip"
-import { EmptyState } from "@/components/EmptyState"
-import { Trip } from "@/types/trip"
-import { useToast } from "@/hooks/useToast"
-import { Mixpanel } from "@/lib/mixpanel"
-import { useUser } from "@/hooks/useUser"
+import { EmptyState } from '@/components/EmptyState'
+import { CategorizedPackItemsTable } from '@/components/Tables/CategorizedPackItemsTable'
+import { Button } from '@/components/ui'
+import { Checkbox } from '@/components/ui/Checkbox'
+import { Label } from '@/components/ui/Label'
+import { BreakdownDialog } from '@/containers/BreakdownDialog'
+import { useCategorizedPackItems } from '@/hooks/useCategorizedPackItems'
+import { useCategorizedWeights } from '@/hooks/useCategorizedWeights'
+import { useToast } from '@/hooks/useToast'
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { useUser } from '@/hooks/useUser'
+import { Mixpanel } from '@/lib/mixpanel'
+import { useCreateTrip, useUpdateTrip } from '@/queries/trip'
+import { Trip } from '@/types/trip'
+
+import { PackTabs } from '../PackTabs/PackTabs'
+import { columns } from './columns'
 
 type Props = {
   trip?: Trip
@@ -31,7 +32,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
   const { isPending: updatingTrip } = useUpdateTrip()
   const { packs, selectedIndex, checklistMode, toggleChecklistMode } =
     useTripPacks(
-      (state) => ({
+      state => ({
         packs: state.packs,
         selectedIndex: state.selectedIndex,
         checklistMode: state.checklistMode,
@@ -87,9 +88,9 @@ export const PackingList: FC<Props> = ({ trip }) => {
             <CopyToClipboard
               text={`https://packstack.io/pack/${trip.uuid}`}
               onCopy={() => {
-                Mixpanel.track("Trip:Copy shareable link", { id: trip.uuid })
+                Mixpanel.track('Trip:Copy shareable link', { id: trip.uuid })
                 toast({
-                  title: "Link copied",
+                  title: 'Link copied',
                   duration: 1000,
                 })
               }}
@@ -110,7 +111,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
         </EmptyState>
       )}
       {categorizedItems.map(({ category, items }) => {
-        const categoryName = category?.category?.name || "Uncategorized"
+        const categoryName = category?.category?.name || 'Uncategorized'
         return (
           <CategorizedPackItemsTable
             columns={tableCols}

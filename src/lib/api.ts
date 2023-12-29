@@ -1,55 +1,56 @@
-import { http } from "./base"
 import {
   AuthResponse,
-  LoginRequest,
-  RegisterRequest,
-  UploadAvatar,
-  UpdateUser,
-  UpdateItemSortOrder,
-  PackPayload,
-  UploadInventory,
   ImportInventoryResponse,
+  LoginRequest,
+  PackPayload,
   PasswordReset,
-} from "@/types/api"
-import { User } from "@/types/user"
-import { Trip, CreateTrip, EditTrip } from "@/types/trip"
-import { Brand, BrandProducts } from "@/types/resources"
-import { Category } from "@/types/category"
-import { CreateItem, EditItem, Item, ProductDetails } from "@/types/item"
-import { Pack } from "@/types/pack"
+  RegisterRequest,
+  UpdateItemSortOrder,
+  UpdateUser,
+  UploadAvatar,
+  UploadInventory,
+} from '@/types/api'
+import { Category } from '@/types/category'
+import { CreateItem, EditItem, Item, ProductDetails } from '@/types/item'
+import { Pack } from '@/types/pack'
+import { Brand, BrandProducts } from '@/types/resources'
+import { CreateTrip, EditTrip, Trip } from '@/types/trip'
+import { User } from '@/types/user'
+
+import { http } from './base'
 
 /**
  * User endpoints
  */
-export const getUser = () => http.get<User>("/user")
+export const getUser = () => http.get<User>('/user')
 
 export const getProfile = (username: string) =>
   http.get<User>(`/user/profile/${username}`)
 
 export const uploadUserAvatar = (data: UploadAvatar) => {
   const formData = new FormData()
-  formData.append("file", data.file)
+  formData.append('file', data.file)
 
-  return http.post<User>("/user/avatar", formData, {
+  return http.post<User>('/user/avatar', formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   })
 }
 
-export const updateUser = (data: UpdateUser) => http.put<User>("/user", data)
+export const updateUser = (data: UpdateUser) => http.put<User>('/user', data)
 
 export const userLogin = (data: LoginRequest) =>
-  http.post<AuthResponse>("/user/login", data)
+  http.post<AuthResponse>('/user/login', data)
 
 export const userRegister = (data: RegisterRequest) =>
-  http.post<AuthResponse>("/user", data)
+  http.post<AuthResponse>('/user', data)
 
 export const requestPasswordReset = (email: string) =>
-  http.post("/user/request-password-reset", { email })
+  http.post('/user/request-password-reset', { email })
 
 export const resetPassword = (data: PasswordReset) =>
-  http.post("/user/reset-password", data)
+  http.post('/user/reset-password', data)
 
 /**
  * Trip endpoints
@@ -58,9 +59,9 @@ export const resetPassword = (data: PasswordReset) =>
 export const getTrip = (tripId?: string | number) =>
   http.get<Trip>(`/trip/${tripId}`)
 
-export const createTrip = (data: CreateTrip) => http.post<Trip>("/trip", data)
+export const createTrip = (data: CreateTrip) => http.post<Trip>('/trip', data)
 
-export const editTrip = (data: EditTrip) => http.put<Trip>("/trip", data)
+export const editTrip = (data: EditTrip) => http.put<Trip>('/trip', data)
 
 export const cloneTrip = (tripId: number) =>
   http.post<Trip>(`/trip/${tripId}/clone`)
@@ -77,7 +78,7 @@ export const getPack = (id?: string | number) => http.get<Pack>(`/pack/${id}`)
 export const getTripPacks = (tripId?: string | number) =>
   http.get<Pack[]>(`/pack/trip/${tripId}`)
 
-export const createPack = (data: PackPayload) => http.post<Pack>("/pack", data)
+export const createPack = (data: PackPayload) => http.post<Pack>('/pack', data)
 
 export const updatePack = (packId: number, data: PackPayload) =>
   http.put(`/pack/${packId}`, data)
@@ -88,19 +89,19 @@ export const generatePack = (packId: number) =>
   http.post<Trip>(`/pack/${packId}/generate`)
 
 export const getUnassignedPacks = () =>
-  http.get<Pack[]>("/pack/legacy/unassigned")
+  http.get<Pack[]>('/pack/legacy/unassigned')
 
 /**
  * Category endpoints
  */
 
-export const getCategories = () => http.get<Category[]>("/category")
+export const getCategories = () => http.get<Category[]>('/category')
 
 /**
  * Brand endpoints
  */
 
-export const getBrands = () => http.get<Brand[]>("/resources/brands")
+export const getBrands = () => http.get<Brand[]>('/resources/brands')
 
 export const searchBrands = (query: string) =>
   http.get<Brand[]>(`/resources/brand/search/${query}`)
@@ -121,41 +122,41 @@ export const getProductDetails = (data: {
  * Item endpoints
  */
 
-export const getInventory = () => http.get<Item[]>("/items")
+export const getInventory = () => http.get<Item[]>('/items')
 
-export const createItem = (data: CreateItem) => http.post<Item>("/item", data)
+export const createItem = (data: CreateItem) => http.post<Item>('/item', data)
 
 export const deleteItem = (itemId: number) => http.delete(`/item/${itemId}`)
 
-export const updateItem = (data: EditItem) => http.put<Item>("/item", data)
+export const updateItem = (data: EditItem) => http.put<Item>('/item', data)
 
 export const updateItemSortOrder = (data: UpdateItemSortOrder) =>
-  http.put("/item/sort", data)
+  http.put('/item/sort', data)
 
 export const updateCategorySortOrder = (data: UpdateItemSortOrder) =>
-  http.put("/item/category/sort", data)
+  http.put('/item/category/sort', data)
 
 export const importInventory = (data: UploadInventory) => {
   const formData = new FormData()
-  formData.append("file", data.file)
+  formData.append('file', data.file)
 
-  return http.post<ImportInventoryResponse>("/item/import", formData, {
+  return http.post<ImportInventoryResponse>('/item/import', formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   })
 }
 
 export const importLighterpack = (data: UploadInventory) => {
   const formData = new FormData()
-  formData.append("file", data.file)
+  formData.append('file', data.file)
 
   return http.post<ImportInventoryResponse>(
-    "/item/import/lighterpack",
+    '/item/import/lighterpack',
     formData,
     {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     }
   )

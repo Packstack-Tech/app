@@ -1,33 +1,32 @@
-import { FC, useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { DateRange } from "react-day-picker"
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
+import { FC, useEffect } from 'react'
+import { DateRange } from 'react-day-picker'
+import { useForm } from 'react-hook-form'
+import { format } from 'date-fns'
+import { Calendar as CalendarIcon } from 'lucide-react'
+import { shallow } from 'zustand/shallow'
 
+import { Button, Input } from '@/components/ui'
+import { Calendar } from '@/components/ui/Calendar'
 import {
   Form,
-  FormField,
   FormControl,
-  FormLabel,
+  FormField,
   FormItem,
-} from "@/components/ui/Form"
-
-import { Trip } from "@/types/trip"
-import { Button, Input } from "@/components/ui"
+  FormLabel,
+} from '@/components/ui/Form'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/Popover"
-import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/Calendar"
-import { useCreateTrip, useUpdateTrip } from "@/queries/trip"
-import { useCreatePack, useUpdatePack } from "@/queries/pack"
-import { useTripPacks } from "@/hooks/useTripPacks"
-import { shallow } from "zustand/shallow"
-import { useToast } from "@/hooks/useToast"
-import { dateToUtc } from "@/lib/utils"
-import { useUser } from "@/hooks/useUser"
+} from '@/components/ui/Popover'
+import { useToast } from '@/hooks/useToast'
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { useUser } from '@/hooks/useUser'
+import { cn } from '@/lib/utils'
+import { dateToUtc } from '@/lib/utils'
+import { useCreatePack, useUpdatePack } from '@/queries/pack'
+import { useCreateTrip, useUpdateTrip } from '@/queries/trip'
+import { Trip } from '@/types/trip'
 
 type TripFormValues = {
   location: string
@@ -40,7 +39,7 @@ interface Props {
 }
 
 const formDefaults = (trip?: Trip): TripFormValues => ({
-  location: trip?.location || "",
+  location: trip?.location || '',
   dates: trip?.start_date
     ? {
         from: dateToUtc(new Date(trip.start_date)),
@@ -55,7 +54,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
   const { toast } = useToast()
   const user = useUser()
   const { packs, synced } = useTripPacks(
-    (store) => ({
+    store => ({
       packs: store.packs,
       synced: store.synced,
     }),
@@ -77,8 +76,8 @@ export const TripForm: FC<Props> = ({ trip }) => {
   const getPackPayload = ({ location, dates, distance }: TripFormValues) => ({
     title: location,
     location: location,
-    start_date: dates?.from ? format(dates.from, "yyyy-MM-dd") : undefined,
-    end_date: dates?.to ? format(dates.to, "yyyy-MM-dd") : undefined,
+    start_date: dates?.from ? format(dates.from, 'yyyy-MM-dd') : undefined,
+    end_date: dates?.to ? format(dates.to, 'yyyy-MM-dd') : undefined,
     distance,
   })
 
@@ -92,7 +91,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
   // Auto-save when editing existing trip
   useEffect(() => {
     async function savePacks(tripId: number) {
-      packs.forEach(async (pack) => {
+      packs.forEach(async pack => {
         if (pack.id) {
           await updatePack.mutateAsync({
             id: pack.id,
@@ -107,7 +106,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
         }
       })
       toast({
-        title: "Pack updated",
+        title: 'Pack updated',
       })
     }
 
@@ -165,19 +164,19 @@ export const TripForm: FC<Props> = ({ trip }) => {
                         id="date"
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value?.from && "text-muted-foreground"
+                          'w-full justify-start text-left font-normal',
+                          !field.value?.from && 'text-muted-foreground'
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value?.from ? (
                           field.value.to ? (
                             <>
-                              {format(field.value?.from, "LLL dd")} -{" "}
-                              {format(field.value.to, "LLL dd, y")}
+                              {format(field.value?.from, 'LLL dd')} -{' '}
+                              {format(field.value.to, 'LLL dd, y')}
                             </>
                           ) : (
-                            format(field.value.from, "LLL dd, y")
+                            format(field.value.from, 'LLL dd, y')
                           )
                         ) : (
                           <span>Select dates...</span>
@@ -190,7 +189,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
                       mode="range"
                       defaultMonth={field.value?.from}
                       selected={field.value}
-                      onSelect={(e) => {
+                      onSelect={e => {
                         field.onChange(e)
                         onFieldUpdate()
                       }}
@@ -218,7 +217,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
                     placeholder="Distance"
                     onBlur={() => onFieldUpdate()}
                     onFocus={() => {
-                      if (!field.value) field.onChange("")
+                      if (!field.value) field.onChange('')
                     }}
                   />
                 </FormControl>

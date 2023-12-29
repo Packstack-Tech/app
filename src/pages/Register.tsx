@@ -1,11 +1,12 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { Link, useNavigate } from "react-router-dom"
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Input } from "@/components/ui"
-import { useUserRegister } from "@/queries/user"
-import { handleException } from "@/lib/utils"
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Link, useNavigate } from 'react-router-dom'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import { Button, Input } from '@/components/ui'
+import { handleException } from '@/lib/utils'
+import { useUserRegister } from '@/queries/user'
 
 type RegisterForm = {
   username: string
@@ -16,11 +17,11 @@ type RegisterForm = {
 const schema = z.object({
   username: z
     .string()
-    .min(3, "Username must be at least 3 characters long")
-    .max(20, "Username must be at most 20 characters long")
+    .min(3, 'Username must be at least 3 characters long')
+    .max(20, 'Username must be at most 20 characters long')
     .regex(
       /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers and underscores (_)"
+      'Username can only contain letters, numbers and underscores (_)'
     ),
   email: z.string().email(),
   password: z.string().min(6).max(50),
@@ -32,9 +33,9 @@ export const RegisterPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterForm>({
-    mode: "onBlur",
+    mode: 'onBlur',
     resolver: zodResolver(schema),
-    defaultValues: { username: "", email: "", password: "" },
+    defaultValues: { username: '', email: '', password: '' },
   })
   const [error, setError] = useState<string | undefined>()
   const navigate = useNavigate()
@@ -43,8 +44,8 @@ export const RegisterPage = () => {
   const onSubmit = (data: RegisterForm) => {
     setError(undefined)
     signUp.mutate(data, {
-      onSuccess: () => navigate("/"),
-      onError: (error) => {
+      onSuccess: () => navigate('/'),
+      onError: error => {
         handleException(error, {
           onHttpError: ({ response }) => setError(response?.data.detail),
         })
@@ -59,7 +60,7 @@ export const RegisterPage = () => {
       <div className="my-2">
         <label>Username</label>
         <Input
-          {...register("username", { required: true })}
+          {...register('username', { required: true })}
           placeholder="username"
         />
         <p className=" text-red-300 text-xs my-1">{errors.username?.message}</p>
@@ -67,7 +68,7 @@ export const RegisterPage = () => {
       <div className="my-2">
         <label>Email</label>
         <Input
-          {...register("email", { required: true })}
+          {...register('email', { required: true })}
           placeholder="john@muir.com"
         />
         <p className=" text-red-300 text-xs my-1">{errors.email?.message}</p>
@@ -75,7 +76,7 @@ export const RegisterPage = () => {
       <div className="my-2">
         <label>Password</label>
         <Input
-          {...register("password", { required: true })}
+          {...register('password', { required: true })}
           type="password"
           placeholder="••••••"
         />
@@ -88,7 +89,7 @@ export const RegisterPage = () => {
       </div>
       <div className="mt-3">
         <p className="text-xs text-slate-200">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link to="/auth/login" className="text-primary underline">
             Login
           </Link>

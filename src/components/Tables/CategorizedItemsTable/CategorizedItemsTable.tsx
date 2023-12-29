@@ -1,22 +1,23 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from '@tanstack/react-table'
 
-import { useUpdateItemSort } from "@/queries/item"
+import { fuzzyFilter } from '@/components/Tables/lib/fuzzyFilter'
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/Table"
-import { fuzzyFilter } from "@/components/Tables/lib/fuzzyFilter"
-import { ItemRow } from "./ItemRow"
+} from '@/components/ui/Table'
+import { useUpdateItemSort } from '@/queries/item'
+
+import { ItemRow } from './ItemRow'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -45,7 +46,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
     columns,
     state: {
       globalFilter: searchFilter,
-      sorting: [{ id: "sort_order", desc: false }],
+      sorting: [{ id: 'sort_order', desc: false }],
     },
     filterFns: { fuzzy: fuzzyFilter },
     onGlobalFilterChange: onSearchFilterChange,
@@ -55,7 +56,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
 
   const moveItem = (dragIndex: number | undefined, hoverIndex: number) => {
     if (dragIndex === undefined) return
-    setCategoryItems((prev) => {
+    setCategoryItems(prev => {
       const newItems = [...prev]
       const dragItem = newItems[dragIndex]
       newItems.splice(dragIndex, 1)
@@ -82,10 +83,10 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
       <div className="rounded-b-sm border border-slate-900">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 <TableHead className="w-6" />
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map(header => {
                   return (
                     <TableHead
                       key={header.id}

@@ -1,17 +1,16 @@
-import { FC, useState } from "react"
-import { FlameIcon, StickyNoteIcon } from "lucide-react"
-import { Cell } from "@tanstack/react-table"
+import { FC, useState } from 'react'
+import { FlameIcon, StickyNoteIcon } from 'lucide-react'
+import { Cell } from '@tanstack/react-table'
 
-import { Button } from "@/components/ui"
-import { Item } from "@/types/item"
-import { DialogTrigger } from "@/components/ui/Dialog"
+import { Button } from '@/components/ui'
+import { DialogTrigger } from '@/components/ui/Dialog'
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
-} from "@/components/ui/Popover"
-
-import { ItemForm } from "@/containers/ItemForm"
+  PopoverTrigger,
+} from '@/components/ui/Popover'
+import { ItemForm } from '@/containers/ItemForm'
+import { Item } from '@/types/item'
 
 type Props = {
   cell: Cell<Item, unknown>
@@ -46,8 +45,8 @@ export const WeightCell: FC<Props> = ({
   },
 }) => {
   const { weight, unit, consumable } = original
-  if (!weight) return "-"
-  const displayWeight = ["g", "oz"].includes(unit) ? weight : weight.toFixed(2)
+  if (!weight) return '-'
+  const displayWeight = ['g', 'oz'].includes(unit) ? weight : weight.toFixed(2)
   return (
     <div className="inline-flex items-center gap-1">
       {consumable && <FlameIcon color="white" size={16} strokeWidth={1} />}

@@ -1,15 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { useToast } from '@/hooks/useToast'
 import {
   createPack,
   deletePack,
-  getTripPacks,
-  updatePack,
-  getUnassignedPacks,
   generatePack,
-} from "@/lib/api"
-import { PackPayload } from "@/types/api"
-import { useToast } from "@/hooks/useToast"
-import { Mixpanel } from "@/lib/mixpanel"
+  getTripPacks,
+  getUnassignedPacks,
+  updatePack,
+} from '@/lib/api'
+import { Mixpanel } from '@/lib/mixpanel'
+import { PackPayload } from '@/types/api'
 
 // export const PACKS_QUERY = 'packs-query'
 
@@ -35,7 +36,7 @@ import { Mixpanel } from "@/lib/mixpanel"
 //   )
 // }
 
-export const TRIP_PACKS_QUERY = "trip-packs-query"
+export const TRIP_PACKS_QUERY = 'trip-packs-query'
 
 export const useTripPacksQuery = (tripId?: number | string) => {
   return useQuery({
@@ -53,7 +54,7 @@ export const useCreatePack = () => {
   return useMutation({
     mutationFn: async (data: PackPayload) => {
       const res = await createPack(data)
-      Mixpanel.track("Pack:Create")
+      Mixpanel.track('Pack:Create')
       return res.data
     },
     onSuccess: () =>
@@ -73,13 +74,13 @@ export const useUpdatePack = () => {
       const res = await updatePack(id, data)
       return res.data
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY, data.id] })
     },
   })
 }
 
-export const UNASSIGNED_PACKS_QUERY = "unassigned-packs-query"
+export const UNASSIGNED_PACKS_QUERY = 'unassigned-packs-query'
 
 export const useUnassignedPacks = () => {
   return useQuery({
@@ -97,14 +98,14 @@ export const useGeneratePack = () => {
   return useMutation({
     mutationFn: async (id: number) => {
       const res = await generatePack(id)
-      Mixpanel.track("Pack:Generate")
+      Mixpanel.track('Pack:Generate')
       return res.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY] })
       queryClient.invalidateQueries({ queryKey: [UNASSIGNED_PACKS_QUERY] })
       toast({
-        title: "✅ Pack converted",
+        title: '✅ Pack converted',
       })
     },
   })
@@ -150,7 +151,7 @@ export const useDeletePack = () => {
   return useMutation({
     mutationFn: async (id: number) => {
       const res = await deletePack(id)
-      Mixpanel.track("Pack:Delete")
+      Mixpanel.track('Pack:Delete')
       return res.data
     },
 
@@ -158,7 +159,7 @@ export const useDeletePack = () => {
       queryClient.invalidateQueries({ queryKey: [UNASSIGNED_PACKS_QUERY] })
       queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY] })
       toast({
-        title: "Pack deleted.",
+        title: 'Pack deleted.',
       })
     },
   })

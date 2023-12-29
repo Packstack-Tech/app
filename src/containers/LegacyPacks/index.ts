@@ -1,1 +1,1 @@
-export { LegacyPacks } from "./LegacyPacks"
+export { LegacyPacks } from './LegacyPacks'

@@ -1,13 +1,14 @@
-import { FC, useState } from "react"
+import { FC, useState } from 'react'
+
+import { Button } from '@/components/ui'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/Dialog"
-import { Input } from "@/components/ui/Input"
-import { Button } from "@/components/ui"
+} from '@/components/ui/Dialog'
+import { Input } from '@/components/ui/Input'
 
 interface Props {
   title: string
@@ -25,7 +26,7 @@ export const EditPackDialog: FC<Props> = ({ title, open, onClose, onSave }) => {
           <DialogTitle>Rename pack</DialogTitle>
         </DialogHeader>
         <div className="p-2">
-          <Input value={value} onChange={(e) => setValue(e.target.value)} />
+          <Input value={value} onChange={e => setValue(e.target.value)} />
         </div>
         <DialogFooter className="flex justify-between">
           <Button onClick={onClose} variant="outline">

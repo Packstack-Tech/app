@@ -1,1 +1,1 @@
-export { CategoryManagementModal } from "./CategoryManagementModal"
+export { CategoryManagementModal } from './CategoryManagementModal'

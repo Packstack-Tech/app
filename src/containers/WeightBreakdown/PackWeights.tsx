@@ -1,6 +1,7 @@
-import { FC } from "react"
-import { Unit } from "@/types/item"
-import { Label } from "@radix-ui/react-label"
+import { FC } from 'react'
+import { Label } from '@radix-ui/react-label'
+
+import { Unit } from '@/types/item'
 
 type Props = {
   title: string

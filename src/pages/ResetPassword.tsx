@@ -1,9 +1,10 @@
-import * as z from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useNavigate, useParams } from "react-router-dom"
-import { Button, Input } from "@/components/ui"
-import { useResetPassword } from "@/queries/user"
+import { useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import { Button, Input } from '@/components/ui'
+import { useResetPassword } from '@/queries/user'
 
 type PasswordResetForm = {
   password: string
@@ -25,7 +26,7 @@ export const ResetPassword = () => {
     formState: { errors },
     watch,
   } = useForm<PasswordResetForm>({
-    mode: "onBlur",
+    mode: 'onBlur',
     resolver: zodResolver(schema),
   })
 
@@ -33,13 +34,13 @@ export const ResetPassword = () => {
     resetPassword.mutate(
       { password, callback_id: callback_id as string },
       {
-        onSuccess: () => navigate("/auth/login"),
+        onSuccess: () => navigate('/auth/login'),
       }
     )
   }
 
-  const password = watch("password")
-  const confirmPassword = watch("confirmPassword")
+  const password = watch('password')
+  const confirmPassword = watch('confirmPassword')
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -47,7 +48,7 @@ export const ResetPassword = () => {
       <div className="my-2">
         <label>Password</label>
         <Input
-          {...register("password", { required: true })}
+          {...register('password', { required: true })}
           type="password"
           placeholder="••••••"
         />
@@ -58,7 +59,7 @@ export const ResetPassword = () => {
       <div className="my-2">
         <label>Confirm password</label>
         <Input
-          {...register("confirmPassword", { required: true })}
+          {...register('confirmPassword', { required: true })}
           type="password"
           placeholder="••••••"
         />

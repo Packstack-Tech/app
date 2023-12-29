@@ -1,5 +1,6 @@
-import React, { useRef, useState } from "react"
-import { Button } from "@/components/ui/Button"
+import React, { useRef, useState } from 'react'
+
+import { Button } from '@/components/ui/Button'
 
 // Define the props expected by the Dropzone component
 interface DropzoneProps {

@@ -1,16 +1,16 @@
-import { FC, useEffect, useState } from "react"
-import { Cell } from "@tanstack/react-table"
+import { FC, useEffect, useState } from 'react'
+import { FlameIcon, ShirtIcon, StickyNoteIcon, XCircleIcon } from 'lucide-react'
+import { shallow } from 'zustand/shallow'
+import { Cell } from '@tanstack/react-table'
 
-import { Input } from "@/components/ui"
+import { Input } from '@/components/ui'
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
-} from "@/components/ui/Popover"
-import { PackItem } from "@/types/pack"
-import { useTripPacks } from "@/hooks/useTripPacks"
-import { shallow } from "zustand/shallow"
-import { FlameIcon, ShirtIcon, StickyNoteIcon, XCircleIcon } from "lucide-react"
+  PopoverTrigger,
+} from '@/components/ui/Popover'
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { PackItem } from '@/types/pack'
 
 type Props = {
   cell: Cell<PackItem, unknown>
@@ -22,7 +22,7 @@ export const QuantityCell: FC<Props> = ({
   },
 }) => {
   const { updateItem } = useTripPacks(
-    (store) => ({ updateItem: store.updateItem }),
+    store => ({ updateItem: store.updateItem }),
     shallow
   )
   const [value, setValue] = useState(original.quantity.toString())
@@ -34,7 +34,7 @@ export const QuantityCell: FC<Props> = ({
       return
     }
     setError(false)
-    updateItem(original.item_id, "quantity", quantity)
+    updateItem(original.item_id, 'quantity', quantity)
   }
 
   useEffect(() => {
@@ -44,9 +44,9 @@ export const QuantityCell: FC<Props> = ({
   return (
     <Input
       value={value}
-      className={`px-2 py-1 h-auto ${error ? "border-red-500" : ""}`}
+      className={`px-2 py-1 h-auto ${error ? 'border-red-500' : ''}`}
       onBlur={onChange}
-      onChange={(e) => setValue(e.target.value)}
+      onChange={e => setValue(e.target.value)}
     />
   )
 }
@@ -57,18 +57,18 @@ export const WornCell: FC<Props> = ({
   },
 }) => {
   const { updateItem } = useTripPacks(
-    (store) => ({ updateItem: store.updateItem }),
+    store => ({ updateItem: store.updateItem }),
     shallow
   )
 
-  const onClick = () => updateItem(original.item_id, "worn", !original.worn)
+  const onClick = () => updateItem(original.item_id, 'worn', !original.worn)
 
   if (original.item.consumable) return null
 
   return (
     <button onClick={onClick}>
       <ShirtIcon
-        color={original.worn ? "white" : "#555"}
+        color={original.worn ? 'white' : '#555'}
         size={20}
         strokeWidth={1}
       />
@@ -110,8 +110,8 @@ export const WeightCell: FC<Props> = ({
   },
 }) => {
   const { item } = original
-  if (!item.weight) return "-"
-  const displayWeight = ["g", "oz"].includes(item.unit)
+  if (!item.weight) return '-'
+  const displayWeight = ['g', 'oz'].includes(item.unit)
     ? item.weight
     : item.weight.toFixed(2)
   return (
@@ -130,7 +130,7 @@ export const RemoveItemCell: FC<Props> = ({
   },
 }) => {
   const { removeItem } = useTripPacks(
-    (store) => ({ removeItem: store.removeItem }),
+    store => ({ removeItem: store.removeItem }),
     shallow
   )
 

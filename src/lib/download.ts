@@ -1,22 +1,23 @@
-import { Item } from "@/types/item"
-import { saveAs } from "file-saver"
+import { saveAs } from 'file-saver'
+
+import { Item } from '@/types/item'
 
 // download a csv containing the inventory data
 export const downloadInventory = (items?: Item[]) => {
   if (!items) return
 
   const header = [
-    "name",
-    "manufacturer",
-    "product",
-    "category",
-    "weight",
-    "unit",
-    "price",
-    "consumable",
-    "product_url",
-    "notes",
-  ].join(",")
+    'name',
+    'manufacturer',
+    'product',
+    'category',
+    'weight',
+    'unit',
+    'price',
+    'consumable',
+    'product_url',
+    'notes',
+  ].join(',')
   const csv = items
     .map(
       ({
@@ -31,16 +32,16 @@ export const downloadInventory = (items?: Item[]) => {
         product_url,
         notes,
       }) =>
-        `${name},${brand?.name || ""},${product?.name || ""},${
-          category?.category.name || ""
+        `${name},${brand?.name || ''},${product?.name || ''},${
+          category?.category.name || ''
         },${weight},${unit},${price},${
-          consumable ? "consumable" : ""
+          consumable ? 'consumable' : ''
         },${product_url},${notes}`
     )
-    .join("\n")
+    .join('\n')
 
-  const content = header + "\n" + csv
+  const content = header + '\n' + csv
 
-  const blob = new Blob([content], { type: "text/csv;charset=utf-8" })
-  saveAs(blob, "inventory.csv")
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8' })
+  saveAs(blob, 'inventory.csv')
 }

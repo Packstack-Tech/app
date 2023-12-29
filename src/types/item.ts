@@ -1,7 +1,7 @@
-import { ItemCategory } from "./category"
-import { Brand, Product } from "./resources"
+import { ItemCategory } from './category'
+import { Brand, Product } from './resources'
 
-export type Unit = "g" | "kg" | "oz" | "lb"
+export type Unit = 'g' | 'kg' | 'oz' | 'lb'
 
 export type ItemForm = {
   itemname: string
@@ -19,7 +19,7 @@ export type ItemForm = {
   notes: string
 }
 
-export type CreateItem = Omit<ItemForm, "itemname"> & {
+export type CreateItem = Omit<ItemForm, 'itemname'> & {
   name: string
 }
 

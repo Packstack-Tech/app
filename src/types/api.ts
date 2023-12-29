@@ -1,5 +1,5 @@
-import { SortOrder } from "./image"
-import { User } from "./user"
+import { SortOrder } from './image'
+import { User } from './user'
 
 export type LoginRequest = {
   emailOrUsername: string
@@ -111,4 +111,3 @@ export type PasswordReset = {
   password: string
   callback_id: string
 }
-

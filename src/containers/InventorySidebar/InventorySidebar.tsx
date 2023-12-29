@@ -1,21 +1,22 @@
-import { useState } from "react"
-import { Plus } from "lucide-react"
-import { shallow } from "zustand/shallow"
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
+import { shallow } from 'zustand/shallow'
 
-import { ItemForm } from "@/containers/ItemForm"
-import { Button, Input } from "@/components/ui"
-import { Label } from "@/components/ui/Label"
-import { useCategorizedItems } from "@/hooks/useCategorizedItems"
-import { InventoryItem } from "../Trip/InventoryItem"
-import { useTripPacks } from "@/hooks/useTripPacks"
-import { Item } from "@/types/item"
-import { Mixpanel } from "@/lib/mixpanel"
+import { Button, Input } from '@/components/ui'
+import { Label } from '@/components/ui/Label'
+import { ItemForm } from '@/containers/ItemForm'
+import { useCategorizedItems } from '@/hooks/useCategorizedItems'
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { Mixpanel } from '@/lib/mixpanel'
+import { Item } from '@/types/item'
+
+import { InventoryItem } from '../Trip/InventoryItem'
 
 export const InventorySidebar = () => {
   const [addItemOpen, setAddItemOpen] = useState(false)
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState('')
   const { packs, selectedIndex, addItem, removeItem } = useTripPacks(
-    (state) => ({
+    state => ({
       packs: state.packs,
       selectedIndex: state.selectedIndex,
       addItem: state.addItem,
@@ -27,7 +28,7 @@ export const InventorySidebar = () => {
   const selectedItems = packs[selectedIndex].items
 
   const onSelect = (item: Item) => {
-    const existingItem = selectedItems.find((i) => i.item_id === item.id)
+    const existingItem = selectedItems.find(i => i.item_id === item.id)
     if (existingItem) {
       removeItem(item.id)
     } else {
@@ -52,7 +53,7 @@ export const InventorySidebar = () => {
           size="sm"
           onClick={() => {
             setAddItemOpen(true)
-            Mixpanel.track("Trip:Inventory:Add gear button:tapped")
+            Mixpanel.track('Trip:Inventory:Add gear button:tapped')
           }}
         >
           <Plus size={12} />
@@ -62,18 +63,18 @@ export const InventorySidebar = () => {
       <div className="mb-2">
         <Input
           placeholder="search gear..."
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
         />
       </div>
-      {items.map((category) => (
-        <div key={category.category?.category_id || "undefined"}>
+      {items.map(category => (
+        <div key={category.category?.category_id || 'undefined'}>
           <Label className="text-slate-300 text-xs rounded-sm bg-slate-900 mb-1 p-1 block">
-            {category.category?.category.name || "Uncategorized"}
+            {category.category?.category.name || 'Uncategorized'}
           </Label>
           <ul>
-            {category.items.map((item) => {
+            {category.items.map(item => {
               const selected = !!selectedItems.find(
-                (rec) => rec.item_id === item.id
+                rec => rec.item_id === item.id
               )
               return (
                 <InventoryItem

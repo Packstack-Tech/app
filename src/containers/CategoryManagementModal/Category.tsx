@@ -1,8 +1,9 @@
-import { FC, useRef } from "react"
-import { useDrag, useDrop } from "react-dnd"
-import type { Identifier, XYCoord } from "dnd-core"
-import { CategoryItems } from "@/types/category"
-import { GripHorizontal } from "lucide-react"
+import { FC, useRef } from 'react'
+import { useDrag, useDrop } from 'react-dnd'
+import type { Identifier, XYCoord } from 'dnd-core'
+import { GripHorizontal } from 'lucide-react'
+
+import { CategoryItems } from '@/types/category'
 
 interface Props {
   category: CategoryItems
@@ -27,7 +28,7 @@ export const Category: FC<Props> = ({
 }) => {
   const dragRef = useRef<HTMLDivElement>(null)
   const dropRef = useRef<HTMLDivElement>(null)
-  const itemType = "category-sort"
+  const itemType = 'category-sort'
 
   const [{ handlerId }, drop] = useDrop<
     DragItem,
@@ -112,11 +113,11 @@ export const Category: FC<Props> = ({
         <div
           ref={dragRef}
           data-handler-id={handlerId}
-          className={`${!disabled ? "hover:cursor-grab" : "opacity-50"}`}
+          className={`${!disabled ? 'hover:cursor-grab' : 'opacity-50'}`}
         >
           <GripHorizontal size={16} />
         </div>
-        <span>{category.category?.category.name || "Uncategorized"}</span>
+        <span>{category.category?.category.name || 'Uncategorized'}</span>
       </div>
     </div>
   )

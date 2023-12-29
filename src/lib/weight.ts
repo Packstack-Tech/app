@@ -1,5 +1,6 @@
-import { Unit } from "@/types/item"
-import { SYSTEM_UNIT } from "./consts"
+import { Unit } from '@/types/item'
+
+import { SYSTEM_UNIT } from './consts'
 
 export function convertWeight(weight: number, fromUnit: Unit, toUnit: Unit) {
   // Define conversion factors for different weight units
@@ -23,5 +24,5 @@ export function convertWeight(weight: number, fromUnit: Unit, toUnit: Unit) {
 }
 
 export const getConversionUnit = (unit_system: SYSTEM_UNIT) => {
-  return unit_system === "METRIC" ? "kg" : "lb"
+  return unit_system === 'METRIC' ? 'kg' : 'lb'
 }

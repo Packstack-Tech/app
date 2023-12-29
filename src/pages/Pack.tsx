@@ -1,9 +1,10 @@
-import { FC } from "react"
-import { InventorySidebar } from "@/containers/InventorySidebar"
-import { PackingList } from "@/containers/Trip/PackingList"
-import { TripForm } from "@/containers/TripForm"
-import { Trip } from "@/types/trip"
-import { WeightBreakdown } from "@/containers/WeightBreakdown"
+import { FC } from 'react'
+
+import { InventorySidebar } from '@/containers/InventorySidebar'
+import { PackingList } from '@/containers/Trip/PackingList'
+import { TripForm } from '@/containers/TripForm'
+import { WeightBreakdown } from '@/containers/WeightBreakdown'
+import { Trip } from '@/types/trip'
 
 interface Props {
   trip?: Trip

@@ -1,24 +1,25 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { useToast } from '@/hooks/useToast'
 import {
-  userLogin,
   getUser,
-  userRegister,
   requestPasswordReset,
   resetPassword,
   updateUser,
-} from "@/lib/api"
+  userLogin,
+  userRegister,
+} from '@/lib/api'
+import { getCurrency } from '@/lib/currencies'
+import { Mixpanel } from '@/lib/mixpanel'
+import { getConversionUnit } from '@/lib/weight'
 import {
   LoginRequest,
   PasswordReset,
   RegisterRequest,
   UpdateUser,
-} from "@/types/api"
-import { getCurrency } from "@/lib/currencies"
-import { useToast } from "@/hooks/useToast"
-import { Mixpanel } from "@/lib/mixpanel"
-import { getConversionUnit } from "@/lib/weight"
+} from '@/types/api'
 
-export const USER_QUERY = "user"
+export const USER_QUERY = 'user'
 export const useUserQuery = () => {
   return useQuery({
     queryKey: [USER_QUERY],
@@ -31,7 +32,7 @@ export const useUserQuery = () => {
       })
       return res.data
     },
-    select: (data) => {
+    select: data => {
       const trips = [...data.trips]
       trips.sort(
         (a, b) =>
@@ -46,7 +47,7 @@ export const useUserQuery = () => {
       }
     },
     retry: false,
-    enabled: !!localStorage.getItem("jwt"),
+    enabled: !!localStorage.getItem('jwt'),
   })
 }
 
@@ -55,7 +56,7 @@ export const useUserLogin = () => {
   return useMutation({
     mutationFn: async (params: LoginRequest) => {
       const res = await userLogin(params)
-      localStorage.setItem("jwt", res.data.token)
+      localStorage.setItem('jwt', res.data.token)
       queryClient.setQueryData([USER_QUERY], res.data.user)
       return res.data
     },
@@ -67,7 +68,7 @@ export const useUserRegister = () => {
   return useMutation({
     mutationFn: async (params: RegisterRequest) => {
       const res = await userRegister(params)
-      localStorage.setItem("jwt", res.data.token)
+      localStorage.setItem('jwt', res.data.token)
       queryClient.setQueryData([USER_QUERY], res.data.user)
       return res.data
     },
@@ -92,8 +93,8 @@ export const useResetPassword = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Password reset",
-        description: "Your password has been reset. Please log in.",
+        title: 'Password reset',
+        description: 'Your password has been reset. Please log in.',
       })
     },
   })
@@ -120,7 +121,7 @@ export const useUpdateUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
       toast({
-        title: "✅ Settings updated",
+        title: '✅ Settings updated',
       })
     },
   })
