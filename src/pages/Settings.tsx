@@ -1,13 +1,11 @@
-import { useForm } from "react-hook-form"
-import { SelectValue } from "@radix-ui/react-select"
-import { LogOut } from "lucide-react"
-import { useNavigate } from "react-router-dom"
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { DISTANCE, distances, weightUnits } from "@/lib/consts"
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { SelectValue } from '@radix-ui/react-select'
 
-import { Box, Button, Input } from "@/components/ui"
-import { useUpdateUser } from "@/queries/user"
+import { Box, Button, Input } from '@/components/ui'
 import {
   Form,
   FormControl,
@@ -15,18 +13,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/Form"
-import { currencies } from "@/lib/currencies"
+} from '@/components/ui/Form'
+import { ScrollArea } from '@/components/ui/ScrollArea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-} from "@/components/ui/Select"
-import { ScrollArea } from "@/components/ui/ScrollArea"
-import { Mixpanel } from "@/lib/mixpanel"
-import { SYSTEM_UNIT } from "@/lib/consts"
-import { useUser } from "@/hooks/useUser"
+} from '@/components/ui/Select'
+import { useUser } from '@/hooks/useUser'
+import { DISTANCE, distances, weightUnits } from '@/lib/consts'
+import { SYSTEM_UNIT } from '@/lib/consts'
+import { currencies } from '@/lib/currencies'
+import { Mixpanel } from '@/lib/mixpanel'
+import { useUpdateUser } from '@/queries/user'
 
 type SettingsForm = {
   email: string
@@ -39,7 +39,7 @@ const schema = z.object({
   email: z.string().email(),
   currency: z.string(),
   unit_distance: z.string(),
-  unit_weight: z.enum(["IMPERIAL", "METRIC"]),
+  unit_weight: z.enum(['IMPERIAL', 'METRIC']),
 })
 
 export const Settings = () => {
@@ -49,24 +49,24 @@ export const Settings = () => {
   const form = useForm<SettingsForm>({
     resolver: zodResolver(schema),
     defaultValues: {
-      email: user.email || "",
-      currency: user.currency.code || "",
+      email: user.email || '',
+      currency: user.currency.code || '',
       unit_distance: user.unit_distance || DISTANCE.Kilometers,
-      unit_weight: user.unit_weight || "METRIC",
+      unit_weight: user.unit_weight || 'METRIC',
     },
   })
 
   const onSubmit = (data: SettingsForm) => {
     updateUser.mutate(data, {
       onSuccess: () => {
-        Mixpanel.track("Settings:Updated", { ...data })
+        Mixpanel.track('Settings:Updated', { ...data })
       },
     })
   }
 
   const onLogout = () => {
-    localStorage.removeItem("jwt")
-    navigate("/auth/login")
+    localStorage.removeItem('jwt')
+    navigate('/auth/login')
   }
 
   return (
@@ -195,11 +195,12 @@ export const Settings = () => {
       </Box>
       <Box className="mt-8">
         <p>
-          Packstack is open-source software. You can find the code repository on{" "}
+          Packstack is open-source software. You can find the code repository on{' '}
           <a
             href="https://github.com/Packstack-Tech/app"
             target="_blank"
             className="link"
+            rel="noreferrer"
           >
             Github
           </a>

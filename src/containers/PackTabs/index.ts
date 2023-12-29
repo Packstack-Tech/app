@@ -1,1 +1,1 @@
-export { PackTabs } from "./PackTabs"
+export { PackTabs } from './PackTabs'

@@ -1,11 +1,11 @@
-import { FC, useMemo } from "react"
+import { FC, useMemo } from 'react'
 
-import { useCategorizedItems } from "@/hooks/useCategorizedItems"
-import { CategorizedItemsTable } from "@/components/Tables/CategorizedItemsTable"
-import { columns } from "./columns"
+import { EmptyState } from '@/components/EmptyState'
+import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable'
+import { useCategorizedItems } from '@/hooks/useCategorizedItems'
+import { useUser } from '@/hooks/useUser'
 
-import { EmptyState } from "@/components/EmptyState"
-import { useUser } from "@/hooks/useUser"
+import { columns } from './columns'
 
 type Props = {
   searchFilter?: string
@@ -38,7 +38,7 @@ export const InventoryTable: FC<Props> = ({
         </div>
       )}
       {data.map(({ category, items }) => {
-        const categoryName = category?.category?.name || "Uncategorized"
+        const categoryName = category?.category?.name || 'Uncategorized'
         return (
           <CategorizedItemsTable
             key={categoryName}

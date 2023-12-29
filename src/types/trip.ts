@@ -1,5 +1,5 @@
-import { TripImage } from "./image"
-import { User } from "./user"
+import { TripImage } from './image'
+import { User } from './user'
 
 type BaseTrip = {
   title: string

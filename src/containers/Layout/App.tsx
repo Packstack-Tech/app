@@ -1,16 +1,17 @@
-import { useEffect } from "react"
-import { Outlet, useNavigate } from "react-router-dom"
-import { useUserQuery } from "@/queries/user"
-import { Header } from "@/containers/Header"
+import { useEffect } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
+
+import { Header } from '@/containers/Header'
+import { useUserQuery } from '@/queries/user'
 
 export const AppLayout = () => {
   const navigate = useNavigate()
   const { isLoading, isError } = useUserQuery()
-  const jwt = localStorage.getItem("jwt")
+  const jwt = localStorage.getItem('jwt')
 
   useEffect(() => {
     if (!jwt || isError) {
-      navigate("/auth/login")
+      navigate('/auth/login')
     }
   }, [jwt, isError, navigate])
 

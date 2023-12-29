@@ -1,9 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getTrip, createTrip, editTrip, deleteTrip, cloneTrip } from "@/lib/api"
-import { CreateTrip, EditTrip } from "@/types/trip"
-import { USER_QUERY } from "./user"
-import { useToast } from "@/hooks/useToast"
-import { Mixpanel } from "@/lib/mixpanel"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { useToast } from '@/hooks/useToast'
+import { cloneTrip, createTrip, deleteTrip, editTrip, getTrip } from '@/lib/api'
+import { Mixpanel } from '@/lib/mixpanel'
+import { CreateTrip, EditTrip } from '@/types/trip'
+
+import { USER_QUERY } from './user'
 
 // export const TRIP_FEED = 'trip-feed'
 // export const useTripFeed = () => {
@@ -13,7 +15,7 @@ import { Mixpanel } from "@/lib/mixpanel"
 //   })
 // }
 
-export const TRIP_QUERY = "trip-query"
+export const TRIP_QUERY = 'trip-query'
 export const useTripQuery = (id?: string | number) => {
   return useQuery({
     queryKey: [TRIP_QUERY, id],
@@ -30,7 +32,7 @@ export const useCreateTrip = () => {
   return useMutation({
     mutationFn: async (params: CreateTrip) => {
       const res = await createTrip(params)
-      Mixpanel.track("Trip:Create")
+      Mixpanel.track('Trip:Create')
       return res.data
     },
     onSuccess: ({ id }) =>
@@ -46,9 +48,9 @@ export const useUpdateTrip = () => {
       const res = await editTrip(params)
       return res.data
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast({
-        title: "✅ Trip saved",
+        title: '✅ Trip saved',
       })
       queryClient.invalidateQueries({ queryKey: [TRIP_QUERY, data.id] })
     },
@@ -162,7 +164,7 @@ export const useCloneTrip = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Trip cloned",
+        title: 'Trip cloned',
       })
       queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
     },
@@ -179,7 +181,7 @@ export const useDeleteTrip = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Trip deleted",
+        title: 'Trip deleted',
       })
       queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
     },

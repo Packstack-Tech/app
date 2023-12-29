@@ -1,7 +1,8 @@
-import { useMemo } from "react"
-import Fuse from "fuse.js"
-import { useInventory } from "@/queries/item"
-import { CategoryItems, CategorizedItems } from "@/types/category"
+import { useMemo } from 'react'
+import Fuse from 'fuse.js'
+
+import { useInventory } from '@/queries/item'
+import { CategorizedItems, CategoryItems } from '@/types/category'
 
 type Options = {
   filter?: string
@@ -18,7 +19,7 @@ export const useCategorizedItems = ({
   const fuseItems = useMemo(
     () =>
       new Fuse(data || [], {
-        keys: ["name", "product.name", "brand.name"],
+        keys: ['name', 'product.name', 'brand.name'],
       }),
     [data]
   )
@@ -26,9 +27,9 @@ export const useCategorizedItems = ({
   const categorizedItems = useMemo(() => {
     const items = !filter
       ? data
-      : fuseItems.search(filter).map((result) => result.item)
+      : fuseItems.search(filter).map(result => result.item)
     return (items || []).reduce<CategorizedItems>((acc, curr) => {
-      const catId = curr.category_id?.toString() || "uncategorized"
+      const catId = curr.category_id?.toString() || 'uncategorized'
       if (acc[catId]) {
         return {
           ...acc,

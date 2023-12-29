@@ -1,13 +1,13 @@
-import { FC, useState, useEffect } from "react"
-import { XIcon } from "lucide-react"
+import { FC, useEffect, useState } from 'react'
+import { XIcon } from 'lucide-react'
 
-import { CreateableOption, Option } from "@/types/lib"
-import { useFuzzySearch } from "@/hooks/useFuzzySearch"
+import { useFuzzySearch } from '@/hooks/useFuzzySearch'
+import { CreateableOption, Option } from '@/types/lib'
 
-import { Input } from "./Input"
-import { Popover, PopoverContent, PopoverAnchor } from "./Popover"
-import { Button } from "./Button"
-import { ScrollArea } from "./ScrollArea"
+import { Button } from './Button'
+import { Input } from './Input'
+import { Popover, PopoverAnchor, PopoverContent } from './Popover'
+import { ScrollArea } from './ScrollArea'
 
 type Props = {
   value?: number
@@ -30,7 +30,7 @@ export const Combobox: FC<Props> = ({
   onSearch,
   onRemove,
 }) => {
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(false)
   const [focused, setFocused] = useState(false)
 
@@ -40,14 +40,14 @@ export const Combobox: FC<Props> = ({
 
   useEffect(() => {
     if (value) {
-      const option = options.find((option) => option.value === value)
+      const option = options.find(option => option.value === value)
       if (option) {
         setSearch(option.label)
         setSelected(true)
       }
     } else {
       if (!onSearch) {
-        setSearch("")
+        setSearch('')
         setSelected(false)
       }
     }
@@ -69,7 +69,7 @@ export const Combobox: FC<Props> = ({
   }
 
   const onClear = () => {
-    setSearch("")
+    setSearch('')
     setSelected(false)
     onRemove()
   }
@@ -80,14 +80,14 @@ export const Combobox: FC<Props> = ({
         <div className="relative">
           <Input
             value={search}
-            placeholder={placeholder || "Search..."}
-            onChange={(e) => setSearch(e.target.value)}
+            placeholder={placeholder || 'Search...'}
+            onChange={e => setSearch(e.target.value)}
             onFocus={() => setFocused(true)}
-            onKeyDown={(e) => {
-              if (e.key === "Tab") {
+            onKeyDown={e => {
+              if (e.key === 'Tab') {
                 setFocused(false)
               }
-              if (e.key === "Enter") {
+              if (e.key === 'Enter') {
                 if (filteredResults.length > 0) {
                   onSelectItem(filteredResults[0])
                 } else {
@@ -111,16 +111,16 @@ export const Combobox: FC<Props> = ({
       </PopoverAnchor>
       <PopoverContent
         asChild
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        onOpenAutoFocus={e => e.preventDefault()}
         onPointerDownOutside={() => {
-          setSearch("")
+          setSearch('')
           setFocused(false)
         }}
       >
         <ScrollArea
-          className={`p-1 ${filteredResults.length > 0 ? "h-[240px]" : ""}`}
+          className={`p-1 ${filteredResults.length > 0 ? 'h-[240px]' : ''}`}
         >
-          {filteredResults.map((option) => (
+          {filteredResults.map(option => (
             <button
               key={option.value}
               onClick={() => onSelectItem(option)}

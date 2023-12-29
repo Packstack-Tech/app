@@ -7,7 +7,7 @@ export const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 
   // Store the itemRank info
   addMeta({
-    itemRank
+    itemRank,
   })
 
   // Return if the item should be filtered in/out

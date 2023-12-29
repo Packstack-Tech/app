@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query"
-import { getBrands, getProducts, searchBrands } from "@/lib/api"
+import { useQuery } from '@tanstack/react-query'
 
-export const BRANDS_QUERY = ["brands"]
+import { getBrands, getProducts, searchBrands } from '@/lib/api'
+
+export const BRANDS_QUERY = ['brands']
 export const useBrands = () => {
   return useQuery({
     queryKey: BRANDS_QUERY,
@@ -18,7 +19,7 @@ export const useBrands = () => {
   })
 }
 
-export const PRODUCTS_QUERY = "products"
+export const PRODUCTS_QUERY = 'products'
 export const useProducts = (brandId?: number) => {
   return useQuery({
     queryKey: [PRODUCTS_QUERY, brandId],
@@ -30,7 +31,7 @@ export const useProducts = (brandId?: number) => {
   })
 }
 
-export const SEARCH_BRANDS_QUERY = "search-brands"
+export const SEARCH_BRANDS_QUERY = 'search-brands'
 export const useSearchBrands = (query: string) => {
   return useQuery({
     queryKey: [SEARCH_BRANDS_QUERY, query],

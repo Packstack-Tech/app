@@ -1,14 +1,16 @@
-import React from "react"
-import ReactDOM from "react-dom/client"
-import * as Sentry from "@sentry/react"
-import { RouterProvider } from "react-router-dom"
-import { DndProvider } from "react-dnd"
-import { HTML5Backend } from "react-dnd-html5-backend"
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
-import { router } from "./router"
-import "./index.css"
+import './index.css'
 
-import { Toaster } from "@/components/ui/Toaster"
+import React from 'react'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import ReactDOM from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
+import * as Sentry from '@sentry/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+import { Toaster } from '@/components/ui/Toaster'
+
+import { router } from './router'
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -16,7 +18,7 @@ Sentry.init({
   integrations: [
     new Sentry.BrowserTracing({
       // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-      tracePropagationTargets: ["localhost", /^https:\/\/api.packstack\.io\//],
+      tracePropagationTargets: ['localhost', /^https:\/\/api.packstack\.io\//],
     }),
     new Sentry.Replay(),
   ],
@@ -35,7 +37,7 @@ const queryClient = new QueryClient({
   },
 })
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <DndProvider backend={HTML5Backend}>

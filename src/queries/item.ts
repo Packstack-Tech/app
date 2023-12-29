@@ -1,3 +1,6 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { useToast } from '@/hooks/useToast'
 import {
   createItem,
   deleteItem,
@@ -7,14 +10,12 @@ import {
   updateCategorySortOrder,
   updateItem,
   updateItemSortOrder,
-} from "@/lib/api"
-import { UpdateItemSortOrder, UploadInventory } from "@/types/api"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { CreateItem, EditItem } from "@/types/item"
-import { useToast } from "@/hooks/useToast"
-import { Mixpanel } from "@/lib/mixpanel"
+} from '@/lib/api'
+import { Mixpanel } from '@/lib/mixpanel'
+import { UpdateItemSortOrder, UploadInventory } from '@/types/api'
+import { CreateItem, EditItem } from '@/types/item'
 
-const INVENTORY_QUERY = ["inventory-query"]
+const INVENTORY_QUERY = ['inventory-query']
 
 export const useInventory = (enabled: boolean = true) => {
   return useQuery({
@@ -33,12 +34,12 @@ export const useCreateItem = () => {
   return useMutation({
     mutationFn: async (item: CreateItem) => {
       const res = await createItem(item)
-      Mixpanel.track("Item:Create")
+      Mixpanel.track('Item:Create')
       return res.data
     },
     onSuccess: () => {
       toast({
-        title: "✅ Item created",
+        title: '✅ Item created',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
     },
@@ -55,7 +56,7 @@ export const useDeleteItem = () => {
     },
     onSuccess: () => {
       toast({
-        title: "✅ Item deleted",
+        title: '✅ Item deleted',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
     },
@@ -68,13 +69,13 @@ export const useUpdateItem = () => {
   return useMutation({
     mutationFn: async (item: EditItem) => {
       const res = await updateItem(item)
-      Mixpanel.track("Item:Update")
+      Mixpanel.track('Item:Update')
       return res.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       toast({
-        title: "✅ Item updated",
+        title: '✅ Item updated',
       })
     },
   })
@@ -90,7 +91,7 @@ export const useUpdateItemSort = () => {
     },
     onSuccess: () => {
       toast({
-        title: "✅ Sort order updated",
+        title: '✅ Sort order updated',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
     },
@@ -103,13 +104,13 @@ export const useUpdateCategorySort = () => {
   return useMutation({
     mutationFn: async (sortOrder: UpdateItemSortOrder) => {
       const res = await updateCategorySortOrder(sortOrder)
-      Mixpanel.track("Category:Update")
+      Mixpanel.track('Category:Update')
       return res.data
     },
 
     onSuccess: () => {
       toast({
-        title: "Category order updated",
+        title: 'Category order updated',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
     },
@@ -121,7 +122,7 @@ type ProductDetailParams = {
   productId?: number
 }
 
-const PRODUCT_DETAILS_QUERY = "product-details-query"
+const PRODUCT_DETAILS_QUERY = 'product-details-query'
 
 export const useProductDetails = () => {
   return useMutation({
@@ -131,7 +132,7 @@ export const useProductDetails = () => {
       return res.data
     },
     retry: false,
-    onSuccess: (data) => Mixpanel.track("ProductDetails:Fetch", data),
+    onSuccess: data => Mixpanel.track('ProductDetails:Fetch', data),
   })
 }
 
@@ -139,34 +140,34 @@ export const useImportLighterpack = () => {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationKey: ["import-lighterpack"],
+    mutationKey: ['import-lighterpack'],
     mutationFn: async (data: UploadInventory) => {
       const res = await importLighterpack(data)
       return res.data
     },
-    onSuccess: (resp) => {
+    onSuccess: resp => {
       if (resp.success) {
         toast({
-          title: "✅ Inventory imported",
+          title: '✅ Inventory imported',
         })
-        Mixpanel.track("Import:LighterPack:success", resp)
+        Mixpanel.track('Import:LighterPack:success', resp)
         queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       } else {
-        Mixpanel.track("Import:LighterPack:failure")
+        Mixpanel.track('Import:LighterPack:failure')
         const errors = resp.errors.map(
           ({ line, error }) => `Row ${line}: ${error}`
         )
         toast({
-          title: "❌ Inventory import failed",
-          description: errors.join("\n"),
+          title: '❌ Inventory import failed',
+          description: errors.join('\n'),
         })
       }
     },
     onError: () => {
-      Mixpanel.track("Import:LighterPack:failure")
+      Mixpanel.track('Import:LighterPack:failure')
       toast({
-        title: "❌ Inventory import failed",
-        description: "An unexpected error occurred. Please try again.",
+        title: '❌ Inventory import failed',
+        description: 'An unexpected error occurred. Please try again.',
       })
     },
   })

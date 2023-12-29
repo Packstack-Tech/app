@@ -1,10 +1,11 @@
-import { useState } from "react"
-import * as z from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Link } from "react-router-dom"
-import { Button, Input } from "@/components/ui"
-import { useRequestPasswordReset } from "@/queries/user"
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import { Button, Input } from '@/components/ui'
+import { useRequestPasswordReset } from '@/queries/user'
 
 type RequestPasswordResetForm = {
   email: string
@@ -45,7 +46,7 @@ export const RequestPasswordReset = () => {
       )}
       <div className="my-2">
         <label>Email</label>
-        <Input {...register("email", { required: true })} placeholder="Email" />
+        <Input {...register('email', { required: true })} placeholder="Email" />
       </div>
       {errors.email && (
         <p className="text-xs text-red-300">Must be a valid email.</p>
@@ -61,7 +62,7 @@ export const RequestPasswordReset = () => {
       </div>
       <div className="mt-3">
         <p className="text-xs text-slate-200">
-          Back to{" "}
+          Back to{' '}
           <Link to="/auth/register" className="text-primary underline">
             Login
           </Link>

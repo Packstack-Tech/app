@@ -1,1 +1,1 @@
-export { InventorySidebar } from "./InventorySidebar"
+export { InventorySidebar } from './InventorySidebar'

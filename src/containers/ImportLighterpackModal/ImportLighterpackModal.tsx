@@ -1,15 +1,16 @@
-import { useState, FC } from "react"
+import { FC, useState } from 'react'
+
+import { Button } from '@/components/ui'
 import {
   Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogContent,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/Dialog"
-import { Dropzone } from "@/components/ui/Dropzone"
-import { useImportLighterpack } from "@/queries/item"
-import { Button } from "@/components/ui"
+} from '@/components/ui/Dialog'
+import { Dropzone } from '@/components/ui/Dropzone'
+import { useImportLighterpack } from '@/queries/item'
 
 interface Props {
   open: boolean

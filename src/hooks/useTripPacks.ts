@@ -1,6 +1,7 @@
-import { create } from "zustand"
-import { PackItem, PackItemEditableKeys, TripPackKeys } from "@/types/pack"
-import { TripPack } from "@/types/pack"
+import { create } from 'zustand'
+
+import { PackItem, PackItemEditableKeys, TripPackKeys } from '@/types/pack'
+import { TripPack } from '@/types/pack'
 
 interface TripPacksState {
   selectedIndex: number
@@ -26,24 +27,24 @@ interface TripPacksState {
 }
 
 export const initPack = {
-  title: "New pack",
+  title: 'New pack',
   items: [],
 }
 
-export const useTripPacks = create<TripPacksState>((set) => ({
+export const useTripPacks = create<TripPacksState>(set => ({
   selectedIndex: 0,
   checklistMode: false,
   synced: true,
   // initialize with an empty pack
   packs: [initPack],
   addPack: () =>
-    set((state) => {
+    set(state => {
       const count = state.packs.length
       const packs = [...state.packs, { title: `Pack ${count + 1}`, items: [] }]
       return { ...state, selectedIndex: count, packs, synced: false }
     }),
-  removePack: (index) =>
-    set((state) => {
+  removePack: index =>
+    set(state => {
       // Prevent user from deleting the only pack
       if (state.packs.length === 1) return { ...state }
 
@@ -53,7 +54,7 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       return { ...state, selectedIndex, packs }
     }),
   updatePack: (index, key, value) =>
-    set((state) => {
+    set(state => {
       const pack = state.packs[index]
       if (!pack) return { ...state }
       const modifiedPack = { ...pack, [key]: value }
@@ -61,27 +62,27 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       packs[index] = modifiedPack
       return { ...state, packs, synced: false }
     }),
-  selectPack: (index) => set((state) => ({ ...state, selectedIndex: index })),
-  setPacks: (packs) =>
-    set((state) => {
+  selectPack: index => set(state => ({ ...state, selectedIndex: index })),
+  setPacks: packs =>
+    set(state => {
       packs.sort((a, b) => a.title.localeCompare(b.title))
       return { ...state, packs, synced: true }
     }),
 
-  addItem: (item) =>
-    set((state) => {
+  addItem: item =>
+    set(state => {
       const pack = state.packs[state.selectedIndex]
       const modifiedPack = { ...pack, items: [...pack.items, item] }
       const packs = [...state.packs]
       packs[state.selectedIndex] = modifiedPack
       return { ...state, packs, synced: false }
     }),
-  removeItem: (id) =>
-    set((state) => {
+  removeItem: id =>
+    set(state => {
       const pack = state.packs[state.selectedIndex]
       const modifiedPack = {
         ...pack,
-        items: pack.items.filter((item) => item.item_id !== id),
+        items: pack.items.filter(item => item.item_id !== id),
       }
       const packs = [...state.packs]
       packs[state.selectedIndex] = modifiedPack
@@ -92,9 +93,9 @@ export const useTripPacks = create<TripPacksState>((set) => ({
     key: PackItemEditableKeys,
     value: number | boolean
   ) =>
-    set((state) => {
+    set(state => {
       const pack = state.packs[state.selectedIndex]
-      const modifiedItems = pack.items.map((item) => {
+      const modifiedItems = pack.items.map(item => {
         if (item.item_id === id) {
           return { ...item, [key]: value }
         }
@@ -105,8 +106,8 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       packs[state.selectedIndex] = modifiedPack
       return { ...state, packs, synced: false }
     }),
-  setItems: (items) =>
-    set((state) => {
+  setItems: items =>
+    set(state => {
       const pack = state.packs[state.selectedIndex]
       const modifiedPack = { ...pack, items }
       const packs = [...state.packs]
@@ -114,12 +115,12 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       return { ...state, packs, synced: false }
     }),
 
-  setCategoryItems: (updatedItems) =>
-    set((state) => {
+  setCategoryItems: updatedItems =>
+    set(state => {
       const pack = state.packs[state.selectedIndex]
       const categoryId = updatedItems[0].item.category_id
       const packItems = pack.items.filter(
-        (item) => item.item.category_id !== categoryId
+        item => item.item.category_id !== categoryId
       )
       packItems.push(...updatedItems)
       const packs = [...state.packs]
@@ -127,5 +128,5 @@ export const useTripPacks = create<TripPacksState>((set) => ({
       return { ...state, packs, synced: false }
     }),
   toggleChecklistMode: () =>
-    set((state) => ({ ...state, checklistMode: !state.checklistMode })),
+    set(state => ({ ...state, checklistMode: !state.checklistMode })),
 }))

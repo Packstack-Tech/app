@@ -1,8 +1,10 @@
-import { useTripPacks } from "@/hooks/useTripPacks"
-import { shallow } from "zustand/shallow"
-import { PackWeights } from "./PackWeights"
-import { convertWeight } from "@/lib/weight"
-import { useUser } from "@/hooks/useUser"
+import { shallow } from 'zustand/shallow'
+
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { useUser } from '@/hooks/useUser'
+import { convertWeight } from '@/lib/weight'
+
+import { PackWeights } from './PackWeights'
 
 type Weights = {
   worn: number
@@ -12,7 +14,7 @@ type Weights = {
 
 export const WeightBreakdown = () => {
   const user = useUser()
-  const { packs } = useTripPacks((store) => ({ packs: store.packs }), shallow)
+  const { packs } = useTripPacks(store => ({ packs: store.packs }), shallow)
 
   const breakdowns = packs.map(({ items, title }) => {
     const weightCategories = items.reduce(

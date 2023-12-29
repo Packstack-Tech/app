@@ -1,21 +1,21 @@
-import { FC } from "react"
-import { useNavigate } from "react-router-dom"
-import { useDeletePack, useGeneratePack } from "@/queries/pack"
-import { Pack } from "@/types/pack"
+import { FC } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Trash2Icon } from 'lucide-react'
 
+import { Button } from '@/components/ui'
 import {
   AlertDialog,
-  AlertDialogContent,
-  AlertDialogDestructiveAction,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTrigger,
   AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogDestructiveAction,
   AlertDialogFooter,
+  AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/AlertDialog"
-import { Button } from "@/components/ui"
-import { Trash2Icon } from "lucide-react"
+  AlertDialogTrigger,
+} from '@/components/ui/AlertDialog'
+import { useDeletePack, useGeneratePack } from '@/queries/pack'
+import { Pack } from '@/types/pack'
 
 type Props = {
   packs: Pack[]
@@ -28,7 +28,7 @@ export const LegacyPacks: FC<Props> = ({ packs }) => {
 
   const onCovert = (id: number) => {
     generatePack.mutate(id, {
-      onSuccess: (data) => {
+      onSuccess: data => {
         navigate(`/pack/${data.id}`)
       },
     })
@@ -44,7 +44,7 @@ export const LegacyPacks: FC<Props> = ({ packs }) => {
           These packs need to be converted to the new format.
         </p>
       </div>
-      {packs.map((rec) => (
+      {packs.map(rec => (
         <div key={rec.id} className="p-4 rounded-sm border mb-2">
           <div className="flex justify-between items-center">
             <p className="text-sm">{rec.title}</p>

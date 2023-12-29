@@ -1,16 +1,17 @@
-import { useEffect } from "react"
-import { useParams } from "react-router-dom"
-import { shallow } from "zustand/shallow"
+import { useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import { shallow } from 'zustand/shallow'
 
-import { Pack } from "./Pack"
-import { useTripQuery } from "@/queries/trip"
-import { useTripPacksQuery } from "@/queries/pack"
-import { useTripPacks, initPack } from "@/hooks/useTripPacks"
+import { initPack, useTripPacks } from '@/hooks/useTripPacks'
+import { useTripPacksQuery } from '@/queries/pack'
+import { useTripQuery } from '@/queries/trip'
+
+import { Pack } from './Pack'
 
 export const PackPage = () => {
   const { id } = useParams()
   const { setPacks } = useTripPacks(
-    (store) => ({
+    store => ({
       setPacks: store.setPacks,
     }),
     shallow

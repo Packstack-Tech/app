@@ -1,9 +1,10 @@
-import { FC } from "react"
-import { Plus } from "lucide-react"
-import { PackSelector } from "@/containers/PackSelector"
-import { TripPackRecord } from "@/types/pack"
-import { useTripPacks } from "@/hooks/useTripPacks"
-import { shallow } from "zustand/shallow"
+import { FC } from 'react'
+import { Plus } from 'lucide-react'
+import { shallow } from 'zustand/shallow'
+
+import { PackSelector } from '@/containers/PackSelector'
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { TripPackRecord } from '@/types/pack'
 
 interface Props {
   packs: TripPackRecord[]
@@ -11,7 +12,7 @@ interface Props {
 
 export const PackTabs: FC<Props> = ({ packs }) => {
   const { addPack } = useTripPacks(
-    (store) => ({
+    store => ({
       addPack: store.addPack,
     }),
     shallow
@@ -19,7 +20,7 @@ export const PackTabs: FC<Props> = ({ packs }) => {
 
   return (
     <div className="flex flex-row flex-wrap gap-2">
-      {packs.map((pack) => (
+      {packs.map(pack => (
         <PackSelector key={pack.index} pack={pack} />
       ))}
       <button

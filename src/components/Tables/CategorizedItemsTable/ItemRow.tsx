@@ -1,10 +1,10 @@
-import { useMemo, useRef } from "react"
-import { useDrag, useDrop } from "react-dnd"
-import type { Identifier, XYCoord } from "dnd-core"
-import { flexRender, Row } from "@tanstack/react-table"
-import { GripHorizontal } from "lucide-react"
+import { useMemo, useRef } from 'react'
+import { useDrag, useDrop } from 'react-dnd'
+import type { Identifier, XYCoord } from 'dnd-core'
+import { GripHorizontal } from 'lucide-react'
+import { flexRender, Row } from '@tanstack/react-table'
 
-import { TableCell, TableRow } from "@/components/ui/Table"
+import { TableCell, TableRow } from '@/components/ui/Table'
 
 interface ItemRowProps<TData> {
   id: string
@@ -114,20 +114,20 @@ export function ItemRow<TData>({
     <TableRow
       key={row.id}
       ref={dropRef}
-      data-state={row.getIsSelected() && "selected"}
+      data-state={row.getIsSelected() && 'selected'}
     >
       <TableCell className="w-[5%] min-w-[40px]">
         <div
           ref={dragRef}
           className={`inline-block hover:cursor-grab ${
-            disabled ? "opacity-10" : ""
+            disabled ? 'opacity-10' : ''
           }`}
           data-handler-id={handlerId}
         >
           <GripHorizontal size={18} />
         </div>
       </TableCell>
-      {row.getVisibleCells().map((cell) => (
+      {row.getVisibleCells().map(cell => (
         <TableCell
           key={cell.id}
           align={(cell.column.columnDef.meta as any)?.align}

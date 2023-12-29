@@ -1,5 +1,6 @@
-import { FC } from "react"
-import { Item } from "@/types/item"
+import { FC } from 'react'
+
+import { Item } from '@/types/item'
 
 interface Props {
   item: Item
@@ -12,7 +13,7 @@ export const InventoryItem: FC<Props> = ({ item, selected, onClick }) => (
     <button
       onClick={() => onClick(item)}
       className={`p-1 w-full rounded-sm text-left border border-transparent hover:bg-slate-900 ${
-        selected ? "!border-accent" : ""
+        selected ? '!border-accent' : ''
       }`}
     >
       <div className="text-slate-100 text-xs font-semibold">{item.name}</div>

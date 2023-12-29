@@ -1,10 +1,11 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { Link, useNavigate } from "react-router-dom"
-import { Button, Input } from "@/components/ui"
-import { useUserLogin } from "@/queries/user"
-import { handleException } from "@/lib/utils"
-import { Mixpanel } from "@/lib/mixpanel"
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Link, useNavigate } from 'react-router-dom'
+
+import { Button, Input } from '@/components/ui'
+import { Mixpanel } from '@/lib/mixpanel'
+import { handleException } from '@/lib/utils'
+import { useUserLogin } from '@/queries/user'
 
 type LoginForm = {
   emailOrUsername: string
@@ -21,14 +22,14 @@ export const LoginPage = () => {
     login.mutate(data, {
       onSuccess: ({ user }) => {
         Mixpanel.identify(`${user.id}`)
-        Mixpanel.track("User:Login")
+        Mixpanel.track('User:Login')
         Mixpanel.people.set({
           $name: user.username,
           $email: user.email,
         })
-        navigate("/")
+        navigate('/')
       },
-      onError: (error) => {
+      onError: error => {
         handleException(error, {
           onHttpError: ({ response }) => setError(response?.data.detail),
         })
@@ -43,7 +44,7 @@ export const LoginPage = () => {
       <div className="my-2">
         <label>Email</label>
         <Input
-          {...register("emailOrUsername", { required: true })}
+          {...register('emailOrUsername', { required: true })}
           placeholder="Email or username"
         />
       </div>
@@ -58,7 +59,7 @@ export const LoginPage = () => {
           </Link>
         </div>
         <Input
-          {...register("password", { required: true })}
+          {...register('password', { required: true })}
           type="password"
           placeholder="••••••"
         />
@@ -70,7 +71,7 @@ export const LoginPage = () => {
       </div>
       <div className="mt-3">
         <p className="text-xs text-slate-200">
-          Don't have an account?{" "}
+          Don't have an account?{' '}
           <Link to="/auth/register" className="text-primary underline">
             Sign Up
           </Link>

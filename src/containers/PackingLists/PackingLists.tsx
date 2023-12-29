@@ -1,28 +1,28 @@
-import { FC } from "react"
-import { format } from "date-fns"
-import { Link, useNavigate } from "react-router-dom"
-import { CopyPlus, PlusIcon, Trash2Icon } from "lucide-react"
+import { FC } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { format } from 'date-fns'
+import { CopyPlus, PlusIcon, Trash2Icon } from 'lucide-react'
 
-import { useDeleteTrip, useCloneTrip } from "@/queries/trip"
-
+import { EmptyState } from '@/components/EmptyState'
+import { Button } from '@/components/ui'
 import {
   AlertDialog,
-  AlertDialogContent,
   AlertDialogAction,
-  AlertDialogDestructiveAction,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTrigger,
   AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogDestructiveAction,
   AlertDialogFooter,
+  AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/AlertDialog"
-import { Button } from "@/components/ui"
-import { EmptyState } from "@/components/EmptyState"
-import { Trip } from "@/types/trip"
-import { DonationMessage } from "../DonationMessage"
+  AlertDialogTrigger,
+} from '@/components/ui/AlertDialog'
+import { useCloneTrip, useDeleteTrip } from '@/queries/trip'
+import { Trip } from '@/types/trip'
 
-const DATE_FORMAT = "MMM dd, yyyy"
+import { DonationMessage } from '../DonationMessage'
+
+const DATE_FORMAT = 'MMM dd, yyyy'
 
 type Props = {
   trips: Trip[]
@@ -37,7 +37,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
 
   const onClone = (id: number) =>
     cloneTrip.mutate(id, {
-      onSuccess: (data) => {
+      onSuccess: data => {
         navigate(`/pack/${data.id}`)
       },
     })
@@ -51,7 +51,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
           size="sm"
           variant="outline"
           className="gap-1"
-          onClick={() => navigate("/pack/new")}
+          onClick={() => navigate('/pack/new')}
         >
           <PlusIcon size={12} /> <span>Create Pack</span>
         </Button>
@@ -68,10 +68,10 @@ export const PackingLists: FC<Props> = ({ trips }) => {
             upcoming trip.
           </p>
           <div className="flex justify-between items-center mt-3">
-            <Button variant="outline" onClick={() => navigate("/inventory")}>
+            <Button variant="outline" onClick={() => navigate('/inventory')}>
               Manage Inventory
             </Button>
-            <Button className="gap-1" onClick={() => navigate("/pack/new")}>
+            <Button className="gap-1" onClick={() => navigate('/pack/new')}>
               <PlusIcon size={16} /> <span>Create Pack</span>
             </Button>
           </div>
@@ -82,15 +82,15 @@ export const PackingLists: FC<Props> = ({ trips }) => {
         const created = format(new Date(created_at), DATE_FORMAT)
         const start = start_date
           ? format(new Date(start_date), DATE_FORMAT)
-          : "-"
-        const end = end_date ? format(new Date(end_date), DATE_FORMAT) : "-"
+          : '-'
+        const end = end_date ? format(new Date(end_date), DATE_FORMAT) : '-'
 
         const dayTrip = start === end
 
         return (
           <div key={id} className="p-4 rounded-sm border mb-2">
             <Link to={`/pack/${id}`} className="text-primary hover:underline">
-              {title || "untitled"}
+              {title || 'untitled'}
             </Link>
             <p className="text-sm">{dayTrip ? start : `${start} - ${end}`}</p>
             <div className="flex justify-between items-center">
@@ -105,7 +105,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
                       <AlertDialogTitle>Clone packing list</AlertDialogTitle>
                     </AlertDialogHeader>
                     <AlertDialogDescription>
-                      This will create a copy of {title || "untitled"}.
+                      This will create a copy of {title || 'untitled'}.
                     </AlertDialogDescription>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -124,7 +124,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
                       <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     </AlertDialogHeader>
                     <AlertDialogDescription>
-                      This will permanently delete {title || "untitled"}.
+                      This will permanently delete {title || 'untitled'}.
                     </AlertDialogDescription>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>

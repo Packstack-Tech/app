@@ -1,14 +1,16 @@
-import { useState, useEffect, FC } from "react"
+import { FC, useEffect, useState } from 'react'
+
 import {
   Dialog,
+  DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogContent,
-} from "@/components/ui/Dialog"
-import { useCategorizedItems } from "@/hooks/useCategorizedItems"
-import { Category } from "./Category"
-import { useUpdateCategorySort } from "@/queries/item"
-import { ScrollArea } from "@/components/ui/ScrollArea"
+} from '@/components/ui/Dialog'
+import { ScrollArea } from '@/components/ui/ScrollArea'
+import { useCategorizedItems } from '@/hooks/useCategorizedItems'
+import { useUpdateCategorySort } from '@/queries/item'
+
+import { Category } from './Category'
 
 interface Props {
   open: boolean
@@ -27,7 +29,7 @@ export const CategoryManagementModal: FC<Props> = ({ open, onOpenChange }) => {
   const moveItem = (dragIndex: number | undefined, hoverIndex: number) => {
     if (dragIndex === undefined) return
 
-    setCategories((prev) => {
+    setCategories(prev => {
       const newItems = [...prev]
       const dragItem = newItems[dragIndex]
       newItems.splice(dragIndex, 1)
@@ -38,7 +40,7 @@ export const CategoryManagementModal: FC<Props> = ({ open, onOpenChange }) => {
 
   const onDropItem = () => {
     const sortOrder = categories
-      .filter((rec) => !!rec.category)
+      .filter(rec => !!rec.category)
       .map((category, idx) => ({
         id: category.category?.id || 0,
         sort_order: idx,
@@ -55,7 +57,7 @@ export const CategoryManagementModal: FC<Props> = ({ open, onOpenChange }) => {
         <ScrollArea className="max-h-[60vh] w-[100%]" type="auto">
           {categories.map((rec, idx) => (
             <Category
-              key={rec.category?.category_id || "uncategorized"}
+              key={rec.category?.category_id || 'uncategorized'}
               moveItem={moveItem}
               onDropItem={onDropItem}
               category={rec}

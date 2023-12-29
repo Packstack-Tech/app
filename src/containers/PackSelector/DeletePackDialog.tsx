@@ -1,14 +1,15 @@
-import { FC } from "react"
+import { FC } from 'react'
+
 import {
   AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogDescription,
-  AlertDialogCancel,
   AlertDialogAction,
-  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
-} from "../../components/ui/AlertDialog"
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../../components/ui/AlertDialog'
 
 interface Props {
   title: string

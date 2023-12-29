@@ -1,64 +1,61 @@
-import { FC, useEffect, useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { FC, useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
-import { useProducts, useSearchBrands } from "@/queries/resources"
-
-import { Input } from "@/components/ui"
-import { Button } from "@/components/ui"
-import {
-  Form,
-  FormField,
-  FormControl,
-  FormDescription,
-  FormLabel,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/Form"
+import { Input } from '@/components/ui'
+import { Button } from '@/components/ui'
+import { Checkbox } from '@/components/ui/Checkbox'
+import { Combobox } from '@/components/ui/ComboBox'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/Dialog"
-
-import { Textarea } from "@/components/ui/Textarea"
-import { Checkbox } from "@/components/ui/Checkbox"
-
-import { Combobox } from "@/components/ui/ComboBox"
-import { useCategories } from "@/queries/category"
+} from '@/components/ui/Dialog'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/Form'
+import { Label } from '@/components/ui/Label'
+import { ScrollArea } from '@/components/ui/ScrollArea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/Select"
-import { Item, ItemForm as ItemFormValues, Unit } from "@/types/item"
-import { ScrollArea } from "@/components/ui/ScrollArea"
+} from '@/components/ui/Select'
+import { Textarea } from '@/components/ui/Textarea'
+import { convertWeight } from '@/lib/weight'
+import { useCategories } from '@/queries/category'
 import {
   useCreateItem,
   useDeleteItem,
-  useUpdateItem,
   useProductDetails,
-} from "@/queries/item"
-import { Label } from "@/components/ui/Label"
-import { convertWeight } from "@/lib/weight"
+  useUpdateItem,
+} from '@/queries/item'
+import { useProducts, useSearchBrands } from '@/queries/resources'
+import { Item, ItemForm as ItemFormValues, Unit } from '@/types/item'
 
 // TODO add field max/min length
 const schema = z.object({
-  itemname: z.string().min(1, "Name is required"),
+  itemname: z.string().min(1, 'Name is required'),
   brand_id: z.number().optional(),
   brand_new: z.string().optional(),
   product_id: z.number().optional(),
   product_new: z.string().optional(),
   category_id: z.number().optional(),
   category_new: z.string().optional(),
-  weight: z.coerce.number().min(0, "Weight must be positive").optional(),
+  weight: z.coerce.number().min(0, 'Weight must be positive').optional(),
   unit: z.string().optional(),
-  price: z.coerce.number().min(0, "Price must be positive").optional(),
+  price: z.coerce.number().min(0, 'Price must be positive').optional(),
   consumable: z.boolean().optional(),
   product_url: z.string().optional(),
   notes: z.string().optional(),
@@ -74,16 +71,16 @@ type Props = {
 }
 
 const formDefaults = (item?: Item) => ({
-  itemname: item?.name || "",
+  itemname: item?.name || '',
   brand_id: item?.brand_id || undefined,
   product_id: item?.product_id || undefined,
   category_id: item?.category?.category_id || undefined,
   weight: item?.weight || 0,
-  unit: item?.unit || "g",
+  unit: item?.unit || 'g',
   price: item?.price || 0,
   consumable: item?.consumable || false,
-  product_url: item?.product_url || "",
-  notes: item?.notes || "",
+  product_url: item?.product_url || '',
+  notes: item?.notes || '',
 })
 
 export const ItemForm: FC<Props> = ({
@@ -94,7 +91,7 @@ export const ItemForm: FC<Props> = ({
   onClose,
   children,
 }) => {
-  const [brandSearch, setBrandSearch] = useState("")
+  const [brandSearch, setBrandSearch] = useState('')
   const [another, setAnother] = useState(false)
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
@@ -112,9 +109,9 @@ export const ItemForm: FC<Props> = ({
   }, [item])
 
   const { data: categories } = useCategories()
-  const { data: brand } = useProducts(form.watch("brand_id"))
+  const { data: brand } = useProducts(form.watch('brand_id'))
 
-  const noBrandSelected = !form.watch("brand_id") && !form.watch("brand_new")
+  const noBrandSelected = !form.watch('brand_id') && !form.watch('brand_new')
 
   const brandOptions = useMemo(
     () =>
@@ -144,13 +141,13 @@ export const ItemForm: FC<Props> = ({
   )
 
   const onSelectProduct = (id: number) => {
-    const brandId = form.getValues("brand_id")
+    const brandId = form.getValues('brand_id')
     productDetails.mutate(
       { productId: id, brandId },
       {
-        onSuccess: (data) => {
-          form.setValue("weight", data.median)
-          form.setValue("unit", data.unit)
+        onSuccess: data => {
+          form.setValue('weight', data.median)
+          form.setValue('unit', data.unit)
         },
       }
     )
@@ -190,7 +187,7 @@ export const ItemForm: FC<Props> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {children}
-      <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent onPointerDownOutside={e => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -215,22 +212,22 @@ export const ItemForm: FC<Props> = ({
                 <FormLabel>Manufacturer</FormLabel>
 
                 <Combobox
-                  value={form.watch("brand_id")}
+                  value={form.watch('brand_id')}
                   options={brandOptions}
                   onSearch={setBrandSearch}
                   isLoading={searchBrands.isLoading}
                   onSelect={({ label, value, isNew }) => {
                     if (isNew) {
-                      form.setValue("brand_new", label)
+                      form.setValue('brand_new', label)
                     } else {
-                      form.setValue("brand_id", value as number)
+                      form.setValue('brand_id', value as number)
                     }
                   }}
                   onRemove={() => {
-                    form.setValue("brand_id", undefined)
-                    form.setValue("brand_new", undefined)
-                    form.setValue("product_id", undefined)
-                    form.setValue("product_new", undefined)
+                    form.setValue('brand_id', undefined)
+                    form.setValue('brand_new', undefined)
+                    form.setValue('product_id', undefined)
+                    form.setValue('product_new', undefined)
                   }}
                 />
                 <FormMessage />
@@ -240,28 +237,28 @@ export const ItemForm: FC<Props> = ({
                 <FormLabel>Product</FormLabel>
 
                 <Combobox
-                  value={form.watch("product_id")}
+                  value={form.watch('product_id')}
                   options={productOptions}
                   disabled={noBrandSelected}
                   onSelect={({ label, value, isNew }) => {
                     if (isNew) {
-                      form.setValue("product_new", label)
+                      form.setValue('product_new', label)
                     } else {
                       const id = value as number
-                      form.setValue("product_id", id)
+                      form.setValue('product_id', id)
                       onSelectProduct(id)
                     }
                   }}
                   onRemove={() => {
-                    form.setValue("product_id", undefined)
-                    form.setValue("product_new", undefined)
+                    form.setValue('product_id', undefined)
+                    form.setValue('product_new', undefined)
                   }}
                 />
 
                 <FormDescription>
                   {noBrandSelected
-                    ? "Product name requires a manufacturer"
-                    : "Select or create the product name"}
+                    ? 'Product name requires a manufacturer'
+                    : 'Select or create the product name'}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -270,18 +267,18 @@ export const ItemForm: FC<Props> = ({
                 <FormLabel>Category</FormLabel>
 
                 <Combobox
-                  value={form.watch("category_id")}
+                  value={form.watch('category_id')}
                   options={categoryOptions}
                   onSelect={({ label, value, isNew }) => {
                     if (isNew) {
-                      form.setValue("category_new", label)
+                      form.setValue('category_new', label)
                     } else {
-                      form.setValue("category_id", value as number)
+                      form.setValue('category_id', value as number)
                     }
                   }}
                   onRemove={() => {
-                    form.setValue("category_id", undefined)
-                    form.setValue("category_new", undefined)
+                    form.setValue('category_id', undefined)
+                    form.setValue('category_new', undefined)
                   }}
                 />
 
@@ -303,7 +300,7 @@ export const ItemForm: FC<Props> = ({
                           placeholder="0.00"
                           disabled={productDetails.isPending}
                           onFocus={() => {
-                            if (!field.value) field.onChange("")
+                            if (!field.value) field.onChange('')
                           }}
                         />
                         <FormMessage />
@@ -316,16 +313,16 @@ export const ItemForm: FC<Props> = ({
                     name="unit"
                     render={({ field }) => (
                       <Select
-                        onValueChange={(v) => {
+                        onValueChange={v => {
                           const weight = convertWeight(
-                            form.getValues("weight"),
+                            form.getValues('weight'),
                             field.value,
                             v as Unit
                           )
                           // round weight to 2 decimal places as number
                           const roundedWeight =
                             Math.round(weight.weight * 100) / 100
-                          form.setValue("weight", roundedWeight)
+                          form.setValue('weight', roundedWeight)
                           field.onChange(v)
                         }}
                         defaultValue={field.value}
@@ -360,7 +357,7 @@ export const ItemForm: FC<Props> = ({
                         step=".01"
                         placeholder="0.00"
                         onFocus={() => {
-                          if (!field.value) field.onChange("")
+                          if (!field.value) field.onChange('')
                         }}
                       />
                       <FormMessage />

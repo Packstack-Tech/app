@@ -1,1 +1,1 @@
-export { WeightBreakdown } from "./WeightBreakdown"
+export { WeightBreakdown } from './WeightBreakdown'

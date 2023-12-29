@@ -1,6 +1,7 @@
-import commandScore from 'command-score'
-import { Option } from '@/types/lib'
 import { useMemo } from 'react'
+import commandScore from 'command-score'
+
+import { Option } from '@/types/lib'
 
 type Result = {
   score: number
@@ -13,7 +14,7 @@ export const useFuzzySearch = (options: Option[], query: string) => {
 
     let results: Result[] = []
 
-    options.forEach((item) => {
+    options.forEach(item => {
       const score = commandScore(item.label, query)
       if (score > 0) {
         results.push({ score: score, item: item })
@@ -27,6 +28,6 @@ export const useFuzzySearch = (options: Option[], query: string) => {
         }
         return b.score - a.score
       })
-      .map((suggestion) => suggestion.item)
+      .map(suggestion => suggestion.item)
   }, [options, query])
 }

@@ -1,5 +1,6 @@
-import { FC } from "react"
-import { Box } from "../ui"
+import { FC } from 'react'
+
+import { Box } from '../ui'
 
 interface Props {
   subheading?: string

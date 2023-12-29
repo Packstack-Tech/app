@@ -1,10 +1,9 @@
-import { FC } from "react"
+import { FC } from 'react'
 
-import { useUnassignedPacks } from "@/queries/pack"
-
-import { LegacyPacks } from "@/containers/LegacyPacks"
-import { PackingLists } from "@/containers/PackingLists"
-import { useUser } from "@/hooks/useUser"
+import { LegacyPacks } from '@/containers/LegacyPacks'
+import { PackingLists } from '@/containers/PackingLists'
+import { useUser } from '@/hooks/useUser'
+import { useUnassignedPacks } from '@/queries/pack'
 
 export const Dashboard: FC = () => {
   const user = useUser()

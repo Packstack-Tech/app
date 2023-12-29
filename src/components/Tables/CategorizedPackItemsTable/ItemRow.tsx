@@ -1,14 +1,14 @@
-import { useMemo, useRef } from "react"
-import { useDrag, useDrop } from "react-dnd"
-import type { Identifier, XYCoord } from "dnd-core"
-import { flexRender, Row } from "@tanstack/react-table"
-import { GripHorizontal } from "lucide-react"
-import { shallow } from "zustand/shallow"
+import { useMemo, useRef } from 'react'
+import { useDrag, useDrop } from 'react-dnd'
+import type { Identifier, XYCoord } from 'dnd-core'
+import { GripHorizontal } from 'lucide-react'
+import { shallow } from 'zustand/shallow'
+import { flexRender, Row } from '@tanstack/react-table'
 
-import { useTripPacks } from "@/hooks/useTripPacks"
-import { TableCell, TableRow } from "@/components/ui/Table"
-import { Checkbox } from "@/components/ui/Checkbox"
-import { PackItem } from "@/types/pack"
+import { Checkbox } from '@/components/ui/Checkbox'
+import { TableCell, TableRow } from '@/components/ui/Table'
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { PackItem } from '@/types/pack'
 
 interface ItemRowProps<TData> {
   id: string
@@ -32,7 +32,7 @@ export function ItemRow<TData>({
   moveItem,
 }: ItemRowProps<TData>) {
   const { checklistMode, updateItem } = useTripPacks(
-    (state) => ({
+    state => ({
       checklistMode: state.checklistMode,
       updateItem: state.updateItem,
     }),
@@ -122,26 +122,26 @@ export function ItemRow<TData>({
     <TableRow
       key={row.id}
       ref={dropRef}
-      data-state={row.getIsSelected() && "selected"}
+      data-state={row.getIsSelected() && 'selected'}
     >
       <TableCell className="w-4 pr-0 pt-2">
         {checklistMode && (
           <Checkbox
-            onClick={() => updateItem(item.item_id, "checked", !item.checked)}
+            onClick={() => updateItem(item.item_id, 'checked', !item.checked)}
             checked={item.checked}
           />
         )}
         <div
           ref={dragRef}
           className={`inline-block hover:cursor-grab ${
-            disabled ? "opacity-10" : ""
-          } ${checklistMode ? "hidden" : ""}`}
+            disabled ? 'opacity-10' : ''
+          } ${checklistMode ? 'hidden' : ''}`}
           data-handler-id={handlerId}
         >
           <GripHorizontal size={18} />
         </div>
       </TableCell>
-      {row.getVisibleCells().map((cell) => (
+      {row.getVisibleCells().map(cell => (
         <TableCell
           key={cell.id}
           align={(cell.column.columnDef.meta as any)?.align}

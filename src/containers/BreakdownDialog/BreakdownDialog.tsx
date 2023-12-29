@@ -1,15 +1,16 @@
-import { Chart } from "react-google-charts"
+import { FC } from 'react'
+import { Chart } from 'react-google-charts'
+import { PieChart } from 'lucide-react'
+
 import {
   Dialog,
+  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogContent,
-} from "@/components/ui/Dialog"
-import { CategoryWeight } from "@/types/category"
-import { FC } from "react"
-import { PieChart } from "lucide-react"
-import { Mixpanel } from "@/lib/mixpanel"
+} from '@/components/ui/Dialog'
+import { Mixpanel } from '@/lib/mixpanel'
+import { CategoryWeight } from '@/types/category'
 
 interface Props {
   data: CategoryWeight[]
@@ -17,16 +18,16 @@ interface Props {
 
 export const BreakdownDialog: FC<Props> = ({ data }) => {
   const chartData = data.map(({ label, value }) => [label, value])
-  chartData.unshift(["Category", "Weight"])
+  chartData.unshift(['Category', 'Weight'])
 
-  const aggregateUnit = data[0]?.unit || ""
+  const aggregateUnit = data[0]?.unit || ''
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <button
           className="flex gap-1 text-xs items-center text-primary active:text-white"
-          onClick={() => Mixpanel.track("Pack:View breakdown")}
+          onClick={() => Mixpanel.track('Pack:View breakdown')}
         >
           <PieChart size={12} /> View breakdown
         </button>
@@ -42,7 +43,7 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
           height="400px"
           formatters={[
             {
-              type: "NumberFormat",
+              type: 'NumberFormat',
               column: 1,
               options: {
                 suffix: aggregateUnit,

@@ -1,19 +1,19 @@
-import { FC, useState } from "react"
-import { MoreVertical } from "lucide-react"
+import { FC, useState } from 'react'
+import { MoreVertical } from 'lucide-react'
+import { shallow } from 'zustand/shallow'
 
-import { useTripPacks } from "@/hooks/useTripPacks"
-import { TripPackRecord } from "@/types/pack"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/DropdownMenu"
-import { useDeletePack } from "@/queries/pack"
+} from '@/components/ui/DropdownMenu'
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { useDeletePack } from '@/queries/pack'
+import { TripPackRecord } from '@/types/pack'
 
-import { EditPackDialog } from "./EditPackDialog"
-import { DeletePackDialog } from "./DeletePackDialog"
-import { shallow } from "zustand/shallow"
+import { DeletePackDialog } from './DeletePackDialog'
+import { EditPackDialog } from './EditPackDialog'
 
 interface Props {
   pack: TripPackRecord
@@ -24,7 +24,7 @@ export const PackSelector: FC<Props> = ({ pack }) => {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const deletePack = useDeletePack()
   const { selectedIndex, selectPack, updatePack, removePack } = useTripPacks(
-    (store) => ({
+    store => ({
       selectedIndex: store.selectedIndex,
       selectPack: store.selectPack,
       updatePack: store.updatePack,
@@ -34,12 +34,12 @@ export const PackSelector: FC<Props> = ({ pack }) => {
   )
 
   const isSelected = selectedIndex === pack.index
-  const selectedStyle = isSelected ? "border-primary" : ""
+  const selectedStyle = isSelected ? 'border-primary' : ''
 
   const handleEdit = (value: string) => {
     const packName = value.trim()
     if (!packName) return
-    updatePack(pack.index, "title", packName)
+    updatePack(pack.index, 'title', packName)
     setEditOpen(false)
   }
 
