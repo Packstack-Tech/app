@@ -11,7 +11,7 @@ import {
   WornCell,
 } from './cells';
 
-// test linter
+// test linter 2
 
 export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
   {

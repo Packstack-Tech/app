@@ -1,0 +1,12 @@
+{
+  "extends": ["react-app", "plugin:prettier/recommended"],
+  "plugins": ["simple-import-sort", "prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "simple-import-sort/imports": [
+      "warn",
+      {"groups": [["^\\u0000"], ["^react", "^\\w", "^@?\\w"], ["^@?\\/"], ["^\\."]]}
+    ],
+    "simple-import-sort/exports": "warn"
+  }
+}
