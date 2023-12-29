@@ -1,7 +1,7 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table'
 
-import { Currency } from '@/lib/currencies';
-import { PackItem } from '@/types/pack';
+import { Currency } from '@/lib/currencies'
+import { PackItem } from '@/types/pack'
 
 import {
   NotesCell,
@@ -9,9 +9,7 @@ import {
   RemoveItemCell,
   WeightCell,
   WornCell,
-} from './cells';
-
-// test linter 2
+} from './cells'
 
 export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
   {
@@ -43,8 +41,8 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
   {
     header: 'Value',
     accessorFn: ({ item }) => {
-      if (!item.price) return null;
-      return `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`;
+      if (!item.price) return null
+      return `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`
     },
     meta: {
       style: {
@@ -88,4 +86,4 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
       style: { textAlign: 'center', width: '5%' },
     },
   },
-];
+]
