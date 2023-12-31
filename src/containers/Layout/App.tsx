@@ -6,7 +6,7 @@ import { useUserQuery } from '@/queries/user'
 
 export const AppLayout = () => {
   const navigate = useNavigate()
-  const { data, isLoading, isError } = useUserQuery()
+  const { data, isError } = useUserQuery()
   const jwt = localStorage.getItem('jwt')
 
   useEffect(() => {
@@ -14,10 +14,6 @@ export const AppLayout = () => {
       navigate('/auth/login')
     }
   }, [jwt, isError, navigate])
-
-  if (isLoading || !jwt) {
-    return <div>Loading...</div>
-  }
 
   if (data) {
     return (
@@ -28,5 +24,5 @@ export const AppLayout = () => {
     )
   }
 
-  return null
+  return <div>Loading...</div>
 }
