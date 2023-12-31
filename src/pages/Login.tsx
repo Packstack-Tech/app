@@ -46,6 +46,7 @@ export const LoginPage = () => {
         <Input
           {...register('emailOrUsername', { required: true })}
           placeholder="Email or username"
+          tabIndex={1}
         />
       </div>
       <div className="my-2">
@@ -54,6 +55,7 @@ export const LoginPage = () => {
           <Link
             to="/auth/request-password-reset"
             className="text-slate-200 underline text-xs"
+            tabIndex={4}
           >
             Forgot password?
           </Link>
@@ -62,10 +64,16 @@ export const LoginPage = () => {
           {...register('password', { required: true })}
           type="password"
           placeholder="••••••"
+          tabIndex={2}
         />
       </div>
       <div className="flex justify-end mt-4">
-        <Button type="submit" className="w-full" disabled={login.isPending}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={login.isPending}
+          tabIndex={3}
+        >
           Login
         </Button>
       </div>
