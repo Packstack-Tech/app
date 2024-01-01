@@ -4,26 +4,32 @@ Packstack is a gear management system and packing list builder for backpackers a
 
 ### Getting started
 
-First, set up your local env variables
+First, set up your local env variables.
 
-Create `.env.local` and add the follow:
+Create `.env.local` and add the following:
 
 ```
-VITE_API_URL=https://api.packstack.io
+VITE_API_URL=http://localhost # OR https://api.packstack.io
 VITE_SENTRY_DSN=
 ```
 
-### Start the development server
+### Start the frontend server
+
+From the project root, run:
 
 ```
 $ npm i
 $ npm run dev
 ```
 
-### Authentication
+### (Option 1) Run the API & database locally
 
-Until the server and database have been dockerized for local development, use your production credentials for authentication.
+If you want to set up the API and database locally, follow the instructions on the [API server repo](https://github.com/Packstack-Tech/packstack-api).
 
-If you do not have a Packstack account, sign up at [Packstack.io](https://app.packstack.io "Packstack's production server"). Feel free to create a test account for local development.
+### (Option 2) Use the production server
 
-_*Note:*_ Once the server is dockerized, documentation will be added for setting up the backend and database locally so that you don't need to use the production app for testing.
+If you do NOT want to run the API and database locally, you can sign in using your credential from [Packstack.io](https://app.packstack.io).
+
+In `.env.local`, change the value of `VITE_API_URL` to `https://api.packstack.io`
+
+If you do not have a Packstack account, sign up at [Packstack.io](https://app.packstack.io "Packstack's production app"). Feel free to create a test account for local development.
