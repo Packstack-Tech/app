@@ -26,7 +26,7 @@ $ npm run dev
 
 If you want to set up the API and database locally, follow the instructions on the [API server repo](https://github.com/Packstack-Tech/packstack-api).
 
-### (Options 2) Hit the production server
+### (Option 2) Use the production server
 
 If you do NOT want to run the API and database locally, you can sign in using your credential from [Packstack.io](https://app.packstack.io).
 
