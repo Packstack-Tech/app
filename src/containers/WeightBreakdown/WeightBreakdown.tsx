@@ -27,7 +27,7 @@ export const WeightBreakdown = () => {
         const quantityWeight = weight.weight * quantity
 
         return {
-          worn: worn ? acc.worn + quantityWeight : acc.worn,
+          worn: worn ? acc.worn + weight.weight : acc.worn,
           consumable: item.consumable
             ? acc.consumable + quantityWeight
             : acc.consumable,
