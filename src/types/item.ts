@@ -13,7 +13,7 @@ export type ItemForm = {
   category_new?: string
   weight: number
   unit: Unit
-  price: number
+  price: number | null
   consumable: boolean
   product_url: string
   notes: string

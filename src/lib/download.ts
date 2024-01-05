@@ -34,8 +34,8 @@ export const downloadInventory = (items?: Item[]) => {
       }) =>
         `${name},${brand?.name || ''},${product?.name || ''},${
           category?.category.name || ''
-        },${weight},${unit},${price},${
-          consumable ? 'consumable' : ''
+        },${weight},${unit},${price || 0},${
+          consumable ? 'true' : ''
         },${product_url},${notes}`
     )
     .join('\n')
