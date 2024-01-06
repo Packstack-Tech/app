@@ -45,3 +45,22 @@ export const downloadInventory = (items?: Item[]) => {
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8' })
   saveAs(blob, 'inventory.csv')
 }
+
+export const downloadTemplate = () => {
+  const header = [
+    'name',
+    'manufacturer',
+    'product',
+    'category',
+    'weight',
+    'unit',
+    'price',
+    'consumable',
+    'product_url',
+    'notes',
+  ].join(',')
+  const content = header
+
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8' })
+  saveAs(blob, 'inventory-template.csv')
+}
