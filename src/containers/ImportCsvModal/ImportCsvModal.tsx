@@ -36,10 +36,11 @@ export const ImportCsvModal: FC<Props> = ({ open, onOpenChange }) => {
           <DialogTitle>Import CSV</DialogTitle>
         </DialogHeader>
         <DialogDescription className="mx-4 mt-4">
-          <p>
-            Import your gear from a CSV file.{' '}
-            <em>Only the name field is required.</em>
-          </p>
+          Import your gear from a CSV file.{' '}
+          <em>Only the name field is required.</em>
+        </DialogDescription>
+
+        <div className="text-sm text-muted-foreground mx-4">
           <Button
             variant="link"
             size="none"
@@ -48,6 +49,7 @@ export const ImportCsvModal: FC<Props> = ({ open, onOpenChange }) => {
           >
             Download template
           </Button>
+
           <p className="text-slate-100 text-lg">Available Fields</p>
           <ul>
             <li>
@@ -82,7 +84,7 @@ export const ImportCsvModal: FC<Props> = ({ open, onOpenChange }) => {
               <strong>notes</strong> - any notes about the item
             </li>
           </ul>
-        </DialogDescription>
+        </div>
 
         <div className="m-4">
           <Dropzone fileExtension="csv" onChange={setFile} />
