@@ -6,6 +6,7 @@ import {
   deleteItem,
   getInventory,
   getProductDetails,
+  importInventory,
   importLighterpack,
   updateCategorySortOrder,
   updateItem,
@@ -165,6 +166,43 @@ export const useImportLighterpack = () => {
     },
     onError: () => {
       Mixpanel.track('Import:LighterPack:failure')
+      toast({
+        title: '❌ Inventory import failed',
+        description: 'An unexpected error occurred. Please try again.',
+      })
+    },
+  })
+}
+
+export const useImportInventory = () => {
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationKey: ['import-csv'],
+    mutationFn: async (data: UploadInventory) => {
+      const res = await importInventory(data)
+      return res.data
+    },
+    onSuccess: resp => {
+      if (resp.success) {
+        toast({
+          title: '✅ Inventory imported',
+        })
+        Mixpanel.track('Import:CSV:success', resp)
+        queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      } else {
+        Mixpanel.track('Import:CSV:failure')
+        const errors = resp.errors.map(
+          ({ line, error }) => `Row ${line}: ${error}`
+        )
+        toast({
+          title: '❌ Inventory import failed',
+          description: errors.join('\n'),
+        })
+      }
+    },
+    onError: () => {
+      Mixpanel.track('Import:CSV:failure')
       toast({
         title: '❌ Inventory import failed',
         description: 'An unexpected error occurred. Please try again.',
