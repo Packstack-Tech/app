@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
+import { Loading } from '@/components/ui/Loading'
 import { Header } from '@/containers/Header'
 import { useUserQuery } from '@/queries/user'
 
@@ -24,5 +25,5 @@ export const AppLayout = () => {
     )
   }
 
-  return <div>Loading...</div>
+  return <Loading />
 }
