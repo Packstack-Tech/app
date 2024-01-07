@@ -25,5 +25,9 @@ export const AppLayout = () => {
     )
   }
 
-  return <Loading />
+  return (
+    <div className="h-screen">
+      <Loading />
+    </div>
+  )
 }

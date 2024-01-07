@@ -29,7 +29,12 @@ export const PackPage = () => {
     }
   }, [setPacks, packsData, id])
 
-  if (tripLoading || packsLoading) return <Loading screenHeight />
+  if (tripLoading || packsLoading)
+    return (
+      <div className="h-screen">
+        <Loading />
+      </div>
+    )
 
   return <Pack trip={id ? tripData : undefined} />
 }

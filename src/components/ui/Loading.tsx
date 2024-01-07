@@ -2,10 +2,9 @@ import { FC } from 'react'
 
 type Props = {
   size?: 'sm' | 'md' | 'lg'
-  screenHeight?: boolean
 }
 
-export const Loading: FC<Props> = ({ size = 'md', screenHeight = false }) => {
+export const Loading: FC<Props> = ({ size = 'md' }) => {
   let spinnerSize
   if (size === 'sm') {
     spinnerSize = 'w-8 h-8'
@@ -16,11 +15,7 @@ export const Loading: FC<Props> = ({ size = 'md', screenHeight = false }) => {
   }
 
   return (
-    <div
-      className={`flex justify-center items-center ${
-        screenHeight && 'h-screen'
-      }`}
-    >
+    <div className="flex justify-center items-center h-full">
       <svg
         aria-hidden="true"
         className={`text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 ${spinnerSize}`}
