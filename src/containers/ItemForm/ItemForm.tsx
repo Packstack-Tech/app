@@ -91,13 +91,13 @@ export const ItemForm: FC<Props> = ({
   onClose,
   children,
 }) => {
-  const [brandSearch, setBrandSearch] = useState('')
+  const [brandSearch, setBrandSearch] = useState(item?.brand?.name || '')
   const [another, setAnother] = useState(false)
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
   const deleteItem = useDeleteItem()
   const productDetails = useProductDetails()
-  const searchBrands = useSearchBrands(brandSearch)
+  const searchBrands = useSearchBrands({ query: brandSearch, enabled: open })
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(schema),
@@ -108,10 +108,15 @@ export const ItemForm: FC<Props> = ({
     form.reset(formDefaults(item))
   }, [item])
 
-  const { data: categories } = useCategories()
-  const { data: brand } = useProducts(form.watch('brand_id'))
+  const brandId = form.watch('brand_id')
 
-  const noBrandSelected = !form.watch('brand_id') && !form.watch('brand_new')
+  const { data: categories } = useCategories()
+  const { data: brand } = useProducts({
+    brandId,
+    enabled: open,
+  })
+
+  const noBrandSelected = !brandId && !form.watch('brand_new')
 
   const brandOptions = useMemo(
     () =>
@@ -212,7 +217,7 @@ export const ItemForm: FC<Props> = ({
                 <FormLabel>Manufacturer</FormLabel>
 
                 <Combobox
-                  value={form.watch('brand_id')}
+                  value={brandId}
                   options={brandOptions}
                   onSearch={setBrandSearch}
                   isLoading={searchBrands.isLoading}
