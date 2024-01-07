@@ -2,6 +2,8 @@
 
 Packstack is a gear management system and packing list builder for backpackers and outdoor enthusiasts. The UI is built with React, Typescript and Vite.
 
+Packstack uses [Tailwind CSS](https://tailwindcss.com/) as the CSS framework and components are extended from [Shadcn/ui](https://ui.shadcn.com/docs).
+
 ### Getting started
 
 First, set up your local env variables.

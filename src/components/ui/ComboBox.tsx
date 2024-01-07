@@ -36,21 +36,26 @@ export const Combobox: FC<Props> = ({
   const [focused, setFocused] = useState(false)
 
   useEffect(() => {
-    if (onSearch) onSearch(search)
-  }, [onSearch, search])
+    if (onSearch && !value) {
+      // filter in parent component
+      onSearch(search)
+    }
+  }, [onSearch, search, value])
 
   useEffect(() => {
+    // if value is set, find the option and set the search
     if (value) {
       const option = options.find(option => option.value === value)
       if (option) {
         setSearch(option.label)
         setSelected(true)
       }
-    } else {
-      if (!onSearch) {
-        setSearch('')
-        setSelected(false)
-      }
+      return
+    }
+
+    if (!onSearch) {
+      setSearch('')
+      setSelected(false)
     }
   }, [value, options, onSearch])
 

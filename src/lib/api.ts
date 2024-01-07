@@ -140,7 +140,7 @@ export const importInventory = (data: UploadInventory) => {
   const formData = new FormData()
   formData.append('file', data.file)
 
-  return http.post<ImportInventoryResponse>('/item/import', formData, {
+  return http.post<ImportInventoryResponse>('/item/import/csv', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

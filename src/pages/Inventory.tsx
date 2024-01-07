@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
 import { CategoryManagementModal } from '@/containers/CategoryManagementModal'
+import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
 import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { ItemForm } from '@/containers/ItemForm'
@@ -21,6 +22,7 @@ export const InventoryPage = () => {
   const [open, setOpen] = useState(false)
   const [openReorder, setOpenReorder] = useState(false)
   const [openLighterpackImport, setOpenLighterpackImport] = useState(false)
+  const [openCsvmport, setOpenCsvImport] = useState(false)
   const [filter, setFilter] = useState('')
 
   return (
@@ -52,7 +54,10 @@ export const InventoryPage = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => setOpenLighterpackImport(true)}>
-                Import LighterPack
+                Import from LighterPack
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setOpenCsvImport(true)}>
+                Import CSV
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadInventory(inventory)}>
                 Export Inventory
@@ -68,6 +73,7 @@ export const InventoryPage = () => {
         open={openLighterpackImport}
         onOpenChange={setOpenLighterpackImport}
       />
+      <ImportCsvModal open={openCsvmport} onOpenChange={setOpenCsvImport} />
       <CategoryManagementModal
         open={openReorder}
         onOpenChange={setOpenReorder}
