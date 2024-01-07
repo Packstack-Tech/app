@@ -19,26 +19,36 @@ export const useBrands = () => {
   })
 }
 
+type ProductsProps = {
+  brandId?: number
+  enabled: boolean
+}
+
 export const PRODUCTS_QUERY = 'products'
-export const useProducts = (brandId?: number) => {
+export const useProducts = ({ brandId, enabled }: ProductsProps) => {
   return useQuery({
     queryKey: [PRODUCTS_QUERY, brandId],
     queryFn: async () => {
       const res = await getProducts(brandId)
       return res.data
     },
-    enabled: !!brandId,
+    enabled: !!brandId && enabled,
   })
 }
 
+type SearchBrandsProps = {
+  query: string
+  enabled: boolean
+}
+
 export const SEARCH_BRANDS_QUERY = 'search-brands'
-export const useSearchBrands = (query: string) => {
+export const useSearchBrands = ({ query, enabled }: SearchBrandsProps) => {
   return useQuery({
     queryKey: [SEARCH_BRANDS_QUERY, query],
     queryFn: async () => {
       const res = await searchBrands(query)
       return res.data
     },
-    enabled: !!query,
+    enabled: !!query && enabled,
   })
 }
