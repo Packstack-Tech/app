@@ -6,6 +6,7 @@ import { CreateableOption, Option } from '@/types/lib'
 
 import { Button } from './Button'
 import { Input } from './Input'
+import { Loading } from './Loading'
 import { Popover, PopoverAnchor, PopoverContent } from './Popover'
 import { ScrollArea } from './ScrollArea'
 
@@ -144,7 +145,7 @@ export const Combobox: FC<Props> = ({
               Create &quot;{search}&quot;
             </Button>
           )}
-          {isLoading && <p className="text-xs p-2">Loading results...</p>}
+          {isLoading && <Loading size="sm" />}
           {!isLoading && onSearch && !search && (
             <p className="text-xs p-2">Begin typing to search...</p>
           )}

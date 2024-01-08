@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { shallow } from 'zustand/shallow'
 
+import { Loading } from '@/components/ui/Loading'
 import { initPack, useTripPacks } from '@/hooks/useTripPacks'
 import { useTripPacksQuery } from '@/queries/pack'
 import { useTripQuery } from '@/queries/trip'
@@ -28,7 +29,12 @@ export const PackPage = () => {
     }
   }, [setPacks, packsData, id])
 
-  if (tripLoading || packsLoading) return <div>Loading...</div>
+  if (tripLoading || packsLoading)
+    return (
+      <div className="h-screen">
+        <Loading />
+      </div>
+    )
 
   return <Pack trip={id ? tripData : undefined} />
 }
