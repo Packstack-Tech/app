@@ -42,7 +42,7 @@ export const InventoryPage = () => {
             onClose={() => setOpen(false)}
           >
             <DialogTrigger asChild>
-              <Button>Add Gear</Button>
+              <Button className="md:text-sm">Add Gear</Button>
             </DialogTrigger>
           </ItemForm>
 
