@@ -18,7 +18,7 @@ import { downloadInventory } from '@/lib/download'
 import { useInventory } from '@/queries/item'
 
 export const InventoryPage = () => {
-  const { data: inventory } = useInventory()
+  const { data: inventory, isLoading } = useInventory()
   const [open, setOpen] = useState(false)
   const [openReorder, setOpenReorder] = useState(false)
   const [openLighterpackImport, setOpenLighterpackImport] = useState(false)
@@ -26,8 +26,8 @@ export const InventoryPage = () => {
   const [filter, setFilter] = useState('')
 
   return (
-    <div className="px-4 py-2">
-      <div className="flex justify-between mb-2">
+    <div className="px-2 md:px-4 py-2">
+      <div className="flex justify-between mb-2 gap-2">
         <Input
           placeholder="Search gear..."
           value={filter}
@@ -78,7 +78,7 @@ export const InventoryPage = () => {
         open={openReorder}
         onOpenChange={setOpenReorder}
       />
-      <InventoryTable searchFilter={filter} />
+      <InventoryTable searchFilter={filter} isLoading={isLoading} />
     </div>
   )
 }

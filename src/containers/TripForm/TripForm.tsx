@@ -130,102 +130,104 @@ export const TripForm: FC<Props> = ({ trip }) => {
   }
 
   return (
-    <>
-      <h3>Details</h3>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} id="pack-form">
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem className="mb-2">
-                <FormLabel htmlFor={field.name}>Location</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Trail or region..."
-                    onBlur={() => onFieldUpdate()}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        id="pack-form"
+        className="w-1/2 md:w-full"
+      >
+        <h3>Details</h3>
+        <FormField
+          control={form.control}
+          name="location"
+          render={({ field }) => (
+            <FormItem className="mb-2">
+              <FormLabel htmlFor={field.name}>Location</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Trail or region..."
+                  onBlur={() => onFieldUpdate()}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="dates"
-            render={({ field }) => (
-              <FormItem className="my-2">
-                <FormLabel htmlFor="date">Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        id="date"
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-start text-left font-normal',
-                          !field.value?.from && 'text-muted-foreground'
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value?.from ? (
-                          field.value.to ? (
-                            <>
-                              {format(field.value?.from, 'LLL dd')} -{' '}
-                              {format(field.value.to, 'LLL dd, y')}
-                            </>
-                          ) : (
-                            format(field.value.from, 'LLL dd, y')
-                          )
+        <FormField
+          control={form.control}
+          name="dates"
+          render={({ field }) => (
+            <FormItem className="my-2">
+              <FormLabel htmlFor="date">Date</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      id="date"
+                      variant="outline"
+                      className={cn(
+                        'w-full justify-start text-left font-normal md:text-sm whitespace-pre overflow-hidden text-ellipsis',
+                        !field.value?.from && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value?.from ? (
+                        field.value.to ? (
+                          <>
+                            {format(field.value?.from, 'LLL dd')} -{' '}
+                            {format(field.value.to, 'LLL dd, y')}
+                          </>
                         ) : (
-                          <span>Select dates...</span>
-                        )}
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="range"
-                      defaultMonth={field.value?.from}
-                      selected={field.value}
-                      onSelect={e => {
-                        field.onChange(e)
-                        onFieldUpdate()
-                      }}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="distance"
-            render={({ field }) => (
-              <FormItem className="my-2">
-                <FormLabel htmlFor={field.name}>
-                  Distance ({user.unit_distance})
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    step=".01"
-                    placeholder="Distance"
-                    onBlur={() => onFieldUpdate()}
-                    onFocus={() => {
-                      if (!field.value) field.onChange('')
+                          format(field.value.from, 'LLL dd, y')
+                        )
+                      ) : (
+                        <span>Select dates...</span>
+                      )}
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    defaultMonth={field.value?.from}
+                    selected={field.value}
+                    onSelect={e => {
+                      field.onChange(e)
+                      onFieldUpdate()
                     }}
+                    numberOfMonths={2}
                   />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </form>
-      </Form>
-    </>
+                </PopoverContent>
+              </Popover>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="distance"
+          render={({ field }) => (
+            <FormItem className="my-2">
+              <FormLabel htmlFor={field.name}>
+                Distance ({user.unit_distance})
+              </FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="number"
+                  step=".01"
+                  placeholder="Distance"
+                  onBlur={() => onFieldUpdate()}
+                  onFocus={() => {
+                    if (!field.value) field.onChange('')
+                  }}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      </form>
+    </Form>
   )
 }

@@ -10,7 +10,7 @@ export const Dashboard: FC = () => {
   const { data: legacyPacks } = useUnassignedPacks()
 
   return (
-    <div className="max-w-lg mx-auto my-8">
+    <div className="mx-2 md:max-w-lg md:mx-auto my-8">
       <PackingLists trips={user.trips || []} />
       <LegacyPacks packs={legacyPacks || []} />
     </div>

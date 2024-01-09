@@ -60,7 +60,7 @@
   }
 
   h2 {
-    @apply text-xl font-bold text-slate-100;
+    @apply md:text-xl font-bold text-slate-100;
   }
 
   h3 {
