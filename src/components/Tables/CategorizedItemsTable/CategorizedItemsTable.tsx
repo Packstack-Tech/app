@@ -77,7 +77,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
 
   return (
     <div className="mb-4">
-      <h3 className="font-bold text-primary rounded-t-sm px-2 py-1 bg-slate-900 text-sm">
+      <h3 className="font-bold text-primary rounded-t-sm px-2 py-1 bg-slate-900 text-xs md:text-sm">
         {category}
       </h3>
       <div className="rounded-b-sm border border-slate-900">

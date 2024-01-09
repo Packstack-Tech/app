@@ -2,17 +2,20 @@ import { FC, useMemo } from 'react'
 
 import { EmptyState } from '@/components/EmptyState'
 import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable'
+import { Loading } from '@/components/ui/Loading'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
 import { useUser } from '@/hooks/useUser'
 
 import { columns } from './columns'
 
 type Props = {
+  isLoading?: boolean
   searchFilter?: string
   onSearchFilterChange?: (value: string) => void
 }
 
 export const InventoryTable: FC<Props> = ({
+  isLoading,
   searchFilter,
   onSearchFilterChange,
 }) => {
@@ -20,6 +23,14 @@ export const InventoryTable: FC<Props> = ({
   const data = useCategorizedItems({})
 
   const tableCols = useMemo(() => columns(user.currency), [user.currency])
+
+  if (isLoading) {
+    return (
+      <div className="h-screen">
+        <Loading />
+      </div>
+    )
+  }
 
   return (
     <div>
