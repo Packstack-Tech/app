@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 import { XIcon } from 'lucide-react'
 
 import { useFuzzySearch } from '@/hooks/useFuzzySearch'
@@ -11,14 +11,15 @@ import { Popover, PopoverAnchor, PopoverContent } from './Popover'
 import { ScrollArea } from './ScrollArea'
 
 type Props = {
-  value?: number
   options: Option[]
+  onRemove: () => void
+  value?: number
   disabled?: boolean
   onSelect: (value: CreateableOption) => void
   onSearch?: (value: string) => void
   isLoading?: boolean
   placeholder?: string
-  onRemove: () => void
+  creatable?: boolean
 }
 
 export const Combobox: FC<Props> = ({
@@ -27,6 +28,7 @@ export const Combobox: FC<Props> = ({
   disabled,
   isLoading,
   placeholder,
+  creatable,
   onSelect,
   onSearch,
   onRemove,
@@ -79,6 +81,11 @@ export const Combobox: FC<Props> = ({
     setSelected(false)
     onRemove()
   }
+
+  const canCreate = useMemo(() => {
+    if (isLoading) return false
+    return search.length > 0 && (filteredResults.length === 0 || creatable)
+  }, [isLoading, search, filteredResults, creatable])
 
   return (
     <Popover open={focused}>
@@ -135,7 +142,7 @@ export const Combobox: FC<Props> = ({
               {option.label}
             </button>
           ))}
-          {filteredResults.length === 0 && search.length > 0 && !isLoading && (
+          {canCreate && (
             <Button
               onClick={onCreateItem}
               size="sm"

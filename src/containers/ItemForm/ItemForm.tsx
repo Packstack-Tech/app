@@ -221,6 +221,7 @@ export const ItemForm: FC<Props> = ({
                   options={brandOptions}
                   onSearch={setBrandSearch}
                   isLoading={searchBrands.isLoading}
+                  creatable
                   onSelect={({ label, value, isNew }) => {
                     if (isNew) {
                       form.setValue('brand_new', label)
@@ -245,6 +246,7 @@ export const ItemForm: FC<Props> = ({
                   value={form.watch('product_id')}
                   options={productOptions}
                   disabled={noBrandSelected}
+                  creatable
                   onSelect={({ label, value, isNew }) => {
                     if (isNew) {
                       form.setValue('product_new', label)
