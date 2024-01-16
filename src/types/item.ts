@@ -9,6 +9,8 @@ export type ItemForm = {
   brand_new?: string
   product_id?: number
   product_new?: string
+  product_variant_id?: number
+  product_variant_new?: string
   category_id?: number
   category_new?: string
   weight: number
@@ -38,6 +40,7 @@ export type Item = {
   notes: string
   price?: number
   product_id?: number
+  product_variant_id?: number
   product_url: string
   removed: boolean
   sort_order: number | null
@@ -49,10 +52,17 @@ export type Item = {
   category?: ItemCategory
   brand?: Brand
   product?: Product
+  product_variant?: ProductVariant
 }
 
 export type ProductDetails = {
   median: number
   items: number
   unit: Unit
+}
+
+export type ProductVariant = {
+  id: number
+  product_id: number
+  name: string
 }

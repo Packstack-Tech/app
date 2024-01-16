@@ -11,7 +11,13 @@ import {
   UploadInventory,
 } from '@/types/api'
 import { Category } from '@/types/category'
-import { CreateItem, EditItem, Item, ProductDetails } from '@/types/item'
+import {
+  CreateItem,
+  EditItem,
+  Item,
+  ProductDetails,
+  ProductVariant,
+} from '@/types/item'
 import { Pack } from '@/types/pack'
 import { Brand, BrandProducts } from '@/types/resources'
 import { CreateTrip, EditTrip, Trip } from '@/types/trip'
@@ -117,6 +123,9 @@ export const getProductDetails = (data: {
   brandId?: number
   productId?: number
 }) => http.post<ProductDetails>(`/resources/product-details`, data)
+
+export const getProductVariants = (product_id?: number) =>
+  http.get<ProductVariant[]>(`resources/product/variants/${product_id}`)
 
 /**
  * Item endpoints

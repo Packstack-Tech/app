@@ -13,6 +13,8 @@ import { ScrollArea } from './ScrollArea'
 type Props = {
   options: Option[]
   onRemove: () => void
+  label: string
+  tabIndex?: number
   value?: number
   disabled?: boolean
   onSelect: (value: CreateableOption) => void
@@ -25,10 +27,12 @@ type Props = {
 export const Combobox: FC<Props> = ({
   value,
   options,
+  label,
   disabled,
   isLoading,
   placeholder,
   creatable,
+  tabIndex,
   onSelect,
   onSearch,
   onRemove,
@@ -96,6 +100,7 @@ export const Combobox: FC<Props> = ({
             placeholder={placeholder || 'Search...'}
             onChange={e => setSearch(e.target.value)}
             onFocus={() => setFocused(true)}
+            tabIndex={tabIndex}
             onKeyDown={e => {
               if (e.key === 'Tab') {
                 setFocused(false)
@@ -154,7 +159,9 @@ export const Combobox: FC<Props> = ({
           )}
           {isLoading && <Loading size="sm" />}
           {!isLoading && onSearch && !search && (
-            <p className="text-xs p-2">Begin typing to search...</p>
+            <p className="text-xs p-2">
+              Begin typing to search or create {label}...
+            </p>
           )}
           {!isLoading &&
             !onSearch &&
