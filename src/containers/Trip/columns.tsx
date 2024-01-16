@@ -30,8 +30,12 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
   },
   {
     header: 'Product',
-    accessorFn: ({ item }) =>
-      `${item.brand?.name || ''} ${item.product?.name || ''}`,
+    accessorFn: ({ item: { brand, product, product_variant } }) => {
+      if (!brand) return null
+      if (!product) return brand.name
+      if (!product_variant) return `${brand.name} ${product.name}`
+      return `${brand.name} ${product.name} ${product_variant.name}`
+    },
     meta: {
       style: {
         width: '20%',
