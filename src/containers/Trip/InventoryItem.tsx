@@ -18,7 +18,7 @@ export const InventoryItem: FC<Props> = ({ item, selected, onClick }) => (
     >
       <div className="text-slate-100 text-xs font-semibold">{item.name}</div>
       <div className="text-slate-200 text-xs">
-        {item.brand?.name} {item.product?.name}
+        {item.brand?.name} {item.product?.name} {item.product_variant?.name}
       </div>
       {!!item.weight && (
         <div className="text-slate-200 text-xs">

@@ -41,7 +41,11 @@ import {
   useProductDetails,
   useUpdateItem,
 } from '@/queries/item'
-import { useProducts, useSearchBrands } from '@/queries/resources'
+import {
+  useProducts,
+  useProductVariants,
+  useSearchBrands,
+} from '@/queries/resources'
 import { Item, ItemForm as ItemFormValues, Unit } from '@/types/item'
 
 // TODO add field max/min length
@@ -51,6 +55,8 @@ const schema = z.object({
   brand_new: z.string().optional(),
   product_id: z.number().optional(),
   product_new: z.string().optional(),
+  product_variant_id: z.number().optional(),
+  product_variant_new: z.string().optional(),
   category_id: z.number().optional(),
   category_new: z.string().optional(),
   weight: z.coerce.number().min(0, 'Weight must be positive').optional(),
@@ -74,6 +80,7 @@ const formDefaults = (item?: Item) => ({
   itemname: item?.name || '',
   brand_id: item?.brand_id || undefined,
   product_id: item?.product_id || undefined,
+  product_variant_id: item?.product_variant_id || undefined,
   category_id: item?.category?.category_id || undefined,
   weight: item?.weight || 0,
   unit: item?.unit || 'g',
@@ -109,14 +116,20 @@ export const ItemForm: FC<Props> = ({
   }, [item])
 
   const brandId = form.watch('brand_id')
+  const productId = form.watch('product_id')
 
   const { data: categories } = useCategories()
   const { data: brand } = useProducts({
     brandId,
     enabled: open,
   })
+  const { data: productVariants } = useProductVariants({
+    productId,
+    enabled: open,
+  })
 
   const noBrandSelected = !brandId && !form.watch('brand_new')
+  const noProductSelected = !productId && !form.watch('product_new')
 
   const brandOptions = useMemo(
     () =>
@@ -134,6 +147,15 @@ export const ItemForm: FC<Props> = ({
         value: id,
       })),
     [brand]
+  )
+
+  const productVariantOptions = useMemo(
+    () =>
+      (productVariants || []).map(({ id, name }) => ({
+        label: name,
+        value: id,
+      })),
+    [productVariants]
   )
 
   const categoryOptions = useMemo(
@@ -159,6 +181,7 @@ export const ItemForm: FC<Props> = ({
   }
 
   const onSubmit = (data: ItemFormValues) => {
+    console.log(data)
     const { itemname, ...payload } = data
     if (item) {
       updateItem.mutate(
@@ -172,7 +195,7 @@ export const ItemForm: FC<Props> = ({
         { ...payload, name: itemname },
         {
           onSuccess: () => {
-            form.reset()
+            form.reset(formDefaults())
             if (!another) {
               onClose()
             }
@@ -204,9 +227,13 @@ export const ItemForm: FC<Props> = ({
                 name="itemname"
                 render={({ field }) => (
                   <FormItem className="my-4">
-                    <FormLabel>Item name</FormLabel>
+                    <FormLabel>Item Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="backpack, tent, etc." {...field} />
+                      <Input
+                        placeholder="backpack, tent, etc."
+                        {...field}
+                        tabIndex={1}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -222,6 +249,8 @@ export const ItemForm: FC<Props> = ({
                   onSearch={setBrandSearch}
                   isLoading={searchBrands.isLoading}
                   creatable
+                  tabIndex={2}
+                  label="Manufacturers"
                   onSelect={({ label, value, isNew }) => {
                     if (isNew) {
                       form.setValue('brand_new', label)
@@ -234,41 +263,80 @@ export const ItemForm: FC<Props> = ({
                     form.setValue('brand_new', undefined)
                     form.setValue('product_id', undefined)
                     form.setValue('product_new', undefined)
+                    form.setValue('product_variant_id', undefined)
+                    form.setValue('product_variant_new', undefined)
                   }}
                 />
                 <FormMessage />
               </FormItem>
 
-              <FormItem className="flex flex-col my-4">
-                <FormLabel>Product</FormLabel>
+              <div className="my-4 flex gap-4">
+                <FormItem className="flex flex-col w-1/2">
+                  <FormLabel>Product</FormLabel>
 
-                <Combobox
-                  value={form.watch('product_id')}
-                  options={productOptions}
-                  disabled={noBrandSelected}
-                  creatable
-                  onSelect={({ label, value, isNew }) => {
-                    if (isNew) {
-                      form.setValue('product_new', label)
-                    } else {
-                      const id = value as number
-                      form.setValue('product_id', id)
-                      onSelectProduct(id)
-                    }
-                  }}
-                  onRemove={() => {
-                    form.setValue('product_id', undefined)
-                    form.setValue('product_new', undefined)
-                  }}
-                />
+                  <Combobox
+                    value={form.watch('product_id')}
+                    options={productOptions}
+                    disabled={noBrandSelected}
+                    creatable
+                    label="Products"
+                    tabIndex={3}
+                    onSelect={({ label, value, isNew }) => {
+                      if (isNew) {
+                        form.setValue('product_new', label)
+                      } else {
+                        const id = value as number
+                        form.setValue('product_id', id)
+                        onSelectProduct(id)
+                      }
+                    }}
+                    onRemove={() => {
+                      form.setValue('product_id', undefined)
+                      form.setValue('product_new', undefined)
+                      form.setValue('product_variant_id', undefined)
+                      form.setValue('product_variant_new', undefined)
+                    }}
+                  />
 
-                <FormDescription>
-                  {noBrandSelected
-                    ? 'Product name requires a manufacturer'
-                    : 'Select or create the product name'}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
+                  <FormDescription>
+                    {noBrandSelected
+                      ? 'Product name requires a manufacturer'
+                      : 'Name of the product'}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+
+                <FormItem className="flex flex-col w-1/2">
+                  <FormLabel>Variant</FormLabel>
+
+                  <Combobox
+                    value={form.watch('product_variant_id')}
+                    options={productVariantOptions}
+                    disabled={noProductSelected}
+                    creatable
+                    label="Variants"
+                    tabIndex={4}
+                    onSelect={({ label, value, isNew }) => {
+                      if (isNew) {
+                        form.setValue('product_variant_new', label)
+                      } else {
+                        form.setValue('product_variant_id', value as number)
+                      }
+                    }}
+                    onRemove={() => {
+                      form.setValue('product_variant_id', undefined)
+                      form.setValue('product_variant_new', undefined)
+                    }}
+                  />
+
+                  <FormDescription>
+                    {noProductSelected
+                      ? 'Variant requires a product'
+                      : 'Color, size, accessories, etc.'}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              </div>
 
               <FormItem className="flex flex-col my-4">
                 <FormLabel>Category</FormLabel>
@@ -276,6 +344,8 @@ export const ItemForm: FC<Props> = ({
                 <Combobox
                   value={form.watch('category_id')}
                   options={categoryOptions}
+                  label="Categories"
+                  tabIndex={5}
                   onSelect={({ label, value, isNew }) => {
                     if (isNew) {
                       form.setValue('category_new', label)
@@ -305,6 +375,7 @@ export const ItemForm: FC<Props> = ({
                           type="number"
                           step=".01"
                           placeholder="0.00"
+                          tabIndex={6}
                           disabled={productDetails.isPending}
                           onFocus={() => {
                             if (!field.value) field.onChange('')
