@@ -33,7 +33,6 @@ type SettingsForm = {
   currency: string
   unit_distance: DISTANCE
   unit_weight: SYSTEM_UNIT
-  theme: string
 }
 
 const schema = z.object({
