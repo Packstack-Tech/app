@@ -88,10 +88,9 @@ export const NotesCell: FC<Props> = ({
     <Popover>
       <PopoverTrigger asChild>
         <StickyNoteIcon
-          color="lightblue"
           size={20}
           strokeWidth={1}
-          className="hover:cursor-pointer"
+          className="hover:cursor-pointer stroke-sky-600 dark:stroke-sky-200"
         />
       </PopoverTrigger>
       <PopoverContent

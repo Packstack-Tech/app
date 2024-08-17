@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
-const boxVariants = cva('border shadow rounded-sm px-6 py-4')
+const boxVariants = cva('border shadow shadow-black/5 rounded-sm px-6 py-4')
 
 export interface BoxProps
   extends React.HTMLAttributes<HTMLDivElement>,
