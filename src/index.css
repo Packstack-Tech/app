@@ -105,12 +105,11 @@
   }
 
   h3 {
-    @apply font-semibold text-sm text-slate-900 text-primary;
+    @apply font-semibold text-sm text-primary;
   }
 
   .dark h1,
-  .dark h2,
-  .dark h3 {
+  .dark h2 {
     @apply text-slate-100;
   }
 
