@@ -26,7 +26,11 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
   },
   {
     header: 'Product',
-    accessorKey: 'product.name',
+    accessorFn: ({ product, product_variant }) => {
+      if (!product) return null
+      if (!product_variant) return product.name
+      return `${product.name} ${product_variant.name}`
+    },
     meta: {
       style: {
         width: '20%',
