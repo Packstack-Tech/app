@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { getBrands, getProducts, searchBrands } from '@/lib/api'
+import {
+  getBrands,
+  getProducts,
+  getProductVariants,
+  searchBrands,
+} from '@/lib/api'
 
 export const BRANDS_QUERY = ['brands']
 export const useBrands = () => {
@@ -50,5 +55,25 @@ export const useSearchBrands = ({ query, enabled }: SearchBrandsProps) => {
       return res.data
     },
     enabled: !!query && enabled,
+  })
+}
+
+type ProductVariantsProps = {
+  productId?: number
+  enabled: boolean
+}
+
+export const PRODUCT_VARIANTS_QUERY = 'product-variants'
+export const useProductVariants = ({
+  productId,
+  enabled,
+}: ProductVariantsProps) => {
+  return useQuery({
+    queryKey: [PRODUCT_VARIANTS_QUERY, productId],
+    queryFn: async () => {
+      const res = await getProductVariants(productId)
+      return res.data
+    },
+    enabled: !!productId && enabled,
   })
 }
