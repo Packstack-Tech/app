@@ -51,8 +51,6 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
   const valueFormat = (value: number) => `${value.toFixed(2)} ${aggregateUnit}`
   const totalWeight = data.reduce((sum, item) => sum + item.value, 0)
 
-  console.log(chartData)
-
   return (
     <Dialog>
       <DialogTrigger asChild>
