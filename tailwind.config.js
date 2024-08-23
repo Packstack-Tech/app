@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
-  darkMode: ['class'],
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     container: {
@@ -11,6 +12,9 @@ export default {
       },
     },
     extend: {
+      transitionProperty: {
+        colors: 'color, background-color, text-decoration-color, fill, stroke',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

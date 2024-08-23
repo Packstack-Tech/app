@@ -4,40 +4,71 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
+    --background: 360 100% 100%;
+    --foreground: 224 71% 4%;
+
+    --muted: 215.4 16.3% 93%;
+    --muted-foreground: 223 47% 11%;
+
+    --popover: 360 100% 100%;
+    --popover-foreground: 215 20.2% 55%;
+
+    --card: 360 100% 100%;
+    --card-foreground: 224 71% 4%;
+
+    --border: 214 25% 90%;
+    --input: 214 25% 85%;
+
+    --primary: 230 95% 65%;
+    --primary-foreground: 230 1% 98%;
+    --primary-background: 230 82% 8%;
+
+    --secondary: 133 45% 70%;
+    --secondary-foreground: 133 95% 4%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 216 34% 17%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 216 34% 90%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
     --background: 224 71% 4%;
     --foreground: 213 31% 91%;
- 
+
     --muted: 223 47% 11%;
     --muted-foreground: 215.4 16.3% 56.9%;
- 
+
     --popover: 224 71% 4%;
     --popover-foreground: 215 20.2% 65.1%;
- 
+
     --card: 224 71% 4%;
     --card-foreground: 213 31% 91%;
- 
+
     --border: 214 25% 25%;
     --input: 214 25% 25%;
- 
+
     --primary: 230 95% 70%;
     --primary-foreground: 230 1% 2%;
     --primary-background: 230 82% 8%;
- 
+
     --secondary: 133 35% 60%;
     --secondary-foreground: 133 95% 4%;
- 
+
     --accent: 216 34% 17%;
     --accent-foreground: 210 40% 98%;
- 
+
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
- 
+
     --ring: 216 34% 17%;
- 
-    --radius: 0.5rem;
   }
 }
 
@@ -47,32 +78,55 @@
   }
 
   body {
-    @apply text-base text-slate-100 bg-background;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply text-base text-slate-900 bg-background;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+
+  .dark body {
+    @apply text-slate-100;
   }
 
   p {
+    @apply text-slate-600;
+  }
+
+  .dark p {
     @apply text-slate-200;
   }
 
   h1 {
-    @apply text-2xl font-bold text-slate-100;
+    @apply text-2xl font-bold text-slate-900;
   }
 
   h2 {
-    @apply md:text-xl font-bold text-slate-100;
+    @apply md:text-xl font-bold text-slate-900;
   }
 
   h3 {
-    @apply font-semibold text-sm text-slate-100 text-primary;
+    @apply font-semibold text-sm text-primary;
+  }
+
+  .dark h1,
+  .dark h2 {
+    @apply text-slate-100;
   }
 
   h4 {
-    @apply font-semibold text-xl text-slate-50;
+    @apply font-semibold text-xl text-slate-600;
+  }
+
+  .dark h4 {
+    @apply text-slate-50;
   }
 
   label {
-    @apply text-slate-200 text-sm inline-block mb-1;
+    @apply text-slate-500 text-sm inline-block mb-1;
+  }
+
+  .dark label {
+    @apply text-slate-200;
   }
 
   .link {

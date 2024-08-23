@@ -219,7 +219,7 @@ export const ItemForm: FC<Props> = ({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="max-h-[60vh] w-[100%] px-4" type="always">
+        <ScrollArea className="max-h-[60vh] w-[100%] px-2" type="always">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} id="item-form">
               <FormField

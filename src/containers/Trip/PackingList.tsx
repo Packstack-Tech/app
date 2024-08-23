@@ -71,7 +71,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
           </Button>
         )}
       </div>
-      <div className="flex items-center justify-between border rounded-sm border-slate-900 mb-2 p-2">
+      <div className="flex items-center justify-between border rounded-sm border-slate-100 dark:border-slate-900 mb-2 p-2">
         <div className="flex gap-1.5">
           <Checkbox
             checked={checklistMode}

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
 import logo from '/packstack_logo_white.png'
+import DarkModeToggle from '@/components/ui/DarkModeToggle'
 
 export const Header = () => {
   const authenticatedLinks = [
@@ -23,10 +24,10 @@ export const Header = () => {
   ]
 
   return (
-    <div className="px-4 bg-slate-900">
+    <div className="px-4 bg-slate-50 dark:bg-slate-900">
       <div className="flex justify-between items-center">
         <div className="w-[120px]">
-          <img src={logo} />
+          <img src={logo} className="invert dark:invert-0" alt="" />
         </div>
         <div className="flex gap-6">
           {authenticatedLinks.map(({ name, path }) => (
@@ -42,6 +43,7 @@ export const Header = () => {
               {name}
             </NavLink>
           ))}
+          <DarkModeToggle />
         </div>
       </div>
     </div>
