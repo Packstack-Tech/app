@@ -1,5 +1,3 @@
-import { FC } from 'react'
-
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
 
 interface Props {

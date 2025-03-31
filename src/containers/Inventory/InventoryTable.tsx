@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { EmptyState } from '@/components/EmptyState'
 import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable'
