@@ -8,19 +8,19 @@ import { useUser } from '@/hooks/useUser'
 
 import { columns } from './columns'
 
-type Props = {
-  isLoading?: boolean
-  searchFilter?: string
-  onSearchFilterChange?: (value: string) => void
+interface Props {
+  searchFilter: string
+  isLoading: boolean
+  showRemoved: boolean
 }
 
-export const InventoryTable: FC<Props> = ({
-  isLoading,
+export const InventoryTable = ({
   searchFilter,
-  onSearchFilterChange,
-}) => {
+  isLoading,
+  showRemoved,
+}: Props) => {
   const user = useUser()
-  const data = useCategorizedItems({})
+  const data = useCategorizedItems({ showRemoved })
 
   const tableCols = useMemo(() => columns(user.currency), [user.currency])
 
@@ -57,7 +57,7 @@ export const InventoryTable: FC<Props> = ({
             columns={tableCols}
             data={items}
             searchFilter={searchFilter}
-            onSearchFilterChange={onSearchFilterChange}
+            onSearchFilterChange={() => {}}
           />
         )
       })}

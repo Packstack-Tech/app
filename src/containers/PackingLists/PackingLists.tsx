@@ -76,7 +76,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
       )}
 
       {(trips || []).map(
-        ({ created_at, start_date, end_date, id, location }) => {
+        ({ created_at, start_date, end_date, id, location, removed }) => {
           const created = format(new Date(created_at), DATE_FORMAT)
           const start = start_date
             ? format(new Date(start_date), DATE_FORMAT)
@@ -94,46 +94,53 @@ export const PackingLists: FC<Props> = ({ trips }) => {
               <div className="flex justify-between items-center">
                 <p className="text-xs text-slate-500">Created {created}</p>
                 <div className="flex gap-3 items-center">
-                  <AlertDialog>
-                    <AlertDialogTrigger className="text-slate-300 hover:text-primary">
-                      <CopyPlus size={16} />
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Clone packing list</AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <AlertDialogDescription>
-                        This will create a copy of {location || 'untitled'}.
-                      </AlertDialogDescription>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onClone(id)}>
-                          Clone
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                  <AlertDialog>
-                    <AlertDialogTrigger className="text-slate-300 hover:text-primary">
-                      <Trash2Icon size={16} />
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <AlertDialogDescription>
-                        This will permanently delete {location || 'untitled'}.
-                      </AlertDialogDescription>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogDestructiveAction
-                          onClick={() => onDelete(id)}
-                        >
-                          Delete
-                        </AlertDialogDestructiveAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  {!removed && (
+                    <>
+                      <AlertDialog>
+                        <AlertDialogTrigger className="text-slate-300 hover:text-primary">
+                          <CopyPlus size={16} />
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Clone packing list
+                            </AlertDialogTitle>
+                          </AlertDialogHeader>
+                          <AlertDialogDescription>
+                            This will create a copy of {location || 'untitled'}.
+                          </AlertDialogDescription>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onClone(id)}>
+                              Clone
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger className="text-slate-300 hover:text-primary">
+                          <Trash2Icon size={16} />
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          </AlertDialogHeader>
+                          <AlertDialogDescription>
+                            This will permanently delete{' '}
+                            {location || 'untitled'}.
+                          </AlertDialogDescription>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogDestructiveAction
+                              onClick={() => onDelete(id)}
+                            >
+                              Delete
+                            </AlertDialogDestructiveAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

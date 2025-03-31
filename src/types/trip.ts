@@ -18,6 +18,7 @@ export type TripFormProps = CreateTrip
 
 export type EditTrip = CreateTrip & {
   id: number
+  removed?: boolean
 }
 
 export type Trip = BaseTrip & {

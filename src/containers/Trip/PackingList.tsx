@@ -79,7 +79,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
             onClick={() => toggleChecklistMode()}
           />
           <Label id="pack-checklist" className="font-normal text-xs mb-0">
-            Display checklist
+            Checklist mode
           </Label>
         </div>
         <div className="flex items-center gap-3">

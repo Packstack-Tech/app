@@ -502,7 +502,7 @@ export const ItemForm: FC<Props> = ({
                 onClick={onDelete}
                 disabled={updateItem.isPending || createItem.isPending}
               >
-                Delete Item
+                Archive
               </Button>
             )}
             {!item && (

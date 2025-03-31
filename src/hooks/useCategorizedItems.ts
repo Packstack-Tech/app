@@ -7,11 +7,13 @@ import { CategorizedItems, CategoryItems } from '@/types/category'
 type Options = {
   filter?: string
   uncategorizedToBottom?: boolean
+  showRemoved?: boolean
 }
 
 export const useCategorizedItems = ({
   filter,
   uncategorizedToBottom,
+  showRemoved = false,
 }: Options): CategoryItems[] => {
   const { data } = useInventory()
   const uncategorizedPosition = uncategorizedToBottom ? Infinity : 0
@@ -28,7 +30,12 @@ export const useCategorizedItems = ({
     const items = !filter
       ? data
       : fuseItems.search(filter).map(result => result.item)
-    return (items || []).reduce<CategorizedItems>((acc, curr) => {
+
+    const filteredItems = showRemoved
+      ? items
+      : items?.filter(item => !item.removed)
+
+    return (filteredItems || []).reduce<CategorizedItems>((acc, curr) => {
       const catId = curr.category_id?.toString() || 'uncategorized'
       if (acc[catId]) {
         return {
@@ -44,7 +51,7 @@ export const useCategorizedItems = ({
         },
       }
     }, {} as CategorizedItems)
-  }, [data, fuseItems, filter])
+  }, [data, fuseItems, filter, showRemoved])
 
   const sorted = useMemo(
     () =>

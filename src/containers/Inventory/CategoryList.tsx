@@ -2,8 +2,12 @@ import { FC } from 'react'
 
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
 
-export const CategoryList: FC = () => {
-  const categories = useCategorizedItems({})
+interface Props {
+  showRemoved: boolean
+}
+
+export const CategoryList = ({ showRemoved }: Props) => {
+  const categories = useCategorizedItems({ showRemoved })
 
   const scrollToCategory = (categoryName: string) => {
     const element = document.getElementById(`category-${categoryName}`)

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 
 import { Button, Input } from '@/components/ui'
+import { Checkbox } from '@/components/ui/Checkbox'
 import { DialogTrigger } from '@/components/ui/Dialog'
 import {
   DropdownMenu,
@@ -9,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import { Label } from '@/components/ui/Label'
 import { CategoryManagementModal } from '@/containers/CategoryManagementModal'
 import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
@@ -25,6 +27,7 @@ export const InventoryPage = () => {
   const [openLighterpackImport, setOpenLighterpackImport] = useState(false)
   const [openCsvmport, setOpenCsvImport] = useState(false)
   const [filter, setFilter] = useState('')
+  const [showRemoved, setShowRemoved] = useState(false)
 
   return (
     <div className="px-2 md:px-4 py-2">
@@ -36,6 +39,16 @@ export const InventoryPage = () => {
           className="max-w-xs"
         />
         <div className="flex justify-end items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <Checkbox
+              checked={showRemoved}
+              id="show-removed"
+              onClick={() => setShowRemoved(!showRemoved)}
+            />
+            <Label id="show-removed" className="font-normal text-xs mb-0">
+              Show archived items
+            </Label>
+          </div>
           <ItemForm
             title="New Item"
             open={open}
@@ -81,9 +94,13 @@ export const InventoryPage = () => {
       />
       <div className="flex gap-4">
         <div className="flex-1">
-          <InventoryTable searchFilter={filter} isLoading={isLoading} />
+          <InventoryTable
+            searchFilter={filter}
+            isLoading={isLoading}
+            showRemoved={showRemoved}
+          />
         </div>
-        <CategoryList />
+        <CategoryList showRemoved={showRemoved} />
       </div>
     </div>
   )
