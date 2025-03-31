@@ -119,13 +119,16 @@ export const TripForm: FC<Props> = ({ trip }) => {
   const onSubmit = async (data: TripFormValues) => {
     const payload = getPackPayload(data)
     const newTrip = await createTrip.mutateAsync(payload)
-    packs.forEach(async ({ title, items }) => {
-      await createPack.mutateAsync({
-        title,
-        items,
-        trip_id: newTrip.id,
+    await Promise.all(
+      packs.map(async ({ title, items }) => {
+        await createPack.mutateAsync({
+          title,
+          items,
+          trip_id: newTrip.id,
+        })
       })
-    })
+    )
+
     window.location.replace(`/pack/${newTrip.id}`)
   }
 
