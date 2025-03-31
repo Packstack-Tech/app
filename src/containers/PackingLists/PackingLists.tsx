@@ -20,8 +20,6 @@ import {
 import { useCloneTrip, useDeleteTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
 
-import { DonationMessage } from '../DonationMessage'
-
 const DATE_FORMAT = 'MMM dd, yyyy'
 
 type Props = {
@@ -44,7 +42,6 @@ export const PackingLists: FC<Props> = ({ trips }) => {
 
   return (
     <div>
-      <DonationMessage />
       <div className="mb-2 flex justify-between items-center">
         <h2>Packing Lists</h2>
         <Button
@@ -63,9 +60,9 @@ export const PackingLists: FC<Props> = ({ trips }) => {
           heading="Create your first packing list"
         >
           <p>
-            Packing lists are easy to use but extremely customizable. We want to
-            offer a world-class experience that gives you confidence in your
-            upcoming trip.
+            Build packing lists from your inventory. Simply select the items you
+            want to include, indicate the quantity, and we&apos;ll create a
+            packing list for you with a detailed weight breakdown.
           </p>
           <div className="flex justify-between items-center mt-3">
             <Button variant="outline" onClick={() => navigate('/inventory')}>

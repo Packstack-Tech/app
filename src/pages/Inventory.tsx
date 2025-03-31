@@ -12,6 +12,7 @@ import {
 import { CategoryManagementModal } from '@/containers/CategoryManagementModal'
 import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
+import { CategoryList } from '@/containers/Inventory/CategoryList'
 import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { ItemForm } from '@/containers/ItemForm'
 import { downloadInventory } from '@/lib/download'
@@ -78,7 +79,12 @@ export const InventoryPage = () => {
         open={openReorder}
         onOpenChange={setOpenReorder}
       />
-      <InventoryTable searchFilter={filter} isLoading={isLoading} />
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <InventoryTable searchFilter={filter} isLoading={isLoading} />
+        </div>
+        <CategoryList />
+      </div>
     </div>
   )
 }

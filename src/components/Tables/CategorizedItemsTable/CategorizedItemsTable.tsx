@@ -76,7 +76,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   if (!table.getRowModel().rows?.length) return null
 
   return (
-    <div className="mb-4">
+    <div className="mb-4" id={`category-${category}`}>
       <h3 className="font-bold text-primary rounded-t-sm px-2 py-1 bg-muted dark:bg-slate-900 text-xs md:text-sm">
         {category}
       </h3>
