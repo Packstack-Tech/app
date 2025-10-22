@@ -118,15 +118,15 @@ export const WeightCell: FC<Props> = ({
     ? item.weight
     : item.weight.toFixed(2)
   return (
-    <div className="inline-flex items-center gap-1">
+    <div className="flex pl-1">
       {item.consumable && (
         <FlameIcon
-          className="stroke-black dark:stroke-white"
+          className="stroke-black dark:stroke-white mr-auto"
           size={16}
           strokeWidth={1}
         />
       )}
-      <span>
+      <span className="ml-auto">
         {displayWeight} {item.unit}
       </span>
     </div>
