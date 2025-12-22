@@ -13,7 +13,7 @@ export const InventoryItem: FC<Props> = ({ item, selected, onClick }) => (
     <button
       onClick={() => onClick(item)}
       className={`p-1 w-full rounded-sm text-left border border-transparent hover:bg-muted/50 dark:hover:bg-slate-900 ${
-        selected ? '!border-muted !dark:border-accent' : ''
+        selected ? '!border-slate-400 !dark:border-accent' : ''
       }`}
     >
       <div className="text-slate-900 dark:text-slate-100 text-xs font-semibold">

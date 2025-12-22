@@ -68,7 +68,11 @@ export const WornCell: FC<Props> = ({
   return (
     <button onClick={onClick}>
       <ShirtIcon
-        color={original.worn ? 'white' : '#555'}
+        className={
+          original.worn
+            ? 'stroke-slate-600  dark:stroke-white'
+            : 'stroke-slate-100 dark:stroke-slate-800'
+        }
         size={20}
         strokeWidth={1}
       />
@@ -114,9 +118,15 @@ export const WeightCell: FC<Props> = ({
     ? item.weight
     : item.weight.toFixed(2)
   return (
-    <div className="inline-flex items-center gap-1">
-      {item.consumable && <FlameIcon color="white" size={16} strokeWidth={1} />}
-      <span>
+    <div className="flex pl-1">
+      {item.consumable && (
+        <FlameIcon
+          className="stroke-black dark:stroke-white mr-auto"
+          size={16}
+          strokeWidth={1}
+        />
+      )}
+      <span className="ml-auto">
         {displayWeight} {item.unit}
       </span>
     </div>
