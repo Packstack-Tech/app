@@ -1,16 +1,18 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useCallback, useEffect, useState } from 'react'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/Dialog'
+import { Button } from '@/components/ui'
 import { ScrollArea } from '@/components/ui/ScrollArea'
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/Sheet'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
-import { useUpdateCategorySort } from '@/queries/item'
+import { useSaveCategoryChanges } from '@/queries/item'
 
-import { Category } from './Category'
+import { CategoryRow } from './Category'
 
 interface Props {
   open: boolean
@@ -19,54 +21,83 @@ interface Props {
 
 export const CategoryManagementModal: FC<Props> = ({ open, onOpenChange }) => {
   const initCategories = useCategorizedItems({})
-  const updateCategorySort = useUpdateCategorySort()
+  const saveCategoryChanges = useSaveCategoryChanges()
   const [categories, setCategories] = useState(initCategories)
+  const [renames, setRenames] = useState<Record<number, string>>({})
 
   useEffect(() => {
-    setCategories(initCategories)
-  }, [initCategories, setCategories])
+    if (open) {
+      setCategories(initCategories)
+      setRenames({})
+    }
+  }, [open, initCategories])
 
-  const moveItem = (dragIndex: number | undefined, hoverIndex: number) => {
-    if (dragIndex === undefined) return
+  const moveItem = useCallback(
+    (dragIndex: number | undefined, hoverIndex: number) => {
+      if (dragIndex === undefined) return
 
-    setCategories(prev => {
-      const newItems = [...prev]
-      const dragItem = newItems[dragIndex]
-      newItems.splice(dragIndex, 1)
-      newItems.splice(hoverIndex, 0, dragItem)
-      return newItems
-    })
-  }
+      setCategories(prev => {
+        const newItems = [...prev]
+        const dragItem = newItems[dragIndex]
+        newItems.splice(dragIndex, 1)
+        newItems.splice(hoverIndex, 0, dragItem)
+        return newItems
+      })
+    },
+    []
+  )
 
-  const onDropItem = () => {
-    const sortOrder = categories
-      .filter(rec => !!rec.category)
-      .map((category, idx) => ({
-        id: category.category?.id || 0,
-        sort_order: idx,
-      }))
-    updateCategorySort.mutate(sortOrder)
+  const onNameChange = useCallback(
+    (categoryId: number, newName: string) => {
+      setRenames(prev => ({ ...prev, [categoryId]: newName }))
+    },
+    []
+  )
+
+  const handleSave = () => {
+    saveCategoryChanges.mutate(
+      { categories, renames },
+      { onSuccess: () => onOpenChange(false) }
+    )
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-80">
-        <DialogHeader>
-          <DialogTitle>Category Order</DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="max-h-[60vh] w-[100%]" type="auto">
-          {categories.map((rec, idx) => (
-            <Category
-              key={rec.category?.category_id || 'uncategorized'}
-              moveItem={moveItem}
-              onDropItem={onDropItem}
-              category={rec}
-              idx={idx}
-              disabled={updateCategorySort.isPending || !rec.category}
-            />
-          ))}
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="flex flex-col">
+        <SheetHeader>
+          <SheetTitle>Manage Categories</SheetTitle>
+        </SheetHeader>
+        <ScrollArea className="flex-1 px-2" type="auto">
+          <div className="space-y-1">
+            {categories.map((rec, idx) => (
+              <CategoryRow
+                key={rec.category?.category_id || 'uncategorized'}
+                moveItem={moveItem}
+                category={rec}
+                idx={idx}
+                editable={!!rec.category}
+                renamedValue={
+                  rec.category
+                    ? renames[rec.category.category.id]
+                    : undefined
+                }
+                onNameChange={onNameChange}
+              />
+            ))}
+          </div>
         </ScrollArea>
-      </DialogContent>
-    </Dialog>
+        <SheetFooter className="gap-2 pt-2 border-t">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={saveCategoryChanges.isPending}
+          >
+            {saveCategoryChanges.isPending ? 'Saving...' : 'Save'}
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   )
 }

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Link } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
 import { useRequestPasswordReset } from '@/queries/user'
@@ -27,6 +27,7 @@ export const RequestPasswordReset = () => {
   const requestPasswordReset = useRequestPasswordReset()
 
   const onSubmit = ({ email }: RequestPasswordResetForm) => {
+    console.log(email)
     requestPasswordReset.mutate(email, {
       onSuccess: () => setSuccess(true),
     })
@@ -35,39 +36,35 @@ export const RequestPasswordReset = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <h1>Forgot Password?</h1>
-      <p className="text-sm text-slate-200 mt-2">
+      <p className="text-sm mt-1 mb-4">
         No worries. We'll send you instructions on how to reset your password.
       </p>
       {success && (
-        <p className="text-secondary text-sm my-1">
+        <p className="text-secondary bg-secondary/10 text-sm rounded-md px-3 py-2 mb-3">
           Check your inbox. You'll receive an email to reset your password if
           that email is registered.
         </p>
       )}
-      <div className="my-2">
+      <div className="space-y-1">
         <label>Email</label>
         <Input {...register('email', { required: true })} placeholder="Email" />
+        {errors.email && (
+          <p className="text-red-400 text-xs">Must be a valid email.</p>
+        )}
       </div>
-      {errors.email && (
-        <p className="text-xs text-red-300">Must be a valid email.</p>
-      )}
-      <div className="flex justify-end mt-4">
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={success || requestPasswordReset.isPending}
-        >
-          Reset Password
-        </Button>
-      </div>
-      <div className="mt-3">
-        <p className="text-xs text-slate-200">
-          Back to{' '}
-          <Link to="/auth/register" className="text-primary underline">
-            Login
-          </Link>
-        </p>
-      </div>
+      <Button
+        type="submit"
+        className="w-full mt-6"
+        disabled={success || requestPasswordReset.isPending}
+      >
+        Send Reset Link
+      </Button>
+      <p className="text-xs text-center text-muted-foreground mt-4">
+        Back to{' '}
+        <Link to="/auth/login" className="text-primary hover:underline">
+          Login
+        </Link>
+      </p>
     </form>
   )
 }

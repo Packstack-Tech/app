@@ -2,6 +2,7 @@ import { FC, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { InfoIcon } from 'lucide-react'
 
 import { Input } from '@/components/ui'
 import { Button } from '@/components/ui'
@@ -17,7 +18,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,6 +26,11 @@ import {
 import { Label } from '@/components/ui/Label'
 import { ScrollArea } from '@/components/ui/ScrollArea'
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/Tooltip'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -33,6 +38,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
+import { toSelectOptions } from '@/lib/utils'
 import { convertWeight } from '@/lib/weight'
 import { useCategories } from '@/queries/category'
 import {
@@ -73,6 +79,7 @@ type Props = {
   title: string
   onOpenChange: (open: boolean) => void
   onClose: () => void
+  onSave?: (data: ItemFormValues) => void
   children?: React.ReactNode
 }
 
@@ -96,6 +103,7 @@ export const ItemForm: FC<Props> = ({
   open,
   onOpenChange,
   onClose,
+  onSave,
   children,
 }) => {
   const [brandSearch, setBrandSearch] = useState(item?.brand?.name || '')
@@ -132,38 +140,22 @@ export const ItemForm: FC<Props> = ({
   const noProductSelected = !productId && !form.watch('product_new')
 
   const brandOptions = useMemo(
-    () =>
-      (searchBrands.data || []).map(({ id, name }) => ({
-        label: name,
-        value: id,
-      })),
+    () => toSelectOptions(searchBrands.data),
     [searchBrands.data]
   )
 
   const productOptions = useMemo(
-    () =>
-      (brand?.products || []).map(({ id, name }) => ({
-        label: name,
-        value: id,
-      })),
+    () => toSelectOptions(brand?.products),
     [brand]
   )
 
   const productVariantOptions = useMemo(
-    () =>
-      (productVariants || []).map(({ id, name }) => ({
-        label: name,
-        value: id,
-      })),
+    () => toSelectOptions(productVariants),
     [productVariants]
   )
 
   const categoryOptions = useMemo(
-    () =>
-      (categories || []).map(({ id, name }) => ({
-        label: name,
-        value: id,
-      })),
+    () => toSelectOptions(categories),
     [categories]
   )
 
@@ -187,7 +179,10 @@ export const ItemForm: FC<Props> = ({
       updateItem.mutate(
         { ...payload, name: itemname, id: item.id },
         {
-          onSuccess: onClose,
+          onSuccess: () => {
+            onSave?.(data)
+            onClose()
+          },
         }
       )
     } else {
@@ -215,18 +210,21 @@ export const ItemForm: FC<Props> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {children}
-      <DialogContent onPointerDownOutside={e => e.preventDefault()}>
+      <DialogContent
+        className="sm:max-w-xl"
+        onPointerDownOutside={e => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="max-h-[60vh] w-[100%] px-2" type="always">
+        <ScrollArea className="max-h-[70vh] w-[100%] px-6" type="always">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} id="item-form">
               <FormField
                 control={form.control}
                 name="itemname"
                 render={({ field }) => (
-                  <FormItem className="my-4">
+                  <FormItem className="my-5">
                     <FormLabel>Item Name</FormLabel>
                     <FormControl>
                       <Input
@@ -240,143 +238,212 @@ export const ItemForm: FC<Props> = ({
                 )}
               />
 
-              <FormItem className="flex flex-col my-4">
-                <FormLabel>Manufacturer</FormLabel>
-
-                <Combobox
-                  value={brandId}
-                  options={brandOptions}
-                  onSearch={setBrandSearch}
-                  isLoading={searchBrands.isLoading}
-                  creatable
-                  tabIndex={2}
-                  label="Manufacturers"
-                  onSelect={({ label, value, isNew }) => {
-                    if (isNew) {
-                      form.setValue('brand_new', label)
-                    } else {
-                      form.setValue('brand_id', value as number)
-                    }
-                  }}
-                  onRemove={() => {
-                    form.setValue('brand_id', undefined)
-                    form.setValue('brand_new', undefined)
-                    form.setValue('product_id', undefined)
-                    form.setValue('product_new', undefined)
-                    form.setValue('product_variant_id', undefined)
-                    form.setValue('product_variant_new', undefined)
-                  }}
-                />
-                <FormMessage />
-              </FormItem>
-
-              <div className="my-4 flex gap-4">
-                <FormItem className="flex flex-col w-1/2">
-                  <FormLabel>Product</FormLabel>
+              <div className="border-t border-border pt-5 my-5">
+                <FormItem className="flex flex-col mb-5">
+                  <FormLabel>Manufacturer</FormLabel>
 
                   <Combobox
-                    value={form.watch('product_id')}
-                    options={productOptions}
-                    disabled={noBrandSelected}
+                    value={brandId}
+                    options={brandOptions}
+                    onSearch={setBrandSearch}
+                    isLoading={searchBrands.isLoading}
                     creatable
-                    label="Products"
-                    tabIndex={3}
+                    tabIndex={2}
+                    label="Manufacturers"
                     onSelect={({ label, value, isNew }) => {
                       if (isNew) {
-                        form.setValue('product_new', label)
+                        form.setValue('brand_new', label)
                       } else {
-                        const id = value as number
-                        form.setValue('product_id', id)
-                        onSelectProduct(id)
+                        form.setValue('brand_id', value as number)
                       }
                     }}
                     onRemove={() => {
+                      form.setValue('brand_id', undefined)
+                      form.setValue('brand_new', undefined)
                       form.setValue('product_id', undefined)
                       form.setValue('product_new', undefined)
                       form.setValue('product_variant_id', undefined)
                       form.setValue('product_variant_new', undefined)
                     }}
                   />
-
-                  <FormDescription>
-                    {noBrandSelected
-                      ? 'Product name requires a manufacturer'
-                      : 'Name of the product'}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
 
-                <FormItem className="flex flex-col w-1/2">
-                  <FormLabel>Variant</FormLabel>
+                <div className="flex gap-4">
+                  <FormItem className="flex flex-col w-1/2">
+                    <FormLabel className="inline-flex items-center gap-1">
+                      Product
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <InfoIcon className="size-3.5 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Requires a manufacturer
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
+
+                    <Combobox
+                      value={form.watch('product_id')}
+                      options={productOptions}
+                      disabled={noBrandSelected}
+                      creatable
+                      label="Products"
+                      tabIndex={3}
+                      onSelect={({ label, value, isNew }) => {
+                        if (isNew) {
+                          form.setValue('product_new', label)
+                        } else {
+                          const id = value as number
+                          form.setValue('product_id', id)
+                          onSelectProduct(id)
+                        }
+                      }}
+                      onRemove={() => {
+                        form.setValue('product_id', undefined)
+                        form.setValue('product_new', undefined)
+                        form.setValue('product_variant_id', undefined)
+                        form.setValue('product_variant_new', undefined)
+                      }}
+                    />
+
+                    <FormMessage />
+                  </FormItem>
+
+                  <FormItem className="flex flex-col w-1/2">
+                    <FormLabel className="inline-flex items-center gap-1">
+                      Variant
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <InfoIcon className="size-3.5 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Requires a product. Use for color, size, etc.
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
+
+                    <Combobox
+                      value={form.watch('product_variant_id')}
+                      options={productVariantOptions}
+                      disabled={noProductSelected}
+                      creatable
+                      label="Variants"
+                      tabIndex={4}
+                      onSelect={({ label, value, isNew }) => {
+                        if (isNew) {
+                          form.setValue('product_variant_new', label)
+                        } else {
+                          form.setValue('product_variant_id', value as number)
+                        }
+                      }}
+                      onRemove={() => {
+                        form.setValue('product_variant_id', undefined)
+                        form.setValue('product_variant_new', undefined)
+                      }}
+                    />
+
+                    <FormMessage />
+                  </FormItem>
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-5 my-5">
+                <FormItem className="flex flex-col mb-5">
+                  <FormLabel>Category</FormLabel>
 
                   <Combobox
-                    value={form.watch('product_variant_id')}
-                    options={productVariantOptions}
-                    disabled={noProductSelected}
-                    creatable
-                    label="Variants"
-                    tabIndex={4}
+                    value={form.watch('category_id')}
+                    options={categoryOptions}
+                    label="Categories"
+                    tabIndex={5}
                     onSelect={({ label, value, isNew }) => {
                       if (isNew) {
-                        form.setValue('product_variant_new', label)
+                        form.setValue('category_new', label)
                       } else {
-                        form.setValue('product_variant_id', value as number)
+                        form.setValue('category_id', value as number)
                       }
                     }}
                     onRemove={() => {
-                      form.setValue('product_variant_id', undefined)
-                      form.setValue('product_variant_new', undefined)
+                      form.setValue('category_id', undefined)
+                      form.setValue('category_new', undefined)
                     }}
                   />
 
-                  <FormDescription>
-                    {noProductSelected
-                      ? 'Variant requires a product'
-                      : 'Color, size, accessories, etc.'}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
-              </div>
 
-              <FormItem className="flex flex-col my-4">
-                <FormLabel>Category</FormLabel>
+                <div className="flex gap-2 items-end mb-5">
+                  <div className="flex flex-1 items-end gap-0.5">
+                    <FormField
+                      control={form.control}
+                      name="weight"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Weight</FormLabel>
+                          <Input
+                            {...field}
+                            type="number"
+                            step=".01"
+                            placeholder="0.00"
+                            tabIndex={6}
+                            disabled={productDetails.isPending}
+                            onFocus={() => {
+                              if (!field.value) field.onChange('')
+                            }}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <Combobox
-                  value={form.watch('category_id')}
-                  options={categoryOptions}
-                  label="Categories"
-                  tabIndex={5}
-                  onSelect={({ label, value, isNew }) => {
-                    if (isNew) {
-                      form.setValue('category_new', label)
-                    } else {
-                      form.setValue('category_id', value as number)
-                    }
-                  }}
-                  onRemove={() => {
-                    form.setValue('category_id', undefined)
-                    form.setValue('category_new', undefined)
-                  }}
-                />
+                    <FormField
+                      control={form.control}
+                      name="unit"
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={v => {
+                            const weight = convertWeight(
+                              form.getValues('weight'),
+                              field.value,
+                              v as Unit
+                            )
+                            const roundedWeight =
+                              Math.round(weight.weight * 100) / 100
+                            form.setValue('weight', roundedWeight)
+                            field.onChange(v)
+                          }}
+                          defaultValue={field.value}
+                          value={field.value}
+                          disabled={productDetails.isPending}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-16">
+                              <SelectValue placeholder="Unit" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="g">g</SelectItem>
+                            <SelectItem value="kg">kg</SelectItem>
+                            <SelectItem value="oz">oz</SelectItem>
+                            <SelectItem value="lb">lb</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
 
-                <FormMessage />
-              </FormItem>
-
-              <div className="flex gap-2 items-end my-4">
-                <div className="flex flex-1 items-end gap-0.5">
                   <FormField
                     control={form.control}
-                    name="weight"
+                    name="price"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Weight</FormLabel>
+                      <FormItem className="flex-1">
+                        <FormLabel>Price</FormLabel>
                         <Input
                           {...field}
                           type="number"
                           step=".01"
                           placeholder="0.00"
-                          tabIndex={6}
-                          disabled={productDetails.isPending}
                           onFocus={() => {
                             if (!field.value) field.onChange('')
                           }}
@@ -385,116 +452,74 @@ export const ItemForm: FC<Props> = ({
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="unit"
-                    render={({ field }) => (
-                      <Select
-                        onValueChange={v => {
-                          const weight = convertWeight(
-                            form.getValues('weight'),
-                            field.value,
-                            v as Unit
-                          )
-                          // round weight to 2 decimal places as number
-                          const roundedWeight =
-                            Math.round(weight.weight * 100) / 100
-                          form.setValue('weight', roundedWeight)
-                          field.onChange(v)
-                        }}
-                        defaultValue={field.value}
-                        value={field.value}
-                        disabled={productDetails.isPending}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-16">
-                            <SelectValue placeholder="Unit" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="g">g</SelectItem>
-                          <SelectItem value="kg">kg</SelectItem>
-                          <SelectItem value="oz">oz</SelectItem>
-                          <SelectItem value="lb">lb</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
                 </div>
 
                 <FormField
                   control={form.control}
-                  name="price"
+                  name="consumable"
                   render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Price</FormLabel>
-                      <Input
-                        {...field}
-                        type="number"
-                        step=".01"
-                        placeholder="0.00"
-                        onFocus={() => {
-                          if (!field.value) field.onChange('')
-                        }}
-                      />
-                      <FormMessage />
+                    <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          id="consumable"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel
+                        htmlFor="consumable"
+                        className="inline-flex items-center gap-1 font-normal"
+                      >
+                        Consumable
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InfoIcon className="size-3.5 text-muted-foreground" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            Products that get used up during a hike, e.g. food,
+                            fuel, sunscreen
+                          </TooltipContent>
+                        </Tooltip>
+                      </FormLabel>
                     </FormItem>
                   )}
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="consumable"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-2 space-y-0 my-4">
-                    <FormControl>
-                      <Checkbox
-                        id="consumable"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel htmlFor="consumable" className="font-normal">
-                      Consumable
-                    </FormLabel>
-                  </FormItem>
-                )}
-              />
+              <div className="border-t border-border pt-5 my-5">
+                <FormField
+                  control={form.control}
+                  name="product_url"
+                  render={({ field }) => (
+                    <FormItem className="mb-5">
+                      <FormLabel>Product URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="product_url"
-                render={({ field }) => (
-                  <FormItem className="my-4">
-                    <FormLabel>Product URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem className="my-4">
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="https://" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem className="mb-5">
+                      <FormLabel>Notes</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </form>
           </Form>
         </ScrollArea>
         <DialogFooter>
-          <div className={`flex justify-between items-center`}>
+          <div className="flex justify-between items-center">
             {item && (
               <Button
                 type="button"
@@ -522,7 +547,6 @@ export const ItemForm: FC<Props> = ({
             )}
             <Button
               type="submit"
-              variant="secondary"
               form="item-form"
               className="min-w-[25%]"
               disabled={updateItem.isPending || createItem.isPending}

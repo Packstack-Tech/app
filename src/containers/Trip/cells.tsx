@@ -1,19 +1,67 @@
 import { FC, useEffect, useState } from 'react'
 import { FlameIcon, ShirtIcon, StickyNoteIcon, XCircleIcon } from 'lucide-react'
-import { shallow } from 'zustand/shallow'
+import { useShallow } from 'zustand/react/shallow'
 import { Cell } from '@tanstack/react-table'
 
 import { Input } from '@/components/ui'
+import { DialogTrigger } from '@/components/ui/Dialog'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/Popover'
+import { ItemForm } from '@/containers/ItemForm'
 import { useTripPacks } from '@/hooks/useTripPacks'
+import { ItemForm as ItemFormValues, Unit } from '@/types/item'
 import { PackItem } from '@/types/pack'
 
 type Props = {
   cell: Cell<PackItem, unknown>
+}
+
+export const NameCell: FC<Props> = ({
+  cell: {
+    row: { original },
+  },
+}) => {
+  const [open, setOpen] = useState(false)
+  const { updateBaseItem } = useTripPacks(
+    useShallow(store => ({ updateBaseItem: store.updateBaseItem }))
+  )
+
+  const handleSave = (data: ItemFormValues) => {
+    const { itemname, ...rest } = data
+    updateBaseItem(original.item.id, {
+      name: itemname,
+      weight: rest.weight,
+      unit: rest.unit as Unit,
+      price: rest.price,
+      consumable: rest.consumable,
+      notes: rest.notes,
+      product_url: rest.product_url,
+      category_id: rest.category_id,
+      brand_id: rest.brand_id,
+      product_id: rest.product_id,
+      product_variant_id: rest.product_variant_id,
+    })
+  }
+
+  return (
+    <ItemForm
+      title="Edit Item"
+      open={open}
+      onOpenChange={setOpen}
+      item={original.item}
+      onClose={() => setOpen(false)}
+      onSave={handleSave}
+    >
+      <DialogTrigger asChild>
+        <button className="text-left hover:underline cursor-pointer">
+          {original.item.name}
+        </button>
+      </DialogTrigger>
+    </ItemForm>
+  )
 }
 
 export const QuantityCell: FC<Props> = ({
@@ -22,8 +70,7 @@ export const QuantityCell: FC<Props> = ({
   },
 }) => {
   const { updateItem } = useTripPacks(
-    store => ({ updateItem: store.updateItem }),
-    shallow
+    useShallow(store => ({ updateItem: store.updateItem }))
   )
   const [value, setValue] = useState(original.quantity.toString())
   const [error, setError] = useState(false)
@@ -57,8 +104,7 @@ export const WornCell: FC<Props> = ({
   },
 }) => {
   const { updateItem } = useTripPacks(
-    store => ({ updateItem: store.updateItem }),
-    shallow
+    useShallow(store => ({ updateItem: store.updateItem }))
   )
 
   const onClick = () => updateItem(original.item_id, 'worn', !original.worn)
@@ -66,15 +112,15 @@ export const WornCell: FC<Props> = ({
   if (original.item.consumable) return null
 
   return (
-    <button onClick={onClick}>
+    <button onClick={onClick} className="cursor-pointer">
       <ShirtIcon
         className={
           original.worn
-            ? 'stroke-slate-600  dark:stroke-white'
-            : 'stroke-slate-100 dark:stroke-slate-800'
+            ? 'fill-primary stroke-primary'
+            : 'stroke-slate-300 dark:stroke-slate-600'
         }
         size={20}
-        strokeWidth={1}
+        strokeWidth={1.5}
       />
     </button>
   )
@@ -139,8 +185,7 @@ export const RemoveItemCell: FC<Props> = ({
   },
 }) => {
   const { removeItem } = useTripPacks(
-    store => ({ removeItem: store.removeItem }),
-    shallow
+    useShallow(store => ({ removeItem: store.removeItem }))
   )
 
   return (

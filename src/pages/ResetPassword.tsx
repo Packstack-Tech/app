@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
-import { useNavigate, useParams } from 'react-router-dom'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigate, useParams } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
 import { useResetPassword } from '@/queries/user'
@@ -18,7 +18,7 @@ const schema = z.object({
 
 export const ResetPassword = () => {
   const navigate = useNavigate()
-  const { callback_id } = useParams()
+  const { callbackId } = useParams({ from: '/auth/reset-password/$callbackId' })
   const resetPassword = useResetPassword()
   const {
     register,
@@ -32,9 +32,9 @@ export const ResetPassword = () => {
 
   const onSubmit = ({ password }: PasswordResetForm) => {
     resetPassword.mutate(
-      { password, callback_id: callback_id as string },
+      { password, callback_id: callbackId },
       {
-        onSuccess: () => navigate('/auth/login'),
+        onSuccess: () => navigate({ to: '/auth/login' }),
       }
     )
   }
@@ -45,37 +45,36 @@ export const ResetPassword = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <h1>Reset Password</h1>
-      <div className="my-2">
+      <p className="text-sm mt-1 mb-4">Choose a new password for your account</p>
+      <div className="space-y-1">
         <label>Password</label>
         <Input
           {...register('password', { required: true })}
           type="password"
           placeholder="••••••"
         />
+        {errors.password && (
+          <p className="text-red-400 text-xs">{errors.password?.message}</p>
+        )}
       </div>
-      {errors.password && (
-        <p className="text-xs text-red-300">{errors.password?.message}</p>
-      )}
-      <div className="my-2">
+      <div className="space-y-1 mt-3">
         <label>Confirm password</label>
         <Input
           {...register('confirmPassword', { required: true })}
           type="password"
           placeholder="••••••"
         />
+        {password && confirmPassword && password !== confirmPassword && (
+          <p className="text-red-400 text-xs">Passwords do not match</p>
+        )}
       </div>
-      {password !== confirmPassword && (
-        <p className="text-xs text-red-300">Passwords do not match</p>
-      )}
-      <div className="flex justify-end mt-4">
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={resetPassword.isPending}
-        >
-          Reset Password
-        </Button>
-      </div>
+      <Button
+        type="submit"
+        className="w-full mt-6"
+        disabled={resetPassword.isPending}
+      >
+        Reset Password
+      </Button>
     </form>
   )
 }

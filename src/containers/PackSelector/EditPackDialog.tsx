@@ -25,14 +25,14 @@ export const EditPackDialog: FC<Props> = ({ title, open, onClose, onSave }) => {
         <DialogHeader>
           <DialogTitle>Rename pack</DialogTitle>
         </DialogHeader>
-        <div className="p-2">
+        <div className="px-6 py-4">
           <Input value={value} onChange={e => setValue(e.target.value)} />
         </div>
         <DialogFooter className="flex justify-between">
           <Button onClick={onClose} variant="outline">
             Cancel
           </Button>
-          <Button onClick={() => onSave(value)} variant="secondary">
+          <Button onClick={() => onSave(value)}>
             Save
           </Button>
         </DialogFooter>

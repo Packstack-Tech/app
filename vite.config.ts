@@ -1,21 +1,19 @@
+import path from 'path'
 import { defineConfig } from 'vite'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
+import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react-swc'
-
-const aliases = {
-  '@/components': '/src/components',
-  '@/hooks': '/src/hooks',
-  '@/containers': '/src/containers',
-  '@/lib': '/src/lib',
-  '@/pages': '/src/pages',
-  '@/types': '/src/types',
-  '@/queries': '/src/queries',
-}
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+    }),
     react(),
+    tailwindcss(),
     sentryVitePlugin({
       disable: process.env.NODE_ENV !== 'production',
       org: 'packstack-3s',
@@ -23,8 +21,17 @@ export default defineConfig({
     }),
   ],
 
+  server: {
+    watch: {
+      usePolling: true,
+      interval: 100,
+    },
+  },
+
   resolve: {
-    alias: aliases,
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
   },
 
   build: {

@@ -35,12 +35,12 @@ export const ImportCsvModal: FC<Props> = ({ open, onOpenChange }) => {
         <DialogHeader>
           <DialogTitle>Import CSV</DialogTitle>
         </DialogHeader>
-        <DialogDescription className="mx-4 mt-4">
+        <DialogDescription className="mx-6 mt-4">
           Import your gear from a CSV file.{' '}
           <em>Only the name field is required.</em>
         </DialogDescription>
 
-        <div className="text-sm text-muted-foreground mx-4">
+        <div className="text-sm text-muted-foreground mx-6">
           <Button
             variant="link"
             size="none"
@@ -86,7 +86,7 @@ export const ImportCsvModal: FC<Props> = ({ open, onOpenChange }) => {
           </ul>
         </div>
 
-        <div className="m-4">
+        <div className="mx-6 mb-4">
           <Dropzone fileExtension="csv" onChange={setFile} />
         </div>
         <DialogFooter className="flex justify-between">

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Link, useNavigate } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
 import { handleException } from '@/lib/utils'
@@ -27,7 +27,7 @@ const schema = z.object({
   password: z.string().min(6).max(50),
 })
 
-export const RegisterPage = () => {
+export const Register = () => {
   const {
     register,
     handleSubmit,
@@ -44,7 +44,7 @@ export const RegisterPage = () => {
   const onSubmit = (data: RegisterForm) => {
     setError(undefined)
     signUp.mutate(data, {
-      onSuccess: () => navigate('/'),
+      onSuccess: () => navigate({ to: '/' }),
       onError: error => {
         handleException(error, {
           onHttpError: ({ response }) => setError(response?.data.detail),
@@ -55,46 +55,53 @@ export const RegisterPage = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h1>Sign Up</h1>
-      {error && <p className="text-red-300 text-xs my-1">{error}</p>}
-      <div className="my-2">
+      <h1>Create an account</h1>
+      <p className="text-sm mt-1 mb-4">Create packing lists and organize your gear</p>
+      {error && (
+        <p className="text-destructive-foreground bg-destructive/20 text-xs rounded-md px-3 py-2 mb-3">
+          {error}
+        </p>
+      )}
+      <div className="space-y-1">
         <label>Username</label>
         <Input
           {...register('username', { required: true })}
           placeholder="username"
         />
-        <p className=" text-red-300 text-xs my-1">{errors.username?.message}</p>
+        {errors.username?.message && (
+          <p className="text-red-400 text-xs">{errors.username.message}</p>
+        )}
       </div>
-      <div className="my-2">
+      <div className="space-y-1 mt-3">
         <label>Email</label>
         <Input
           {...register('email', { required: true })}
           placeholder="john@muir.com"
         />
-        <p className=" text-red-300 text-xs my-1">{errors.email?.message}</p>
+        {errors.email?.message && (
+          <p className="text-red-400 text-xs">{errors.email.message}</p>
+        )}
       </div>
-      <div className="my-2">
+      <div className="space-y-1 mt-3">
         <label>Password</label>
         <Input
           {...register('password', { required: true })}
           type="password"
           placeholder="••••••"
         />
-        <p className=" text-red-300 text-xs my-1">{errors.password?.message}</p>
+        {errors.password?.message && (
+          <p className="text-red-400 text-xs">{errors.password.message}</p>
+        )}
       </div>
-      <div className="flex justify-end mt-4">
-        <Button type="submit" className="w-full" disabled={signUp.isPending}>
-          Sign Up
-        </Button>
-      </div>
-      <div className="mt-3">
-        <p className="text-xs text-slate-200">
-          Already have an account?{' '}
-          <Link to="/auth/login" className="text-primary underline">
-            Login
-          </Link>
-        </p>
-      </div>
+      <Button type="submit" className="w-full mt-6" disabled={signUp.isPending}>
+        Sign Up
+      </Button>
+      <p className="text-xs text-center text-muted-foreground mt-4">
+        Already have an account?{' '}
+        <Link to="/auth/login" className="text-primary hover:underline">
+          Login
+        </Link>
+      </p>
     </form>
   )
 }

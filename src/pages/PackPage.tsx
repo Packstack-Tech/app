@@ -1,40 +1,48 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { shallow } from 'zustand/shallow'
+import { useShallow } from 'zustand/react/shallow'
+import { useBlocker, useMatch } from '@tanstack/react-router'
 
-import { Loading } from '@/components/ui/Loading'
 import { initPack, useTripPacks } from '@/hooks/useTripPacks'
-import { useTripPacksQuery } from '@/queries/pack'
-import { useTripQuery } from '@/queries/trip'
-
 import { Pack } from './Pack'
 
 export const PackPage = () => {
-  const { id } = useParams()
-  const { setPacks } = useTripPacks(
-    store => ({
+  const { setPacks, packs: storePacks } = useTripPacks(
+    useShallow(store => ({
       setPacks: store.setPacks,
-    }),
-    shallow
+      packs: store.packs,
+    }))
   )
-  const { data: tripData, isLoading: tripLoading } = useTripQuery(id)
-  const { data: packsData, isLoading: packsLoading } = useTripPacksQuery(id)
+
+  // Check if we're on the /pack/$id route (vs /pack/new)
+  const packMatch = useMatch({ from: '/_app/pack/$id', shouldThrow: false })
+  const loaderData = packMatch?.loaderData
+  const trip = loaderData?.trip
+  const packs = loaderData?.packs
+
+  const isNewPack = !packMatch
+  const hasUnsavedWork =
+    isNewPack && storePacks.some(p => p.items.length > 0 || p.title !== 'New pack')
+
+  useBlocker({
+    shouldBlockFn: () => {
+      if (!hasUnsavedWork) return false
+      return !window.confirm(
+        'You have unsaved changes. Are you sure you want to leave?'
+      )
+    },
+    enableBeforeUnload: hasUnsavedWork,
+  })
 
   useEffect(() => {
-    if (packsData) {
-      setPacks(packsData)
+    if (packs) {
+      setPacks(packs)
     }
-    if (!id) {
+    if (!packMatch) {
+      // /pack/new route
       setPacks([initPack])
     }
-  }, [setPacks, packsData, id])
+  }, [setPacks, packs, packMatch])
 
-  if (tripLoading || packsLoading)
-    return (
-      <div className="h-screen">
-        <Loading />
-      </div>
-    )
-
-  return <Pack trip={id ? tripData : undefined} />
+  // No loading state needed -- route loader already ensured data
+  return <Pack trip={trip} />
 }

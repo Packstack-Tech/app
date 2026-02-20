@@ -61,69 +61,73 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
           <PieChart size={12} /> View breakdown
         </button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Weight Breakdown</DialogTitle>
         </DialogHeader>
-        <div className="w-full h-80 bg-white text-slate-900">
-          <ResponsivePie
-            data={chartData}
-            margin={{ top: 24, right: 24, bottom: 24, left: 24 }}
-            valueFormat={valueFormat}
-            activeOuterRadiusOffset={8}
-            colors={chartColors}
-            borderWidth={1}
-            borderColor="#ffffff"
-            enableArcLinkLabels={false}
-            // innerRadius={0.4}
-            arcLabelsRadiusOffset={0.8}
-            arcLabelsTextColor="#ffffff"
-            arcLabel={e => `${((e.value / totalWeight) * 100).toFixed(1)}%`}
-            theme={{
-              legends: {
-                text: {
-                  fontSize: 12,
+        <div className="flex flex-col sm:flex-row bg-white text-slate-900 px-6 py-6 gap-4">
+          <div className="flex-1 h-96 min-w-0">
+            <ResponsivePie
+              data={chartData}
+              margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
+              valueFormat={valueFormat}
+              activeOuterRadiusOffset={8}
+              colors={chartColors}
+              borderWidth={1}
+              borderColor="#ffffff"
+              enableArcLinkLabels={true}
+              arcLinkLabelsSkipAngle={8}
+              arcLinkLabelsTextColor="#334155"
+              arcLinkLabelsThickness={1}
+              arcLinkLabelsColor={{ from: 'color' }}
+              arcLinkLabel={d =>
+                `${d.label} (${((d.value / totalWeight) * 100).toFixed(1)}%)`
+              }
+              enableArcLabels={false}
+              theme={{
+                labels: {
+                  text: { fontSize: 11 },
                 },
-              },
-            }}
-          />
-        </div>
-        <div className="bg-white text-slate-900 text-sm p-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="w-6"></th>
-                <th className="text-left">Category</th>
-                <th className="text-right">Weight</th>
-              </tr>
-            </thead>
-            <tbody>
-              {chartData.map(({ label, value }, index) => (
-                <tr key={label} className="border-b border-slate-100">
-                  <td className="py-1">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{
-                        backgroundColor:
-                          chartColors[index % chartColors.length],
-                      }}
-                    ></div>
-                  </td>
-                  <td className="py-1">{label}</td>
-                  <td className="text-right tabular-nums py-1">
-                    {valueFormat(value)}
+              }}
+            />
+          </div>
+          <div className="sm:w-56 shrink-0 flex items-center">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr>
+                  <th className="w-6"></th>
+                  <th className="text-left font-semibold pb-1">Category</th>
+                  <th className="text-right font-semibold pb-1">Weight</th>
+                </tr>
+              </thead>
+              <tbody>
+                {chartData.map(({ label, value }, index) => (
+                  <tr key={label} className="border-b border-slate-100">
+                    <td className="py-1.5">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{
+                          backgroundColor:
+                            chartColors[index % chartColors.length],
+                        }}
+                      />
+                    </td>
+                    <td className="py-1.5">{label}</td>
+                    <td className="text-right tabular-nums py-1.5">
+                      {valueFormat(value)}
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td className="py-1.5"></td>
+                  <td className="py-1.5 font-semibold">Total</td>
+                  <td className="text-right tabular-nums py-1.5 font-semibold">
+                    {`${totalWeight.toFixed(2)} ${aggregateUnit}`}
                   </td>
                 </tr>
-              ))}
-              <tr>
-                <td className="py-1"></td>
-                <td className="py-1">Total</td>
-                <td className="text-right tabular-nums pt-1">
-                  {`${totalWeight.toFixed(2)} ${aggregateUnit}`}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import { useToast } from '@/hooks/useToast'
 import {
@@ -37,6 +42,15 @@ import { PackPayload } from '@/types/api'
 // }
 
 export const TRIP_PACKS_QUERY = 'trip-packs-query'
+
+export const tripPacksQueryOptions = (tripId: string | number) =>
+  queryOptions({
+    queryKey: [TRIP_PACKS_QUERY, tripId],
+    queryFn: async () => {
+      const res = await getTripPacks(tripId)
+      return res.data
+    },
+  })
 
 export const useTripPacksQuery = (tripId?: number | string) => {
   return useQuery({

@@ -1,22 +1,20 @@
 import { useMemo } from 'react'
 import Fuse from 'fuse.js'
 
+import { groupByCategory } from '@/lib/categorize'
 import { useInventory } from '@/queries/item'
-import { CategorizedItems, CategoryItems } from '@/types/category'
+import { CategoryItems } from '@/types/category'
 
 type Options = {
   filter?: string
-  uncategorizedToBottom?: boolean
   showRemoved?: boolean
 }
 
 export const useCategorizedItems = ({
   filter,
-  uncategorizedToBottom,
   showRemoved = false,
 }: Options): CategoryItems[] => {
   const { data } = useInventory()
-  const uncategorizedPosition = uncategorizedToBottom ? Infinity : 0
 
   const fuseItems = useMemo(
     () =>
@@ -26,7 +24,18 @@ export const useCategorizedItems = ({
     [data]
   )
 
-  const categorizedItems = useMemo(() => {
+  const allCategorySortOrders = useMemo(() => {
+    if (!data) return new Set<number>()
+    const orders = new Set<number>()
+    for (const item of data) {
+      if (item.category?.sort_order != null) {
+        orders.add(item.category.sort_order)
+      }
+    }
+    return orders
+  }, [data])
+
+  return useMemo(() => {
     const items = !filter
       ? data
       : fuseItems.search(filter).map(result => result.item)
@@ -35,40 +44,26 @@ export const useCategorizedItems = ({
       ? items
       : items?.filter(item => !item.removed)
 
-    return (filteredItems || []).reduce<CategorizedItems>((acc, curr) => {
-      const catId = curr.category_id?.toString() || 'uncategorized'
-      if (acc[catId]) {
-        return {
-          ...acc,
-          [catId]: { ...acc[catId], items: [...acc[catId].items, curr] },
-        }
-      }
-      return {
-        ...acc,
-        [catId]: {
-          category: curr.category,
-          items: [curr],
-        },
-      }
-    }, {} as CategorizedItems)
-  }, [data, fuseItems, filter, showRemoved])
+    const grouped = groupByCategory(
+      filteredItems || [],
+      item => item.category_id?.toString() || 'uncategorized',
+      item => item.category,
+      item => item.sort_order || 0
+    )
 
-  const sorted = useMemo(
-    () =>
-      Object.entries(categorizedItems)
-        .map(([, values]) => {
-          values.items.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-          return values
-        })
-        .sort((a, b) => {
-          if (!a.category) return -1
-          return (
-            a.category.sort_order -
-            (b.category?.sort_order || uncategorizedPosition)
-          )
-        }),
-    [categorizedItems, uncategorizedPosition]
-  )
+    const totalCategories = allCategorySortOrders.size + 1
+    let uncatPosition = totalCategories
+    for (let i = 0; i < totalCategories; i++) {
+      if (!allCategorySortOrders.has(i)) {
+        uncatPosition = i
+        break
+      }
+    }
 
-  return sorted
+    return grouped.sort((a, b) => {
+      const aOrder = a.category?.sort_order ?? uncatPosition
+      const bOrder = b.category?.sort_order ?? uncatPosition
+      return aOrder - bOrder
+    })
+  }, [data, fuseItems, filter, showRemoved, allCategorySortOrders])
 }

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Backpack } from 'lucide-react'
 
 import { EmptyState } from '@/components/EmptyState'
 import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable'
@@ -12,12 +13,18 @@ interface Props {
   searchFilter: string
   isLoading: boolean
   showRemoved: boolean
+  selectedIds: Set<number>
+  onToggleItem: (id: number) => void
+  onToggleCategory: (ids: number[]) => void
 }
 
 export const InventoryTable = ({
   searchFilter,
   isLoading,
   showRemoved,
+  selectedIds,
+  onToggleItem,
+  onToggleCategory,
 }: Props) => {
   const user = useUser()
   const data = useCategorizedItems({ showRemoved })
@@ -35,15 +42,11 @@ export const InventoryTable = ({
   return (
     <div>
       {data.length === 0 && (
-        <div className="max-w-lg mx-auto mt-6">
-          <EmptyState
-            subheading="Inventory"
-            heading="Add gear to your inventory"
-          >
+        <div className="mt-6">
+          <EmptyState icon={Backpack} heading="Your inventory is empty">
             <p>
-              Your inventory is a collection of all the gear you own.
-              Categorizing your gear makes it easier to find, and also allows us
-              to create comprehensive weight breakdowns for you.
+              Add your gear to start building packing lists with automatic
+              weight breakdowns.
             </p>
           </EmptyState>
         </div>
@@ -58,6 +61,9 @@ export const InventoryTable = ({
             data={items}
             searchFilter={searchFilter}
             onSearchFilterChange={() => {}}
+            selectedIds={selectedIds}
+            onToggleItem={onToggleItem}
+            onToggleCategory={onToggleCategory}
           />
         )
       })}

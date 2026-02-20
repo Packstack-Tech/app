@@ -12,6 +12,10 @@ import {
 import { ItemForm } from '@/containers/ItemForm'
 import { Item } from '@/types/item'
 
+export const EmptyDash = () => (
+  <span className="text-muted-foreground/40">—</span>
+)
+
 type Props = {
   cell: Cell<Item, unknown>
 }
@@ -45,7 +49,7 @@ export const WeightCell: FC<Props> = ({
   },
 }) => {
   const { weight, unit, consumable } = original
-  if (!weight) return '-'
+  if (!weight) return <EmptyDash />
   const displayWeight = ['g', 'oz'].includes(unit) ? weight : weight.toFixed(2)
   return (
     <div className="inline-flex items-center gap-1">

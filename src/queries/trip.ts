@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import { useToast } from '@/hooks/useToast'
 import { cloneTrip, createTrip, deleteTrip, editTrip, getTrip } from '@/lib/api'
@@ -16,6 +21,16 @@ import { USER_QUERY } from './user'
 // }
 
 export const TRIP_QUERY = 'trip-query'
+
+export const tripQueryOptions = (id: string | number) =>
+  queryOptions({
+    queryKey: [TRIP_QUERY, id],
+    queryFn: async () => {
+      const res = await getTrip(id)
+      return res.data
+    },
+  })
+
 export const useTripQuery = (id?: string | number) => {
   return useQuery({
     queryKey: [TRIP_QUERY, id],

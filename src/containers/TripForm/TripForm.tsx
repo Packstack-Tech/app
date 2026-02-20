@@ -3,7 +3,7 @@ import { DateRange } from 'react-day-picker'
 import { useForm } from 'react-hook-form'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
-import { shallow } from 'zustand/shallow'
+import { useShallow } from 'zustand/react/shallow'
 
 import { Button, Input } from '@/components/ui'
 import { Calendar } from '@/components/ui/Calendar'
@@ -20,7 +20,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/Popover'
 import { useToast } from '@/hooks/useToast'
-import { useTripPacks } from '@/hooks/useTripPacks'
+import { initPack, useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
 import { cn } from '@/lib/utils'
 import { dateToUtc } from '@/lib/utils'
@@ -42,9 +42,9 @@ const formDefaults = (trip?: Trip): TripFormValues => ({
   location: trip?.location || '',
   dates: trip?.start_date
     ? {
-        from: dateToUtc(new Date(trip.start_date)),
-        to: trip.end_date ? dateToUtc(new Date(trip.end_date)) : undefined,
-      }
+      from: dateToUtc(new Date(trip.start_date)),
+      to: trip.end_date ? dateToUtc(new Date(trip.end_date)) : undefined,
+    }
     : undefined,
   distance: trip?.distance || 0,
 })
@@ -53,12 +53,12 @@ const formDefaults = (trip?: Trip): TripFormValues => ({
 export const TripForm: FC<Props> = ({ trip }) => {
   const { toast } = useToast()
   const user = useUser()
-  const { packs, synced } = useTripPacks(
-    store => ({
+  const { packs, synced, setPacks } = useTripPacks(
+    useShallow(store => ({
       packs: store.packs,
       synced: store.synced,
-    }),
-    shallow
+      setPacks: store.setPacks,
+    }))
   )
   const createTrip = useCreateTrip()
   const createPack = useCreatePack()
@@ -129,6 +129,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
       })
     )
 
+    setPacks([initPack])
     window.location.replace(`/pack/${newTrip.id}`)
   }
 
@@ -139,97 +140,99 @@ export const TripForm: FC<Props> = ({ trip }) => {
         id="pack-form"
         className="w-1/2 md:w-full"
       >
-        <h3>Details</h3>
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem className="mb-2">
-              <FormLabel htmlFor={field.name}>Location</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Trail or region..."
-                  onBlur={() => onFieldUpdate()}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="dates"
-          render={({ field }) => (
-            <FormItem className="my-2">
-              <FormLabel htmlFor="date">Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      id="date"
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal md:text-sm whitespace-pre overflow-hidden text-ellipsis',
-                        !field.value?.from && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value?.from ? (
-                        field.value.to ? (
-                          <>
-                            {format(field.value?.from, 'LLL dd')} -{' '}
-                            {format(field.value.to, 'LLL dd, y')}
-                          </>
-                        ) : (
-                          format(field.value.from, 'LLL dd, y')
-                        )
-                      ) : (
-                        <span>Select dates...</span>
-                      )}
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    defaultMonth={field.value?.from}
-                    selected={field.value}
-                    onSelect={e => {
-                      field.onChange(e)
-                      onFieldUpdate()
-                    }}
-                    numberOfMonths={2}
+        <div className='flex flex-col gap-4'>
+          <div className="text-sm font-semibold">Details</div>
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor={field.name}>Location</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Trail or region..."
+                    onBlur={() => onFieldUpdate()}
                   />
-                </PopoverContent>
-              </Popover>
-            </FormItem>
-          )}
-        />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="distance"
-          render={({ field }) => (
-            <FormItem className="my-2">
-              <FormLabel htmlFor={field.name}>
-                Distance ({user.unit_distance})
-              </FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  step=".01"
-                  placeholder="Distance"
-                  onBlur={() => onFieldUpdate()}
-                  onFocus={() => {
-                    if (!field.value) field.onChange('')
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="dates"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="date">Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        id="date"
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-start text-left font-normal md:text-sm whitespace-pre overflow-hidden text-ellipsis',
+                          !field.value?.from && 'text-muted-foreground'
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {field.value?.from ? (
+                          field.value.to ? (
+                            <>
+                              {format(field.value?.from, 'LLL dd')} -{' '}
+                              {format(field.value.to, 'LLL dd, y')}
+                            </>
+                          ) : (
+                            format(field.value.from, 'LLL dd, y')
+                          )
+                        ) : (
+                          <span>Select dates...</span>
+                        )}
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      defaultMonth={field.value?.from}
+                      selected={field.value}
+                      onSelect={e => {
+                        field.onChange(e)
+                        onFieldUpdate()
+                      }}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="distance"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor={field.name}>
+                  Distance ({user.unit_distance})
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    step=".01"
+                    placeholder="Distance"
+                    onBlur={() => onFieldUpdate()}
+                    onFocus={() => {
+                      if (!field.value) field.onChange('')
+                    }}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
       </form>
     </Form>
   )

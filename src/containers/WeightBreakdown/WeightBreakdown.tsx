@@ -1,56 +1,21 @@
-import { shallow } from 'zustand/shallow'
+import { useShallow } from 'zustand/react/shallow'
 
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
-import { convertWeight } from '@/lib/weight'
+import { calculateWeightBreakdown, WeightBreakdown as Breakdown } from '@/lib/weight'
 
 import { PackWeights } from './PackWeights'
 
-type Weights = {
-  worn: number
-  consumable: number
-  total: number
-}
-
 export const WeightBreakdown = () => {
   const user = useUser()
-  const { packs } = useTripPacks(store => ({ packs: store.packs }), shallow)
+  const { packs } = useTripPacks(useShallow(store => ({ packs: store.packs })))
 
-  const breakdowns = packs.map(({ items, title }) => {
-    const weightCategories = items.reduce(
-      (acc, { item, quantity, worn }) => {
-        const weight = convertWeight(
-          item.weight || 0,
-          item.unit,
-          user.conversion_unit
-        )
-        const quantityWeight = weight.weight * quantity
+  const breakdowns = packs.map(({ items, title }) => ({
+    title,
+    weights: calculateWeightBreakdown(items, user.conversion_unit),
+  }))
 
-        return {
-          worn: worn ? acc.worn + weight.weight : acc.worn,
-          consumable: item.consumable
-            ? acc.consumable + quantityWeight
-            : acc.consumable,
-          total: acc.total + quantityWeight,
-        }
-      },
-      { worn: 0, consumable: 0, total: 0 } as Weights
-    )
-
-    const weights = {
-      ...weightCategories,
-      base:
-        weightCategories.total -
-        (weightCategories.worn + weightCategories.consumable),
-    }
-
-    return {
-      title,
-      weights,
-    }
-  })
-
-  const totals = breakdowns.reduce(
+  const totals = breakdowns.reduce<Breakdown>(
     (acc, { weights }) => ({
       worn: acc.worn + weights.worn,
       consumable: acc.consumable + weights.consumable,
@@ -62,7 +27,7 @@ export const WeightBreakdown = () => {
 
   return (
     <div className="w-1/2 md:w-full md:mt-4">
-      <h3 className="mb-2">Pack Weights</h3>
+      <div className="text-sm font-semibold mb-4">Pack Weights</div>
       <PackWeights
         title="Total"
         weights={totals}

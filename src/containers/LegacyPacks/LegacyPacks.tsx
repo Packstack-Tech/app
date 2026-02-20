@@ -1,6 +1,6 @@
 import { FC } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Trash2Icon } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 
 import { Button } from '@/components/ui'
 import {
@@ -29,7 +29,7 @@ export const LegacyPacks: FC<Props> = ({ packs }) => {
   const onCovert = (id: number) => {
     generatePack.mutate(id, {
       onSuccess: data => {
-        navigate(`/pack/${data.id}`)
+        navigate({ to: '/pack/$id', params: { id: `${data.id}` } })
       },
     })
   }

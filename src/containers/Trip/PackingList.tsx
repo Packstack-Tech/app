@@ -1,7 +1,6 @@
 import { FC, useMemo } from 'react'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Link } from 'lucide-react'
-import { shallow } from 'zustand/shallow'
+import { Link, PackageOpen } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 
 import { EmptyState } from '@/components/EmptyState'
 import { CategorizedPackItemsTable } from '@/components/Tables/CategorizedPackItemsTable'
@@ -32,13 +31,12 @@ export const PackingList: FC<Props> = ({ trip }) => {
   const { isPending: updatingTrip } = useUpdateTrip()
   const { packs, selectedIndex, checklistMode, toggleChecklistMode } =
     useTripPacks(
-      state => ({
+      useShallow(state => ({
         packs: state.packs,
         selectedIndex: state.selectedIndex,
         checklistMode: state.checklistMode,
         toggleChecklistMode: state.toggleChecklistMode,
-      }),
-      shallow
+      }))
     )
 
   const availablePacks = useMemo(
@@ -58,20 +56,20 @@ export const PackingList: FC<Props> = ({ trip }) => {
 
   return (
     <div>
-      <div className="mb-2 flex gap-4 justify-between">
+      <div className="mb-4 flex gap-4 justify-between items-center">
         <PackTabs packs={availablePacks} />
         {!trip && (
           <Button
             type="submit"
+            size="lg"
             form="pack-form"
-            variant="secondary"
             disabled={creatingTrip || updatingTrip}
           >
             Save
           </Button>
         )}
       </div>
-      <div className="flex items-center justify-between border rounded-sm border-slate-100 dark:border-slate-900 mb-2 p-2">
+      <div className="flex items-center justify-between border rounded-sm border-slate-100 dark:border-slate-900 mb-4 p-3">
         <div className="flex gap-1.5">
           <Checkbox
             checked={checklistMode}
@@ -85,9 +83,10 @@ export const PackingList: FC<Props> = ({ trip }) => {
         <div className="flex items-center gap-3">
           <BreakdownDialog data={categorizedWeights} />
           {!!trip && (
-            <CopyToClipboard
-              text={`https://packstack.io/pack/${trip.uuid}`}
-              onCopy={() => {
+            <button
+              className="flex gap-1 text-xs items-center text-primary active:text-white"
+              onClick={() => {
+                navigator.clipboard.writeText(`https://packstack.io/pack/${trip.uuid}`)
                 Mixpanel.track('Trip:Copy shareable link', { id: trip.uuid })
                 toast({
                   title: 'Link copied',
@@ -95,18 +94,17 @@ export const PackingList: FC<Props> = ({ trip }) => {
                 })
               }}
             >
-              <button className="flex gap-1 text-xs items-center text-primary active:text-white">
-                <Link width={10} />
-                Copy shareable link
-              </button>
-            </CopyToClipboard>
+              <Link width={10} />
+              Copy shareable link
+            </button>
           )}
         </div>
       </div>
       {categorizedItems.length === 0 && (
-        <EmptyState subheading="Empty pack" heading="Add gear to your pack">
+        <EmptyState icon={PackageOpen} heading="Your pack is empty">
           <p>
-            Use the inventory sidebar on the right to add gear to your pack.
+            Browse your inventory on the right and click items to add them to
+            this pack.
           </p>
         </EmptyState>
       )}

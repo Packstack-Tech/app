@@ -1,9 +1,10 @@
 import { useMemo, useRef } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import type { Identifier, XYCoord } from 'dnd-core'
-import { GripHorizontal } from 'lucide-react'
+import { GripVertical } from 'lucide-react'
 import { flexRender, Row } from '@tanstack/react-table'
 
+import { Checkbox } from '@/components/ui/Checkbox'
 import { TableCell, TableRow } from '@/components/ui/Table'
 
 interface ItemRowProps<TData> {
@@ -11,6 +12,8 @@ interface ItemRowProps<TData> {
   idx: number
   row: Row<TData>
   disabled?: boolean
+  isSelected?: boolean
+  onToggleSelect?: () => void
   moveItem: (dragIndex: number, hoverIndex: number) => void
   onDropItem: () => void
 }
@@ -26,6 +29,8 @@ export function ItemRow<TData>({
   idx,
   row,
   disabled,
+  isSelected,
+  onToggleSelect,
   moveItem,
   onDropItem,
 }: ItemRowProps<TData>) {
@@ -114,17 +119,26 @@ export function ItemRow<TData>({
     <TableRow
       key={row.id}
       ref={dropRef}
-      data-state={row.getIsSelected() && 'selected'}
+      data-state={(isSelected || row.getIsSelected()) && 'selected'}
     >
-      <TableCell className="w-[5%] min-w-[40px]">
-        <div
-          ref={dragRef}
-          className={`inline-block hover:cursor-grab ${
-            disabled ? 'opacity-10' : ''
-          }`}
-          data-handler-id={handlerId}
-        >
-          <GripHorizontal size={18} />
+      <TableCell className="w-10 px-2">
+        <div className="flex items-center gap-1">
+          <div
+            ref={dragRef}
+            className={`shrink-0 hover:cursor-grab ${
+              disabled ? 'opacity-10' : ''
+            }`}
+            data-handler-id={handlerId}
+          >
+            <GripVertical size={16} />
+          </div>
+          <Checkbox
+            checked={isSelected}
+            onClick={e => {
+              e.stopPropagation()
+              onToggleSelect?.()
+            }}
+          />
         </div>
       </TableCell>
       {row.getVisibleCells().map(cell => (

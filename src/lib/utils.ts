@@ -26,3 +26,13 @@ export const handleException = (
 export const dateToUtc = (date: Date) => {
   return new Date(date.getTime() + date.getTimezoneOffset() * 60000)
 }
+
+/**
+ * Maps an array of `{ id, name }` records to `{ label, value }` options
+ * for use in select/combobox components.
+ */
+export function toSelectOptions<T extends { id: number; name: string }>(
+  items: T[] | undefined
+): { label: string; value: number }[] {
+  return (items || []).map(({ id, name }) => ({ label: name, value: id }))
+}

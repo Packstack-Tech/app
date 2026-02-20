@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { Plus } from 'lucide-react'
-import { shallow } from 'zustand/shallow'
+import { useShallow } from 'zustand/react/shallow'
 
 import { PackSelector } from '@/containers/PackSelector'
 import { useTripPacks } from '@/hooks/useTripPacks'
@@ -12,10 +12,9 @@ interface Props {
 
 export const PackTabs: FC<Props> = ({ packs }) => {
   const { addPack } = useTripPacks(
-    store => ({
+    useShallow(store => ({
       addPack: store.addPack,
-    }),
-    shallow
+    }))
   )
 
   return (

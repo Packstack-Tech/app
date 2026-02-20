@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { MoreVertical } from 'lucide-react'
-import { shallow } from 'zustand/shallow'
+import { useShallow } from 'zustand/react/shallow'
 
 import {
   DropdownMenu,
@@ -24,13 +24,12 @@ export const PackSelector: FC<Props> = ({ pack }) => {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const deletePack = useDeletePack()
   const { selectedIndex, selectPack, updatePack, removePack } = useTripPacks(
-    store => ({
+    useShallow(store => ({
       selectedIndex: store.selectedIndex,
       selectPack: store.selectPack,
       updatePack: store.updatePack,
       removePack: store.removePack,
-    }),
-    shallow
+    }))
   )
 
   const isSelected = selectedIndex === pack.index

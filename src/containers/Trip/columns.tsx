@@ -4,6 +4,7 @@ import { Currency } from '@/lib/currencies'
 import { PackItem } from '@/types/pack'
 
 import {
+  NameCell,
   NotesCell,
   QuantityCell,
   RemoveItemCell,
@@ -22,6 +23,7 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
   {
     header: 'Name',
     accessorKey: 'item.name',
+    cell: ({ cell }) => <NameCell cell={cell} />,
     meta: {
       style: {
         width: '20%',

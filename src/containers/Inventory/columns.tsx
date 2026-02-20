@@ -3,12 +3,24 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Currency } from '@/lib/currencies'
 import { Item } from '@/types/item'
 
-import { Action, NotesCell, WeightCell } from './cells'
+import { Action, EmptyDash, NotesCell, WeightCell } from './cells'
 
 export const columns = (currency: Currency): ColumnDef<Item>[] => [
   {
     header: 'Name',
     accessorKey: 'name',
+    cell: ({ getValue, row }) => {
+      const name = getValue() as string | null
+      if (!name) return <EmptyDash />
+      if (row.original.removed) {
+        return (
+          <span className="bg-red-500/10 text-red-400 rounded px-1.5 py-0.5">
+            {name}
+          </span>
+        )
+      }
+      return name
+    },
     meta: {
       style: {
         width: '20%',
@@ -18,6 +30,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
   {
     header: 'Manufacturer',
     accessorKey: 'brand.name',
+    cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
       style: {
         width: '20%',
@@ -31,6 +44,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
       if (!product_variant) return product.name
       return `${product.name} ${product_variant.name}`
     },
+    cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
       style: {
         width: '20%',
@@ -43,6 +57,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
       if (!item.price) return null
       return `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`
     },
+    cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
       style: {
         width: '15%',

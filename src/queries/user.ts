@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import { useToast } from '@/hooks/useToast'
 import {
@@ -20,6 +25,22 @@ import {
 } from '@/types/api'
 
 export const USER_QUERY = 'user'
+
+export const userQueryOptions = queryOptions({
+  queryKey: [USER_QUERY],
+  queryFn: async () => {
+    const res = await getUser()
+    Mixpanel.identify(`${res.data.id}`)
+    Mixpanel.people.set({
+      $name: res.data.username,
+      $email: res.data.email,
+    })
+    return res.data
+  },
+  retry: false,
+  enabled: !!localStorage.getItem('jwt'),
+})
+
 export const useUserQuery = () => {
   return useQuery({
     queryKey: [USER_QUERY],

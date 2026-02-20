@@ -1,7 +1,7 @@
 import { FC } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
-import { CopyPlus, PlusIcon, Trash2Icon } from 'lucide-react'
+import { Calendar, CopyPlus, Map, PlusIcon, Trash2Icon } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
 
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui'
@@ -17,10 +17,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/AlertDialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/Tooltip'
 import { useCloneTrip, useDeleteTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
 
-const DATE_FORMAT = 'MMM dd, yyyy'
+const DATE_FORMAT = 'MMM d, yyyy'
 
 type Props = {
   trips: Trip[]
@@ -36,70 +41,103 @@ export const PackingLists: FC<Props> = ({ trips }) => {
   const onClone = (id: number) =>
     cloneTrip.mutate(id, {
       onSuccess: data => {
-        navigate(`/pack/${data.id}`)
+        navigate({ to: '/pack/$id', params: { id: `${data.id}` } })
       },
     })
 
   return (
     <div>
-      <div className="mb-2 flex justify-between items-center">
-        <h2>Packing Lists</h2>
+      <div className="mb-6 flex items-end justify-between">
+        <div>
+          <div className="text-lg font-semibold">Packing Lists</div>
+          {trips.length > 0 && (
+            <div className="text-sm mt-1">
+              {trips.length} {trips.length === 1 ? 'trip' : 'trips'}
+            </div>
+          )}
+        </div>
         <Button
           size="sm"
           variant="outline"
           className="gap-1"
-          onClick={() => navigate('/pack/new')}
+          onClick={() => navigate({ to: '/pack/new' })}
         >
-          <PlusIcon size={12} /> <span>Create Pack</span>
+          <PlusIcon size={14} /> Create Pack
         </Button>
       </div>
 
       {!trips.length && (
-        <EmptyState
-          subheading="Packing lists"
-          heading="Create your first packing list"
-        >
-          <p>
-            Build packing lists from your inventory. Simply select the items you
-            want to include, indicate the quantity, and we&apos;ll create a
-            packing list for you with a detailed weight breakdown.
+        <EmptyState icon={Map} heading="No packing lists yet">
+          <p className="mb-4">
+            Create a pack to organize your gear with detailed weight breakdowns.
           </p>
-          <div className="flex justify-between items-center mt-3">
-            <Button variant="outline" onClick={() => navigate('/inventory')}>
+          <div className="flex gap-2 justify-center">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate({ to: '/inventory' })}
+            >
               Manage Inventory
             </Button>
-            <Button className="gap-1" onClick={() => navigate('/pack/new')}>
-              <PlusIcon size={16} /> <span>Create Pack</span>
+            <Button
+              size="sm"
+              className="gap-1"
+              onClick={() => navigate({ to: '/pack/new' })}
+            >
+              <PlusIcon size={14} /> Create Pack
             </Button>
           </div>
         </EmptyState>
       )}
 
-      {(trips || []).map(
-        ({ created_at, start_date, end_date, id, location, removed }) => {
-          const created = format(new Date(created_at), DATE_FORMAT)
-          const start = start_date
-            ? format(new Date(start_date), DATE_FORMAT)
-            : '-'
-          const end = end_date ? format(new Date(end_date), DATE_FORMAT) : '-'
+      <div className="flex flex-col gap-3">
+        {(trips || []).map(
+          ({ created_at, start_date, end_date, id, location, removed }) => {
+            const created = format(new Date(created_at), DATE_FORMAT)
+            const start = start_date
+              ? format(new Date(start_date), DATE_FORMAT)
+              : null
+            const end = end_date
+              ? format(new Date(end_date), DATE_FORMAT)
+              : null
+            const dayTrip = start === end
 
-          const dayTrip = start === end
+            return (
+              <div
+                key={id}
+                className="group rounded-md border bg-surface p-5 transition-colors hover:border-primary/30"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to="/pack/$id"
+                      params={{ id: `${id}` }}
+                      className="text-base font-semibold text-foreground hover:text-primary transition-colors"
+                    >
+                      {location || 'Untitled'}
+                    </Link>
 
-          return (
-            <div key={id} className="p-4 rounded-sm border mb-2">
-              <Link to={`/pack/${id}`} className="text-primary hover:underline">
-                {location || 'untitled'}
-              </Link>
-              <p className="text-sm">{dayTrip ? start : `${start} - ${end}`}</p>
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-slate-500">Created {created}</p>
-                <div className="flex gap-3 items-center">
+                    {start && (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Calendar size={13} className="shrink-0" />
+                        <span>{dayTrip ? start : `${start} - ${end}`}</span>
+                      </div>
+                    )}
+                  </div>
+
                   {!removed && (
-                    <>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <AlertDialog>
-                        <AlertDialogTrigger className="text-slate-300 hover:text-primary">
-                          <CopyPlus size={16} />
-                        </AlertDialogTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <AlertDialogTrigger asChild>
+                              <button className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                                <CopyPlus size={15} />
+                              </button>
+                            </AlertDialogTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>Duplicate</TooltipContent>
+                        </Tooltip>
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
@@ -107,7 +145,8 @@ export const PackingLists: FC<Props> = ({ trips }) => {
                             </AlertDialogTitle>
                           </AlertDialogHeader>
                           <AlertDialogDescription>
-                            This will create a copy of {location || 'untitled'}.
+                            This will create a copy of{' '}
+                            {location || 'Untitled'}.
                           </AlertDialogDescription>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -117,17 +156,25 @@ export const PackingLists: FC<Props> = ({ trips }) => {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
+
                       <AlertDialog>
-                        <AlertDialogTrigger className="text-slate-300 hover:text-primary">
-                          <Trash2Icon size={16} />
-                        </AlertDialogTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <AlertDialogTrigger asChild>
+                              <button className="rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+                                <Trash2Icon size={15} />
+                              </button>
+                            </AlertDialogTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete</TooltipContent>
+                        </Tooltip>
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                           </AlertDialogHeader>
                           <AlertDialogDescription>
                             This will permanently delete{' '}
-                            {location || 'untitled'}.
+                            {location || 'Untitled'}.
                           </AlertDialogDescription>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -139,14 +186,18 @@ export const PackingLists: FC<Props> = ({ trips }) => {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
-                    </>
+                    </div>
                   )}
                 </div>
+
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Created {created}
+                </p>
               </div>
-            </div>
-          )
-        }
-      )}
+            )
+          }
+        )}
+      </div>
     </div>
   )
 }

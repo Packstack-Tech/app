@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import type { Identifier, XYCoord } from 'dnd-core'
 import { GripHorizontal } from 'lucide-react'
-import { shallow } from 'zustand/shallow'
+import { useShallow } from 'zustand/react/shallow'
 import { flexRender, Row } from '@tanstack/react-table'
 
 import { Checkbox } from '@/components/ui/Checkbox'
@@ -32,11 +32,10 @@ export function ItemRow<TData>({
   moveItem,
 }: ItemRowProps<TData>) {
   const { checklistMode, updateItem } = useTripPacks(
-    state => ({
+    useShallow(state => ({
       checklistMode: state.checklistMode,
       updateItem: state.updateItem,
-    }),
-    shallow
+    }))
   )
   const dragRef = useRef<HTMLDivElement>(null)
   const dropRef = useRef<HTMLTableRowElement>(null)

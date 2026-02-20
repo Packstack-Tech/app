@@ -1,8 +1,86 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  max-width: theme(--breakpoint-2xl, 1400px);
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-background: hsl(var(--primary-background));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-surface: hsl(var(--surface));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #e5e5e6;
+  --color-slate-200: #abb2bb;
+  --color-slate-300: #6c7d93;
+  --color-slate-500: #64748b;
+  --color-slate-600: #181825;
+  --color-slate-900: #111622;
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: 'Inter', sans-serif;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
 
 @layer base {
   :root {
@@ -10,31 +88,33 @@
     --foreground: 224 71% 4%;
 
     --muted: 215.4 16.3% 93%;
-    --muted-foreground: 223 47% 11%;
+    --muted-foreground: 215 16% 47%;
 
     --popover: 360 100% 100%;
-    --popover-foreground: 215 20.2% 55%;
+    --popover-foreground: 215 25% 40%;
 
     --card: 360 100% 100%;
     --card-foreground: 224 71% 4%;
 
-    --border: 214 25% 90%;
-    --input: 214 25% 85%;
+    --border: 215 20% 84%;
+    --input: 215 20% 78%;
 
-    --primary: 230 95% 65%;
-    --primary-foreground: 230 1% 98%;
-    --primary-background: 230 82% 8%;
+    --primary: 225 70% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-background: 225 70% 8%;
 
     --secondary: 133 45% 70%;
     --secondary-foreground: 133 95% 4%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 216 34% 17%;
+    --accent: 225 30% 95%;
+    --accent-foreground: 225 50% 30%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --ring: 216 34% 90%;
+    --ring: 225 60% 52%;
+
+    --surface: 220 14% 96%;
 
     --radius: 0.5rem;
   }
@@ -55,7 +135,7 @@
     --border: 214 25% 25%;
     --input: 214 25% 25%;
 
-    --primary: 230 95% 70%;
+    --primary: 180 65% 65%;
     --primary-foreground: 230 1% 2%;
     --primary-background: 230 82% 8%;
 
@@ -69,6 +149,8 @@
     --destructive-foreground: 210 40% 98%;
 
     --ring: 216 34% 17%;
+
+    --surface: 224 71% 4%;
   }
 }
 
@@ -82,6 +164,10 @@
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
+  }
+
+  .page-heading {
+    @apply text-2xl font-bold text-slate-900;
   }
 
   .dark body {

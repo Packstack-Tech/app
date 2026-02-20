@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -12,7 +12,7 @@ type LoginForm = {
   password: string
 }
 
-export const LoginPage = () => {
+export const Login = () => {
   const { register, handleSubmit } = useForm<LoginForm>()
   const [error, setError] = useState<string | undefined>()
   const navigate = useNavigate()
@@ -27,7 +27,7 @@ export const LoginPage = () => {
           $name: user.username,
           $email: user.email,
         })
-        navigate('/')
+        navigate({ to: '/' })
       },
       onError: error => {
         handleException(error, {
@@ -39,22 +39,27 @@ export const LoginPage = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h1>Login</h1>
-      {error && <p className="text-red-300 text-xs my-1">{error}</p>}
-      <div className="my-2">
-        <label>Email</label>
+      <h1>Welcome back</h1>
+      <p className="text-sm mt-1 mb-4">Sign in to your account</p>
+      {error && (
+        <p className="text-destructive-foreground bg-destructive/20 text-xs rounded-md px-3 py-2 mb-3">
+          {error}
+        </p>
+      )}
+      <div className="space-y-1">
+        <label>Email or username</label>
         <Input
           {...register('emailOrUsername', { required: true })}
           placeholder="Email or username"
           tabIndex={1}
         />
       </div>
-      <div className="my-2">
+      <div className="space-y-1 mt-3">
         <div className="flex justify-between items-baseline">
           <label>Password</label>
           <Link
             to="/auth/request-password-reset"
-            className="text-slate-200 underline text-xs"
+            className="text-muted-foreground hover:text-foreground text-xs transition-colors"
             tabIndex={4}
           >
             Forgot password?
@@ -67,24 +72,20 @@ export const LoginPage = () => {
           tabIndex={2}
         />
       </div>
-      <div className="flex justify-end mt-4">
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={login.isPending}
-          tabIndex={3}
-        >
-          Login
-        </Button>
-      </div>
-      <div className="mt-3">
-        <p className="text-xs text-slate-200">
-          Don't have an account?{' '}
-          <Link to="/auth/register" className="text-primary underline">
-            Sign Up
-          </Link>
-        </p>
-      </div>
+      <Button
+        type="submit"
+        className="w-full mt-6"
+        disabled={login.isPending}
+        tabIndex={3}
+      >
+        Login
+      </Button>
+      <p className="text-xs text-center text-muted-foreground mt-4">
+        Don't have an account?{' '}
+        <Link to="/auth/register" className="text-primary hover:underline">
+          Sign Up
+        </Link>
+      </p>
     </form>
   )
 }

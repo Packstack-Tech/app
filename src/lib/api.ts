@@ -103,6 +103,9 @@ export const getUnassignedPacks = () =>
 
 export const getCategories = () => http.get<Category[]>('/category')
 
+export const updateCategory = (categoryId: number, name: string) =>
+  http.put<Category>(`/category/${categoryId}`, { name })
+
 /**
  * Brand endpoints
  */
@@ -136,6 +139,12 @@ export const getInventory = () => http.get<Item[]>('/items')
 export const createItem = (data: CreateItem) => http.post<Item>('/item', data)
 
 export const deleteItem = (itemId: number) => http.delete(`/item/${itemId}`)
+
+export const bulkArchiveItems = (ids: number[]) =>
+  http.put('/item/bulk-archive', ids)
+
+export const bulkRestoreItems = (ids: number[]) =>
+  http.put('/item/bulk-restore', ids)
 
 export const updateItem = (data: EditItem) => http.put<Item>('/item', data)
 

@@ -1,11 +1,8 @@
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import { LogOut } from 'lucide-react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { SelectValue } from '@radix-ui/react-select'
 
-import { Box, Button, Input } from '@/components/ui'
+import { Button, Input } from '@/components/ui'
 import {
   Form,
   FormControl,
@@ -14,12 +11,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/Form'
-import { ScrollArea } from '@/components/ui/ScrollArea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from '@/components/ui/Select'
 import { useUser } from '@/hooks/useUser'
 import { DISTANCE, distances, weightUnits } from '@/lib/consts'
@@ -44,7 +41,6 @@ const schema = z.object({
 
 export const Settings = () => {
   const user = useUser()
-  const navigate = useNavigate()
   const updateUser = useUpdateUser()
   const form = useForm<SettingsForm>({
     resolver: zodResolver(schema),
@@ -64,22 +60,24 @@ export const Settings = () => {
     })
   }
 
-  const onLogout = () => {
-    localStorage.removeItem('jwt')
-    navigate('/auth/login')
-  }
-
   return (
-    <div className="max-w-lg mx-auto my-8">
-      <Box>
+    <div className="max-w-lg mx-auto my-8 flex flex-col gap-6">
+      <div>
         <h2>Settings</h2>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Form {...form}>
+        <p className="text-sm">Manage your account and preferences.</p>
+      </div>
+
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <Form {...form}>
+          <section className="flex flex-col gap-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Account
+            </h3>
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="my-4">
+                <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input {...field} />
@@ -88,42 +86,81 @@ export const Settings = () => {
                 </FormItem>
               )}
             />
+          </section>
 
-            <FormField
-              control={form.control}
-              name="unit_weight"
-              render={({ field }) => (
-                <FormItem className="my-4">
-                  <FormLabel>Weight Unit</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder="Select weight unit..."
-                          defaultValue={field.value}
-                        />
-                        <SelectContent>
-                          {weightUnits.map(({ label, value }) => (
-                            <SelectItem key={value} value={value}>
-                              {label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </SelectTrigger>
-                    </FormControl>
-                  </Select>
-                </FormItem>
-              )}
-            />
+          <hr className="border-border" />
+
+          <section className="flex flex-col gap-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Preferences
+            </h3>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-1">
+              <FormField
+                control={form.control}
+                name="unit_weight"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Weight Unit</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder="Select weight unit..."
+                            defaultValue={field.value}
+                          />
+                          <SelectContent>
+                            {weightUnits.map(({ label, value }) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </SelectTrigger>
+                      </FormControl>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="unit_distance"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Distance Unit</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder="Select distance unit..."
+                            defaultValue={field.value}
+                          />
+                          <SelectContent>
+                            {distances.map(({ label, value }) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </SelectTrigger>
+                      </FormControl>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
               name="currency"
               render={({ field }) => (
-                <FormItem className="my-4">
+                <FormItem>
                   <FormLabel>Currency</FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -133,13 +170,11 @@ export const Settings = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Select currency..." />
                         <SelectContent>
-                          <ScrollArea className="h-80">
                             {currencies.map(({ code, name }) => (
                               <SelectItem key={code} value={code}>
                                 ({code}) {name}
                               </SelectItem>
                             ))}
-                          </ScrollArea>
                         </SelectContent>
                       </SelectTrigger>
                     </FormControl>
@@ -147,66 +182,29 @@ export const Settings = () => {
                 </FormItem>
               )}
             />
+          </section>
+        </Form>
 
-            <FormField
-              control={form.control}
-              name="unit_distance"
-              render={({ field }) => (
-                <FormItem className="my-4">
-                  <FormLabel>Distance Unit</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder="Select distance unit..."
-                          defaultValue={field.value}
-                        />
-                        <SelectContent>
-                          {distances.map(({ label, value }) => (
-                            <SelectItem key={value} value={value}>
-                              {label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </SelectTrigger>
-                    </FormControl>
-                  </Select>
-                </FormItem>
-              )}
-            />
-          </Form>
+        <div className="flex justify-end">
+          <Button disabled={updateUser.isPending}>
+            Save
+          </Button>
+        </div>
+      </form>
 
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() => onLogout()}
-            >
-              <LogOut size={12} /> Logout
-            </Button>
-            <Button variant="secondary" disabled={updateUser.isPending}>
-              Save
-            </Button>
-          </div>
-        </form>
-      </Box>
-      <Box className="mt-8">
-        <p>
-          Packstack is open-source software. You can find the code repository on{' '}
-          <a
-            href="https://github.com/Packstack-Tech/app"
-            target="_blank"
-            className="link"
-            rel="noreferrer"
-          >
-            Github
-          </a>
-          .
-        </p>
-      </Box>
+      <hr className="border-border" />
+
+      <p className="text-sm">
+        Packstack is open-source software.{' '}
+        <a
+          href="https://github.com/Packstack-Tech/app"
+          target="_blank"
+          className="link"
+          rel="noreferrer"
+        >
+          View on Github
+        </a>
+      </p>
     </div>
   )
 }

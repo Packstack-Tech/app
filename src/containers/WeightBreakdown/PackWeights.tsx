@@ -1,6 +1,6 @@
 import { FC } from 'react'
-import { Label } from '@radix-ui/react-label'
 
+import { Label } from '@/components/ui/Label'
 import { Unit } from '@/types/item'
 
 type Props = {

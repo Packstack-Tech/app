@@ -1,22 +1,39 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import { useToast } from '@/hooks/useToast'
 import {
+  bulkArchiveItems,
+  bulkRestoreItems,
   createItem,
   deleteItem,
   getInventory,
   getProductDetails,
   importInventory,
   importLighterpack,
+  updateCategory,
   updateCategorySortOrder,
   updateItem,
   updateItemSortOrder,
 } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
 import { UpdateItemSortOrder, UploadInventory } from '@/types/api'
+import { CategoryItems } from '@/types/category'
 import { CreateItem, EditItem } from '@/types/item'
 
 const INVENTORY_QUERY = ['inventory-query']
+
+export const inventoryQueryOptions = queryOptions({
+  queryKey: INVENTORY_QUERY,
+  queryFn: async () => {
+    const res = await getInventory()
+    return res.data
+  },
+})
 
 export const useInventory = (enabled: boolean = true) => {
   return useQuery({
@@ -59,6 +76,36 @@ export const useDeleteItem = () => {
       toast({
         title: '✅ Item deleted',
       })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+    },
+  })
+}
+
+export const useBulkArchiveItems = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (ids: number[]) => {
+      const res = await bulkArchiveItems(ids)
+      return res.data
+    },
+    onSuccess: () => {
+      toast({ title: 'Items archived' })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+    },
+  })
+}
+
+export const useBulkRestoreItems = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (ids: number[]) => {
+      const res = await bulkRestoreItems(ids)
+      return res.data
+    },
+    onSuccess: () => {
+      toast({ title: 'Items restored' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
     },
   })
@@ -114,6 +161,52 @@ export const useUpdateCategorySort = () => {
         title: 'Category order updated',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+    },
+  })
+}
+
+type CategoryChange = {
+  categories: CategoryItems[]
+  renames: Record<number, string>
+}
+
+export const useSaveCategoryChanges = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async ({ categories, renames }: CategoryChange) => {
+      const originalNames = new Map(
+        categories
+          .filter(rec => rec.category)
+          .map(rec => [rec.category!.category.id, rec.category!.category.name])
+      )
+
+      const renamePromises = Object.entries(renames)
+        .filter(([id, name]) => name.trim() && originalNames.get(Number(id)) !== name)
+        .map(([id, name]) => updateCategory(Number(id), name))
+
+      const sortOrder = categories
+        .map((cat, fullIdx) =>
+          cat.category
+            ? { id: cat.category.id, sort_order: fullIdx }
+            : null
+        )
+        .filter(
+          (entry): entry is { id: number; sort_order: number } =>
+            entry !== null
+        )
+
+      await Promise.all([
+        ...renamePromises,
+        updateCategorySortOrder(sortOrder),
+      ])
+    },
+    onSuccess: () => {
+      toast({ title: 'Categories updated' })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+    },
+    onError: () => {
+      toast({ title: 'Failed to update categories' })
     },
   })
 }

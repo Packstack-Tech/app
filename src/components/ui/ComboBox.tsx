@@ -1,14 +1,23 @@
-import { FC, useEffect, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Command as CommandPrimitive } from 'cmdk'
 import { XIcon } from 'lucide-react'
 
-import { useFuzzySearch } from '@/hooks/useFuzzySearch'
+import { cn } from '@/lib/utils'
 import { CreateableOption, Option } from '@/types/lib'
 
 import { Button } from './Button'
-import { Input } from './Input'
 import { Loading } from './Loading'
-import { Popover, PopoverAnchor, PopoverContent } from './Popover'
-import { ScrollArea } from './ScrollArea'
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from './Popover'
+import {
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from './Command'
 
 type Props = {
   options: Option[]
@@ -37,142 +46,169 @@ export const Combobox: FC<Props> = ({
   onSearch,
   onRemove,
 }) => {
-  const [search, setSearch] = useState('')
-  const [selected, setSelected] = useState(false)
-  const [focused, setFocused] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const [createdLabel, setCreatedLabel] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const selectedOption = useMemo(
+    () => (value != null ? options.find(o => o.value === value) ?? null : null),
+    [value, options]
+  )
 
   useEffect(() => {
-    if (onSearch && !value) {
-      // filter in parent component
-      onSearch(search)
+    if (!onSearch || value != null) return
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => onSearch(searchText), 400)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [onSearch, search, value])
+  }, [searchText, onSearch, value])
 
-  useEffect(() => {
-    // if value is set, find the option and set the search
-    if (value) {
-      const option = options.find(option => option.value === value)
-      if (option) {
-        setSearch(option.label)
-        setSelected(true)
-      }
-      return
-    }
+  const displayValue = selectedOption?.label ?? createdLabel ?? searchText
 
-    if (!onSearch) {
-      setSearch('')
-      setSelected(false)
-    }
-  }, [value, options, onSearch])
-
-  const filteredResults = useFuzzySearch(options, search)
-
-  const onSelectItem = (value: Option) => {
-    setSearch(value.label)
-    setFocused(false)
-    setSelected(true)
-    onSelect(value)
-  }
-
-  const onCreateItem = () => {
-    setFocused(false)
-    setSelected(true)
-    onSelect({ label: search, isNew: true })
-  }
-
-  const onClear = () => {
-    setSearch('')
-    setSelected(false)
-    onRemove()
-  }
+  const filteredOptions = useMemo(() => {
+    if (onSearch || !searchText || selectedOption) return options
+    const lower = searchText.toLowerCase()
+    return options.filter(o => o.label.toLowerCase().includes(lower))
+  }, [options, searchText, onSearch, selectedOption])
 
   const canCreate = useMemo(() => {
-    if (isLoading) return false
-    return search.length > 0 && (filteredResults.length === 0 || creatable)
-  }, [isLoading, search, filteredResults, creatable])
+    if (isLoading || !searchText) return false
+    const exactMatch = options.some(
+      o => o.label.toLowerCase() === searchText.toLowerCase()
+    )
+    return !exactMatch && (options.length === 0 || !!creatable)
+  }, [isLoading, searchText, options, creatable])
+
+  const handleCreate = useCallback(() => {
+    onSelect({ label: searchText, isNew: true })
+    setCreatedLabel(searchText)
+    setSearchText('')
+    setOpen(false)
+  }, [searchText, onSelect])
+
+  const handleSelect = useCallback(
+    (optionValue: string) => {
+      const option = options.find(o => String(o.value) === optionValue)
+      if (option) {
+        onSelect({ label: option.label, value: option.value })
+        setSearchText('')
+        setOpen(false)
+      }
+    },
+    [options, onSelect]
+  )
+
+  const handleClear = useCallback(() => {
+    onRemove()
+    setSearchText('')
+    setCreatedLabel(null)
+    inputRef.current?.focus()
+  }, [onRemove])
 
   return (
-    <Popover open={focused}>
-      <PopoverAnchor asChild>
-        <div className="relative">
-          <Input
-            value={search}
-            placeholder={placeholder || 'Search...'}
-            onChange={e => setSearch(e.target.value)}
-            onFocus={() => setFocused(true)}
-            tabIndex={tabIndex}
-            onKeyDown={e => {
-              if (e.key === 'Tab') {
-                setFocused(false)
-              }
-              if (e.key === 'Enter') {
-                if (filteredResults.length > 0) {
-                  onSelectItem(filteredResults[0])
-                } else {
-                  onCreateItem()
-                }
-              }
-            }}
-            // onBlur={() => setFocused(false)}
-            disabled={selected || disabled}
-            className="disabled:opacity-50"
-          />
-          {selected && (
-            <button
-              onClick={onClear}
-              className="absolute right-1 translate-y-[-50%] top-[50%] p-2 hover:bg-slate-600 hover:rounded-md"
-            >
-              <XIcon className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </PopoverAnchor>
-      <PopoverContent
-        asChild
-        onOpenAutoFocus={e => e.preventDefault()}
-        onPointerDownOutside={() => {
-          setSearch('')
-          setFocused(false)
-        }}
+    <Popover open={open} onOpenChange={v => {
+        setOpen(v)
+        if (!v) setSearchText('')
+      }}>
+      <CommandPrimitive
+        shouldFilter={false}
+        className="overflow-visible bg-transparent"
       >
-        <ScrollArea
-          className={`p-1 ${filteredResults.length > 0 ? 'h-[240px]' : ''}`}
-        >
-          {filteredResults.map(option => (
-            <button
-              key={option.value}
-              onClick={() => onSelectItem(option)}
-              className="block py-1 px-2 rounded-sm w-full text-left hover:text-white hover:bg-slate-600"
-            >
-              {option.label}
-            </button>
-          ))}
-          {canCreate && (
-            <Button
-              onClick={onCreateItem}
-              size="sm"
-              variant="secondary"
-              className="w-full"
-            >
-              Create &quot;{search}&quot;
-            </Button>
-          )}
-          {isLoading && <Loading size="sm" />}
-          {!isLoading && onSearch && !search && (
-            <p className="text-xs p-2">
-              Begin typing to search or create {label}...
-            </p>
-          )}
-          {!isLoading &&
-            !onSearch &&
-            filteredResults.length === 0 &&
-            search.length === 0 && (
-              <p className="text-xs p-2">
-                No options available. Type to create one.
-              </p>
+        <PopoverAnchor asChild>
+          <div className="relative">
+            <CommandPrimitive.Input
+              ref={inputRef}
+              value={displayValue}
+              onValueChange={val => {
+                if (selectedOption || createdLabel) {
+                  onRemove()
+                  setCreatedLabel(null)
+                }
+                setSearchText(val)
+                if (!open) setOpen(true)
+              }}
+              onFocus={() => setOpen(true)}
+              placeholder={placeholder || 'Search...'}
+              disabled={disabled}
+              tabIndex={tabIndex}
+              className={cn(
+                'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground bg-background dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+                'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+                (selectedOption || createdLabel) && 'pr-8'
+              )}
+            />
+            {(selectedOption || createdLabel) && (
+              <button
+                type="button"
+                onMouseDown={e => e.preventDefault()}
+                onClick={handleClear}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <XIcon className="size-4" />
+              </button>
             )}
-        </ScrollArea>
-      </PopoverContent>
+          </div>
+        </PopoverAnchor>
+        <PopoverContent
+          className="w-(--radix-popover-trigger-width) p-0"
+          align="start"
+          onMouseDown={e => e.preventDefault()}
+          onOpenAutoFocus={e => e.preventDefault()}
+          onInteractOutside={e => {
+            if (
+              e.target instanceof Node &&
+              inputRef.current?.contains(e.target)
+            ) {
+              e.preventDefault()
+            }
+          }}
+        >
+          <CommandList
+            onWheel={e => e.stopPropagation()}
+          >
+            {filteredOptions.length > 0 && (
+              <CommandGroup>
+                {filteredOptions.map(option => (
+                  <CommandItem
+                    key={option.value}
+                    value={String(option.value)}
+                    keywords={[option.label]}
+                    onSelect={handleSelect}
+                  >
+                    {option.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {!isLoading && filteredOptions.length === 0 && !canCreate && (
+              <CommandEmpty>
+                {onSearch && !searchText ? (
+                  <span className="text-xs">
+                    Begin typing to search or create {label}...
+                  </span>
+                ) : (
+                  <span className="text-xs">No results found.</span>
+                )}
+              </CommandEmpty>
+            )}
+          </CommandList>
+          {isLoading && (
+            <div className="flex justify-center p-2">
+              <Loading size="sm" />
+            </div>
+          )}
+          {canCreate && (
+            <div className="border-t border-border p-1">
+              <Button onClick={handleCreate} size="sm" className="w-full">
+                Create &quot;{searchText}&quot;
+              </Button>
+            </div>
+          )}
+        </PopoverContent>
+      </CommandPrimitive>
     </Popover>
   )
 }
