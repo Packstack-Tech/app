@@ -8,10 +8,10 @@ export const Loading: FC<Props> = ({ size = 'md' }) => {
   const spinnerSize = { sm: 'w-8 h-8', md: 'w-12 h-12', lg: 'w-14 h-14' }
 
   return (
-    <div className="flex justify-center items-center h-full">
+    <div className="flex justify-center items-center h-full flex-1">
       <svg
         aria-hidden="true"
-        className={`text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 ${spinnerSize[size]}`}
+        className={`text-border animate-spin fill-primary ${spinnerSize[size]}`}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
