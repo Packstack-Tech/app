@@ -63,6 +63,12 @@ export const requestPasswordReset = (email: string) =>
 export const resetPassword = (data: PasswordReset) =>
   http.post('/user/reset-password', data)
 
+export const verifyEmail = (callbackId: string) =>
+  http.post('/user/verify-email', { callback_id: callbackId })
+
+export const resendVerificationEmail = () =>
+  http.post('/user/resend-verification')
+
 /**
  * Trip endpoints
  */

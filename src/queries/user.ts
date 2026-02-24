@@ -10,10 +10,12 @@ import {
   getUser,
   googleAuth,
   requestPasswordReset,
+  resendVerificationEmail,
   resetPassword,
   updateUser,
   userLogin,
   userRegister,
+  verifyEmail,
 } from '@/lib/api'
 import { getCurrency } from '@/lib/currencies'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -115,6 +117,31 @@ export const useResetPassword = () => {
       toast({
         title: 'Password reset',
         description: 'Your password has been reset. Please log in.',
+      })
+    },
+  })
+}
+
+export const useVerifyEmail = () => {
+  return useMutation({
+    mutationFn: async (callbackId: string) => {
+      const res = await verifyEmail(callbackId)
+      return res.data
+    },
+  })
+}
+
+export const useResendVerification = () => {
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async () => {
+      const res = await resendVerificationEmail()
+      return res.data
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Verification email sent',
+        description: 'Check your inbox for the verification link.',
       })
     },
   })

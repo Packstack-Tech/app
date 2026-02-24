@@ -6,9 +6,10 @@ import { GoogleLogin } from '@react-oauth/google'
 import { Link, useNavigate } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
+import { Loading } from '@/components/ui/Loading'
 import { Mixpanel } from '@/lib/mixpanel'
 import { handleException } from '@/lib/utils'
-import { useGoogleAuth, useUserRegister } from '@/queries/user'
+import { useGoogleAuth, useResendVerification, useUserRegister } from '@/queries/user'
 
 type RegisterForm = {
   username: string
@@ -40,20 +41,56 @@ export const Register = () => {
     defaultValues: { username: '', email: '', password: '' },
   })
   const [error, setError] = useState<string | undefined>()
+  const [registered, setRegistered] = useState(false)
   const navigate = useNavigate()
   const signUp = useUserRegister()
   const googleAuthMutation = useGoogleAuth()
+  const resendVerification = useResendVerification()
 
   const onSubmit = (data: RegisterForm) => {
     setError(undefined)
     signUp.mutate(data, {
-      onSuccess: () => navigate({ to: '/' }),
+      onSuccess: () => setRegistered(true),
       onError: error => {
         handleException(error, {
           onHttpError: ({ response }) => setError(response?.data.detail),
         })
       },
     })
+  }
+
+  if (googleAuthMutation.isPending) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-8">
+        <Loading size="sm" />
+        <p className="text-sm text-muted-foreground">Signing you in...</p>
+      </div>
+    )
+  }
+
+  if (registered) {
+    return (
+      <div>
+        <h1>Check your inbox</h1>
+        <p className="text-sm mt-1 mb-4 text-muted-foreground">
+          We sent a verification link to your email address. Click the link to
+          verify your account.
+        </p>
+        <Button
+          className="w-full"
+          variant="outline"
+          onClick={() => resendVerification.mutate()}
+          disabled={resendVerification.isPending}
+        >
+          Resend verification email
+        </Button>
+        <p className="text-xs text-center text-muted-foreground mt-4">
+          <Link to="/" className="text-primary hover:underline">
+            Continue to app
+          </Link>
+        </p>
+      </div>
+    )
   }
 
   return (

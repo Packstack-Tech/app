@@ -4,6 +4,7 @@ import { GoogleLogin } from '@react-oauth/google'
 import { Link, useNavigate } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
+import { Loading } from '@/components/ui/Loading'
 import { Mixpanel } from '@/lib/mixpanel'
 import { handleException } from '@/lib/utils'
 import { useGoogleAuth, useUserLogin } from '@/queries/user'
@@ -37,6 +38,15 @@ export const Login = () => {
         })
       },
     })
+  }
+
+  if (googleAuthMutation.isPending) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-8">
+        <Loading size="sm" />
+        <p className="text-sm text-muted-foreground">Signing you in...</p>
+      </div>
+    )
   }
 
   return (
