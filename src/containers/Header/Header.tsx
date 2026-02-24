@@ -1,4 +1,5 @@
 import { ExternalLink, LogOut, Moon, Plus, Settings, Sun } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 
 import logo from '/packstack_logo_white.png'
@@ -11,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
 import { useDarkMode } from '@/hooks/useDarkMode'
+import { logout } from '@/lib/api'
 
 const navLinks = [
   { name: 'Packing Lists', path: '/' as const },
@@ -19,11 +21,16 @@ const navLinks = [
 
 export const Header = () => {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
 
-  const onLogout = () => {
-    localStorage.removeItem('jwt')
-    navigate({ to: '/auth/login' })
+  const onLogout = async () => {
+    try {
+      await logout()
+    } finally {
+      queryClient.clear()
+      navigate({ to: '/auth/login' })
+    }
   }
 
   return (

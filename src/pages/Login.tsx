@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { GoogleLogin } from '@react-oauth/google'
 import { Link, useNavigate } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
 import { Mixpanel } from '@/lib/mixpanel'
 import { handleException } from '@/lib/utils'
-import { useUserLogin } from '@/queries/user'
+import { useGoogleAuth, useUserLogin } from '@/queries/user'
 
 type LoginForm = {
   emailOrUsername: string
@@ -17,6 +18,7 @@ export const Login = () => {
   const [error, setError] = useState<string | undefined>()
   const navigate = useNavigate()
   const login = useUserLogin()
+  const googleAuthMutation = useGoogleAuth()
 
   const onSubmit = (data: LoginForm) => {
     login.mutate(data, {
@@ -80,6 +82,40 @@ export const Login = () => {
       >
         Login
       </Button>
+
+      <div className="flex items-center gap-3 my-4">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-xs text-muted-foreground">or</span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={credentialResponse => {
+            if (!credentialResponse.credential) return
+            setError(undefined)
+            googleAuthMutation.mutate(credentialResponse.credential, {
+              onSuccess: ({ user }) => {
+                Mixpanel.identify(`${user.id}`)
+                Mixpanel.track('User:Login:Google')
+                Mixpanel.people.set({
+                  $name: user.username,
+                  $email: user.email,
+                })
+                navigate({ to: '/' })
+              },
+              onError: error => {
+                handleException(error, {
+                  onHttpError: ({ response }) =>
+                    setError(response?.data.detail),
+                })
+              },
+            })
+          }}
+          onError={() => setError('Google sign-in failed. Please try again.')}
+        />
+      </div>
+
       <p className="text-xs text-center text-muted-foreground mt-4">
         Don't have an account?{' '}
         <Link to="/auth/register" className="text-primary hover:underline">

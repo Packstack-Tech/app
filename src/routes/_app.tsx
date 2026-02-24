@@ -5,11 +5,11 @@ import { userQueryOptions } from '@/queries/user'
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: async ({ context: { queryClient } }) => {
-    const token = localStorage.getItem('jwt')
-    if (!token) {
+    try {
+      await queryClient.ensureQueryData(userQueryOptions)
+    } catch {
       throw redirect({ to: '/auth/login' })
     }
-    await queryClient.ensureQueryData(userQueryOptions)
   },
   component: AppLayout,
 })

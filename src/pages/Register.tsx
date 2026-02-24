@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { GoogleLogin } from '@react-oauth/google'
 import { Link, useNavigate } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
+import { Mixpanel } from '@/lib/mixpanel'
 import { handleException } from '@/lib/utils'
-import { useUserRegister } from '@/queries/user'
+import { useGoogleAuth, useUserRegister } from '@/queries/user'
 
 type RegisterForm = {
   username: string
@@ -40,6 +42,7 @@ export const Register = () => {
   const [error, setError] = useState<string | undefined>()
   const navigate = useNavigate()
   const signUp = useUserRegister()
+  const googleAuthMutation = useGoogleAuth()
 
   const onSubmit = (data: RegisterForm) => {
     setError(undefined)
@@ -96,6 +99,40 @@ export const Register = () => {
       <Button type="submit" className="w-full mt-6" disabled={signUp.isPending}>
         Sign Up
       </Button>
+
+      <div className="flex items-center gap-3 my-4">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-xs text-muted-foreground">or</span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={credentialResponse => {
+            if (!credentialResponse.credential) return
+            setError(undefined)
+            googleAuthMutation.mutate(credentialResponse.credential, {
+              onSuccess: ({ user }) => {
+                Mixpanel.identify(`${user.id}`)
+                Mixpanel.track('User:Register:Google')
+                Mixpanel.people.set({
+                  $name: user.username,
+                  $email: user.email,
+                })
+                navigate({ to: '/' })
+              },
+              onError: error => {
+                handleException(error, {
+                  onHttpError: ({ response }) =>
+                    setError(response?.data.detail),
+                })
+              },
+            })
+          }}
+          onError={() => setError('Google sign-in failed. Please try again.')}
+        />
+      </div>
+
       <p className="text-xs text-center text-muted-foreground mt-4">
         Already have an account?{' '}
         <Link to="/auth/login" className="text-primary hover:underline">

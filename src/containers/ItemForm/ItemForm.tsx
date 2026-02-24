@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { InfoIcon } from 'lucide-react'
+import { InfoIcon, Trash2Icon } from 'lucide-react'
 
 import { Input } from '@/components/ui'
 import { Button } from '@/components/ui'
@@ -356,6 +356,7 @@ export const ItemForm: FC<Props> = ({
                     value={form.watch('category_id')}
                     options={categoryOptions}
                     label="Categories"
+                    creatable
                     tabIndex={5}
                     onSelect={({ label, value, isNew }) => {
                       if (isNew) {
@@ -524,10 +525,12 @@ export const ItemForm: FC<Props> = ({
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 onClick={onDelete}
                 disabled={updateItem.isPending || createItem.isPending}
               >
-                Archive
+                <Trash2Icon className="size-3.5" />
+                Archive Item
               </Button>
             )}
             {!item && (

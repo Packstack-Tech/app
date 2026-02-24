@@ -10,7 +10,7 @@ import {
   UploadAvatar,
   UploadInventory,
 } from '@/types/api'
-import { Category } from '@/types/category'
+import { Category, CategoryItems } from '@/types/category'
 import {
   CreateItem,
   EditItem,
@@ -51,6 +51,11 @@ export const userLogin = (data: LoginRequest) =>
 
 export const userRegister = (data: RegisterRequest) =>
   http.post<AuthResponse>('/user', data)
+
+export const googleAuth = (credential: string) =>
+  http.post<AuthResponse>('/user/google-auth', { credential })
+
+export const logout = () => http.post('/user/logout')
 
 export const requestPasswordReset = (email: string) =>
   http.post('/user/request-password-reset', { email })
@@ -135,6 +140,9 @@ export const getProductVariants = (product_id?: number) =>
  */
 
 export const getInventory = () => http.get<Item[]>('/items')
+
+export const getGroupedInventory = () =>
+  http.get<CategoryItems[]>('/items/grouped')
 
 export const createItem = (data: CreateItem) => http.post<Item>('/item', data)
 

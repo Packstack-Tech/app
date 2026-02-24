@@ -11,6 +11,7 @@ import {
   bulkRestoreItems,
   createItem,
   deleteItem,
+  getGroupedInventory,
   getInventory,
   getProductDetails,
   importInventory,
@@ -26,6 +27,7 @@ import { CategoryItems } from '@/types/category'
 import { CreateItem, EditItem } from '@/types/item'
 
 const INVENTORY_QUERY = ['inventory-query']
+const GROUPED_INVENTORY_QUERY = ['grouped-inventory-query']
 
 export const inventoryQueryOptions = queryOptions({
   queryKey: INVENTORY_QUERY,
@@ -46,6 +48,16 @@ export const useInventory = (enabled: boolean = true) => {
   })
 }
 
+export const useGroupedInventory = () => {
+  return useQuery({
+    queryKey: GROUPED_INVENTORY_QUERY,
+    queryFn: async () => {
+      const res = await getGroupedInventory()
+      return res.data
+    },
+  })
+}
+
 export const useCreateItem = () => {
   const queryClient = useQueryClient()
   const { toast } = useToast()
@@ -60,6 +72,7 @@ export const useCreateItem = () => {
         title: '✅ Item created',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },
   })
 }
@@ -77,6 +90,7 @@ export const useDeleteItem = () => {
         title: '✅ Item deleted',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },
   })
 }
@@ -92,6 +106,7 @@ export const useBulkArchiveItems = () => {
     onSuccess: () => {
       toast({ title: 'Items archived' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },
   })
 }
@@ -107,6 +122,7 @@ export const useBulkRestoreItems = () => {
     onSuccess: () => {
       toast({ title: 'Items restored' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },
   })
 }
@@ -122,6 +138,7 @@ export const useUpdateItem = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
       toast({
         title: '✅ Item updated',
       })
@@ -142,6 +159,7 @@ export const useUpdateItemSort = () => {
         title: '✅ Sort order updated',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },
   })
 }
@@ -161,6 +179,7 @@ export const useUpdateCategorySort = () => {
         title: 'Category order updated',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },
   })
 }
@@ -204,6 +223,7 @@ export const useSaveCategoryChanges = () => {
     onSuccess: () => {
       toast({ title: 'Categories updated' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },
     onError: () => {
       toast({ title: 'Failed to update categories' })
@@ -246,6 +266,7 @@ export const useImportLighterpack = () => {
         })
         Mixpanel.track('Import:LighterPack:success', resp)
         queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
       } else {
         Mixpanel.track('Import:LighterPack:failure')
         const errors = resp.errors.map(
@@ -283,6 +304,7 @@ export const useImportInventory = () => {
         })
         Mixpanel.track('Import:CSV:success', resp)
         queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
       } else {
         Mixpanel.track('Import:CSV:failure')
         const errors = resp.errors.map(

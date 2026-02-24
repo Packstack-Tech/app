@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import Fuse from 'fuse.js'
 
-import { groupByCategory } from '@/lib/categorize'
-import { useInventory } from '@/queries/item'
+import { useGroupedInventory } from '@/queries/item'
 import { CategoryItems } from '@/types/category'
+import { Item } from '@/types/item'
 
 type Options = {
   filter?: string
@@ -14,56 +14,39 @@ export const useCategorizedItems = ({
   filter,
   showRemoved = false,
 }: Options): CategoryItems[] => {
-  const { data } = useInventory()
+  const { data: groups } = useGroupedInventory()
+
+  const allItems = useMemo(
+    () => (groups || []).flatMap(g => g.items),
+    [groups]
+  )
 
   const fuseItems = useMemo(
     () =>
-      new Fuse(data || [], {
+      new Fuse(allItems, {
         keys: ['name', 'product.name', 'brand.name'],
       }),
-    [data]
+    [allItems]
   )
 
-  const allCategorySortOrders = useMemo(() => {
-    if (!data) return new Set<number>()
-    const orders = new Set<number>()
-    for (const item of data) {
-      if (item.category?.sort_order != null) {
-        orders.add(item.category.sort_order)
-      }
-    }
-    return orders
-  }, [data])
-
   return useMemo(() => {
-    const items = !filter
-      ? data
-      : fuseItems.search(filter).map(result => result.item)
+    if (!groups) return []
 
-    const filteredItems = showRemoved
-      ? items
-      : items?.filter(item => !item.removed)
+    if (!filter && showRemoved) return groups
 
-    const grouped = groupByCategory(
-      filteredItems || [],
-      item => item.category_id?.toString() || 'uncategorized',
-      item => item.category,
-      item => item.sort_order || 0
-    )
+    const matchedIds = filter
+      ? new Set(fuseItems.search(filter).map(r => r.item.id))
+      : null
 
-    const totalCategories = allCategorySortOrders.size + 1
-    let uncatPosition = totalCategories
-    for (let i = 0; i < totalCategories; i++) {
-      if (!allCategorySortOrders.has(i)) {
-        uncatPosition = i
-        break
-      }
-    }
-
-    return grouped.sort((a, b) => {
-      const aOrder = a.category?.sort_order ?? uncatPosition
-      const bOrder = b.category?.sort_order ?? uncatPosition
-      return aOrder - bOrder
-    })
-  }, [data, fuseItems, filter, showRemoved, allCategorySortOrders])
+    return groups
+      .map(group => {
+        const filtered = group.items.filter((item: Item) => {
+          if (matchedIds && !matchedIds.has(item.id)) return false
+          if (!showRemoved && item.removed) return false
+          return true
+        })
+        return { ...group, items: filtered }
+      })
+      .filter(group => group.items.length > 0)
+  }, [groups, fuseItems, filter, showRemoved])
 }

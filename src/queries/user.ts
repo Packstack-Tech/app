@@ -8,6 +8,7 @@ import {
 import { useToast } from '@/hooks/useToast'
 import {
   getUser,
+  googleAuth,
   requestPasswordReset,
   resetPassword,
   updateUser,
@@ -38,7 +39,6 @@ export const userQueryOptions = queryOptions({
     return res.data
   },
   retry: false,
-  enabled: !!localStorage.getItem('jwt'),
 })
 
 export const useUserQuery = () => {
@@ -53,22 +53,12 @@ export const useUserQuery = () => {
       })
       return res.data
     },
-    select: data => {
-      const trips = [...data.trips]
-      trips.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )
-      const conversion_unit = getConversionUnit(data.unit_weight)
-      return {
-        ...data,
-        currency: getCurrency(data.currency),
-        trips,
-        conversion_unit,
-      }
-    },
+    select: data => ({
+      ...data,
+      currency: getCurrency(data.currency),
+      conversion_unit: getConversionUnit(data.unit_weight),
+    }),
     retry: false,
-    enabled: !!localStorage.getItem('jwt'),
   })
 }
 
@@ -77,7 +67,6 @@ export const useUserLogin = () => {
   return useMutation({
     mutationFn: async (params: LoginRequest) => {
       const res = await userLogin(params)
-      localStorage.setItem('jwt', res.data.token)
       queryClient.setQueryData([USER_QUERY], res.data.user)
       return res.data
     },
@@ -89,7 +78,17 @@ export const useUserRegister = () => {
   return useMutation({
     mutationFn: async (params: RegisterRequest) => {
       const res = await userRegister(params)
-      localStorage.setItem('jwt', res.data.token)
+      queryClient.setQueryData([USER_QUERY], res.data.user)
+      return res.data
+    },
+  })
+}
+
+export const useGoogleAuth = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (credential: string) => {
+      const res = await googleAuth(credential)
       queryClient.setQueryData([USER_QUERY], res.data.user)
       return res.data
     },

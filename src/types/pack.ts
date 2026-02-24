@@ -1,5 +1,17 @@
 import { Item } from './item'
 
+export type PackWeightBreakdown = {
+  base_g: number
+  worn_g: number
+  consumable_g: number
+  total_g: number
+}
+
+export type PackCategoryWeight = {
+  label: string
+  weight_g: number
+}
+
 type BasePack = {
   title: string
   trip_id?: number
@@ -9,6 +21,8 @@ export type Pack = BasePack & {
   id: number
   user_id: number
   items: PackItem[]
+  weight_breakdown: PackWeightBreakdown
+  category_weights: PackCategoryWeight[]
 }
 
 type PackItemEditable = {
