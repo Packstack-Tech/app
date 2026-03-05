@@ -13,7 +13,6 @@ import {
   deleteItem,
   getGroupedInventory,
   getInventory,
-  getProductDetails,
   importInventory,
   importLighterpack,
   updateCategory,
@@ -228,25 +227,6 @@ export const useSaveCategoryChanges = () => {
     onError: () => {
       toast({ title: 'Failed to update categories' })
     },
-  })
-}
-
-type ProductDetailParams = {
-  brandId?: number
-  productId?: number
-}
-
-const PRODUCT_DETAILS_QUERY = 'product-details-query'
-
-export const useProductDetails = () => {
-  return useMutation({
-    mutationKey: [PRODUCT_DETAILS_QUERY],
-    mutationFn: async (params: ProductDetailParams) => {
-      const res = await getProductDetails(params)
-      return res.data
-    },
-    retry: false,
-    onSuccess: data => Mixpanel.track('ProductDetails:Fetch', data),
   })
 }
 

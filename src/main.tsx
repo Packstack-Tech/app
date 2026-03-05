@@ -14,11 +14,7 @@ import { Toaster } from '@/components/ui/Toaster'
 import { queryClient } from './lib/queryClient'
 import { router } from './router'
 
-if (
-  localStorage.theme === 'dark' ||
-  (!('theme' in localStorage) &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches)
-) {
+if (!('theme' in localStorage) || localStorage.theme === 'dark') {
   document.documentElement.classList.add('dark')
 } else {
   document.documentElement.classList.remove('dark')

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -42,15 +42,31 @@ export const Register = () => {
   })
   const [error, setError] = useState<string | undefined>()
   const [registered, setRegistered] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
   const navigate = useNavigate()
   const signUp = useUserRegister()
   const googleAuthMutation = useGoogleAuth()
   const resendVerification = useResendVerification()
 
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const timer = setTimeout(() => setCooldown(c => c - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [cooldown])
+
+  const handleResend = useCallback(() => {
+    resendVerification.mutate(undefined, {
+      onSuccess: () => setCooldown(60),
+    })
+  }, [resendVerification])
+
   const onSubmit = (data: RegisterForm) => {
     setError(undefined)
     signUp.mutate(data, {
-      onSuccess: () => setRegistered(true),
+      onSuccess: () => {
+        setRegistered(true)
+        setCooldown(60)
+      },
       onError: error => {
         handleException(error, {
           onHttpError: ({ response }) => setError(response?.data.detail),
@@ -79,10 +95,12 @@ export const Register = () => {
         <Button
           className="w-full"
           variant="outline"
-          onClick={() => resendVerification.mutate()}
-          disabled={resendVerification.isPending}
+          onClick={handleResend}
+          disabled={resendVerification.isPending || cooldown > 0}
         >
-          Resend verification email
+          {cooldown > 0
+            ? `Resend verification email (${cooldown}s)`
+            : 'Resend verification email'}
         </Button>
         <p className="text-xs text-center text-muted-foreground mt-4">
           <Link to="/" className="text-primary hover:underline">

@@ -11,15 +11,13 @@ import {
   UploadInventory,
 } from '@/types/api'
 import { Category, CategoryItems } from '@/types/category'
-import {
-  CreateItem,
-  EditItem,
-  Item,
-  ProductDetails,
-  ProductVariant,
-} from '@/types/item'
+import { CreateItem, EditItem, Item } from '@/types/item'
 import { Pack } from '@/types/pack'
-import { Brand, BrandProducts } from '@/types/resources'
+import {
+  CatalogBrand,
+  CatalogEntry,
+  CatalogProductOption,
+} from '@/types/resources'
 import { CreateTrip, EditTrip, Trip } from '@/types/trip'
 import { User } from '@/types/user'
 
@@ -118,28 +116,21 @@ export const updateCategory = (categoryId: number, name: string) =>
   http.put<Category>(`/category/${categoryId}`, { name })
 
 /**
- * Brand endpoints
+ * Catalog endpoints
  */
 
-export const getBrands = () => http.get<Brand[]>('/resources/brands')
+export const searchCatalogBrands = (q: string) =>
+  http.get<CatalogBrand[]>('/resources/catalog/search', { params: { q } })
 
-export const searchBrands = (query: string) =>
-  http.get<Brand[]>(`/resources/brand/search/${query}`)
+export const searchCatalogProducts = (brand: string, q?: string) =>
+  http.get<CatalogProductOption[]>('/resources/catalog/search', {
+    params: { brand, ...(q ? { q } : {}) },
+  })
 
-/**
- * Product endpoints
- */
-
-export const getProducts = (brandId?: number) =>
-  http.get<BrandProducts>(`/resources/brand/${brandId}`)
-
-export const getProductDetails = (data: {
-  brandId?: number
-  productId?: number
-}) => http.post<ProductDetails>(`/resources/product-details`, data)
-
-export const getProductVariants = (product_id?: number) =>
-  http.get<ProductVariant[]>(`resources/product/variants/${product_id}`)
+export const getCatalogEntries = (brand: string, product: string) =>
+  http.get<CatalogEntry[]>('/resources/catalog/search', {
+    params: { brand, product },
+  })
 
 /**
  * Item endpoints

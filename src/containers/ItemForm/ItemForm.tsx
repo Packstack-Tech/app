@@ -41,18 +41,14 @@ import { Textarea } from '@/components/ui/Textarea'
 import { toSelectOptions } from '@/lib/utils'
 import { convertWeight } from '@/lib/weight'
 import { useCategories } from '@/queries/category'
+import { useCreateItem, useDeleteItem, useUpdateItem } from '@/queries/item'
 import {
-  useCreateItem,
-  useDeleteItem,
-  useProductDetails,
-  useUpdateItem,
-} from '@/queries/item'
-import {
-  useProducts,
-  useProductVariants,
-  useSearchBrands,
+  useCatalogBrands,
+  useCatalogEntries,
+  useCatalogProducts,
 } from '@/queries/resources'
 import { Item, ItemForm as ItemFormValues, Unit } from '@/types/item'
+import { CatalogEntry } from '@/types/resources'
 
 // TODO add field max/min length
 const schema = z.object({
@@ -107,12 +103,29 @@ export const ItemForm: FC<Props> = ({
   children,
 }) => {
   const [brandSearch, setBrandSearch] = useState(item?.brand?.name || '')
+  const [selectedBrandName, setSelectedBrandName] = useState<string | undefined>(
+    item?.brand?.name
+  )
+  const [selectedProductName, setSelectedProductName] = useState<string | undefined>(
+    item?.product?.name
+  )
+  const [pendingAutoFill, setPendingAutoFill] = useState(false)
   const [another, setAnother] = useState(false)
+
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
   const deleteItem = useDeleteItem()
-  const productDetails = useProductDetails()
-  const searchBrands = useSearchBrands({ query: brandSearch, enabled: open })
+
+  const catalogBrands = useCatalogBrands({ query: brandSearch, enabled: open })
+  const catalogProducts = useCatalogProducts({
+    brand: selectedBrandName,
+    enabled: open,
+  })
+  const { data: catalogEntries } = useCatalogEntries({
+    brand: selectedBrandName,
+    product: selectedProductName,
+    enabled: open && !!selectedBrandName && !!selectedProductName,
+  })
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(schema),
@@ -121,37 +134,51 @@ export const ItemForm: FC<Props> = ({
 
   useEffect(() => {
     form.reset(formDefaults(item))
+    setBrandSearch(item?.brand?.name || '')
+    setSelectedBrandName(item?.brand?.name)
+    setSelectedProductName(item?.product?.name)
   }, [item])
 
   const brandId = form.watch('brand_id')
   const productId = form.watch('product_id')
 
   const { data: categories } = useCategories()
-  const { data: brand } = useProducts({
-    brandId,
-    enabled: open,
-  })
-  const { data: productVariants } = useProductVariants({
-    productId,
-    enabled: open,
-  })
 
   const noBrandSelected = !brandId && !form.watch('brand_new')
   const noProductSelected = !productId && !form.watch('product_new')
 
   const brandOptions = useMemo(
-    () => toSelectOptions(searchBrands.data),
-    [searchBrands.data]
+    () =>
+      catalogBrands.data?.map(b => ({
+        label: b.brand_name,
+        value: b.brand_id,
+      })) || [],
+    [catalogBrands.data]
   )
 
   const productOptions = useMemo(
-    () => toSelectOptions(brand?.products),
-    [brand]
+    () =>
+      catalogProducts.data?.map(p => ({
+        label: p.product_name,
+        value: p.product_id,
+      })) || [],
+    [catalogProducts.data]
+  )
+
+  const variantEntries = useMemo(
+    () => catalogEntries?.filter((e): e is CatalogEntry & { variant_name: string; product_variant_id: number } =>
+      e.variant_name != null && e.product_variant_id != null
+    ) || [],
+    [catalogEntries]
   )
 
   const productVariantOptions = useMemo(
-    () => toSelectOptions(productVariants),
-    [productVariants]
+    () =>
+      variantEntries.map(e => ({
+        label: e.variant_name,
+        value: e.product_variant_id,
+      })),
+    [variantEntries]
   )
 
   const categoryOptions = useMemo(
@@ -159,18 +186,29 @@ export const ItemForm: FC<Props> = ({
     [categories]
   )
 
-  const onSelectProduct = (id: number) => {
-    const brandId = form.getValues('brand_id')
-    productDetails.mutate(
-      { productId: id, brandId },
-      {
-        onSuccess: data => {
-          form.setValue('weight', data.median)
-          form.setValue('unit', data.unit)
-        },
+  const applyAutoFill = (entry: CatalogEntry) => {
+    if (entry.weight != null) {
+      form.setValue('weight', entry.weight)
+      form.setValue('unit', (entry.weight_unit || 'g') as Unit)
+    }
+    if (entry.product_url) {
+      form.setValue('product_url', entry.product_url)
+    }
+    if (entry.category_suggestion && categories?.length) {
+      const suggestion = entry.category_suggestion.toLowerCase()
+      const match = categories.find(c => c.name.toLowerCase() === suggestion)
+      if (match) {
+        form.setValue('category_id', match.id)
       }
-    )
+    }
   }
+
+  useEffect(() => {
+    if (!pendingAutoFill || !catalogEntries?.length) return
+    setPendingAutoFill(false)
+    const base = catalogEntries.find(e => !e.variant_name) || catalogEntries[0]
+    applyAutoFill(base)
+  }, [pendingAutoFill, catalogEntries])
 
   const onSubmit = (data: ItemFormValues) => {
     console.log(data)
@@ -246,15 +284,20 @@ export const ItemForm: FC<Props> = ({
                     value={brandId}
                     options={brandOptions}
                     onSearch={setBrandSearch}
-                    isLoading={searchBrands.isLoading}
+                    isLoading={catalogBrands.isLoading}
                     creatable
                     tabIndex={2}
                     label="Manufacturers"
                     onSelect={({ label, value, isNew }) => {
                       if (isNew) {
                         form.setValue('brand_new', label)
+                        setSelectedBrandName(undefined)
                       } else {
                         form.setValue('brand_id', value as number)
+                        const brand = catalogBrands.data?.find(
+                          b => b.brand_id === value
+                        )
+                        setSelectedBrandName(brand?.brand_name)
                       }
                     }}
                     onRemove={() => {
@@ -264,6 +307,8 @@ export const ItemForm: FC<Props> = ({
                       form.setValue('product_new', undefined)
                       form.setValue('product_variant_id', undefined)
                       form.setValue('product_variant_new', undefined)
+                      setSelectedBrandName(undefined)
+                      setSelectedProductName(undefined)
                     }}
                   />
                   <FormMessage />
@@ -293,10 +338,14 @@ export const ItemForm: FC<Props> = ({
                       onSelect={({ label, value, isNew }) => {
                         if (isNew) {
                           form.setValue('product_new', label)
+                          setSelectedProductName(undefined)
                         } else {
-                          const id = value as number
-                          form.setValue('product_id', id)
-                          onSelectProduct(id)
+                          form.setValue('product_id', value as number)
+                          const product = catalogProducts.data?.find(
+                            p => p.product_id === value
+                          )
+                          setSelectedProductName(product?.product_name)
+                          setPendingAutoFill(true)
                         }
                       }}
                       onRemove={() => {
@@ -304,6 +353,7 @@ export const ItemForm: FC<Props> = ({
                         form.setValue('product_new', undefined)
                         form.setValue('product_variant_id', undefined)
                         form.setValue('product_variant_new', undefined)
+                        setSelectedProductName(undefined)
                       }}
                     />
 
@@ -335,6 +385,10 @@ export const ItemForm: FC<Props> = ({
                           form.setValue('product_variant_new', label)
                         } else {
                           form.setValue('product_variant_id', value as number)
+                          const entry = catalogEntries?.find(
+                            e => e.product_variant_id === value
+                          )
+                          if (entry) applyAutoFill(entry)
                         }
                       }}
                       onRemove={() => {
@@ -388,7 +442,6 @@ export const ItemForm: FC<Props> = ({
                             step=".01"
                             placeholder="0.00"
                             tabIndex={6}
-                            disabled={productDetails.isPending}
                             onFocus={() => {
                               if (!field.value) field.onChange('')
                             }}
@@ -416,7 +469,6 @@ export const ItemForm: FC<Props> = ({
                           }}
                           defaultValue={field.value}
                           value={field.value}
-                          disabled={productDetails.isPending}
                         >
                           <FormControl>
                             <SelectTrigger className="w-16">

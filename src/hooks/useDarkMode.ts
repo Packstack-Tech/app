@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react'
 
 export function useDarkMode() {
-  const [isDark, setIsDark] = useState(false)
+  const [isDark, setIsDark] = useState(true)
 
   useEffect(() => {
     const stored = localStorage.getItem('theme')
-    const prefersDark =
-      stored === 'dark' ||
-      (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    const prefersDark = !stored || stored === 'dark'
 
     document.documentElement.classList.toggle('dark', prefersDark)
     setIsDark(prefersDark)

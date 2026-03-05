@@ -55,12 +55,6 @@ export type Item = {
   product_variant?: ProductVariant
 }
 
-export type ProductDetails = {
-  median: number
-  items: number
-  unit: Unit
-}
-
 export type ProductVariant = {
   id: number
   product_id: number

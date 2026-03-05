@@ -44,3 +44,25 @@ export type Product = {
 export type BrandProducts = Brand & {
   products: Product[]
 }
+
+export type CatalogBrand = {
+  brand_id: number
+  brand_name: string
+}
+
+export type CatalogProductOption = {
+  product_id: number
+  product_name: string
+}
+
+export type CatalogEntry = {
+  id: number
+  brand_id: number
+  product_id: number
+  product_variant_id: number | null
+  variant_name: string | null
+  weight: number | null
+  weight_unit: string | null
+  product_url: string | null
+  category_suggestion: string | null
+}
