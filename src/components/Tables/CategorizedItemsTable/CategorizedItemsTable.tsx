@@ -96,10 +96,10 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
 
   return (
     <div className="mb-6" id={`category-${category}`}>
-      <h3 className="font-bold text-foreground rounded-t-md px-3 py-2 bg-muted dark:bg-slate-900 text-xs md:text-sm">
+      <h3 className="font-bold text-foreground rounded-t-md px-3 py-2 bg-muted text-xs md:text-sm">
         {category}
       </h3>
-      <div className="rounded-b-md border border-muted dark:border-slate-900">
+      <div className="rounded-b-md border border-border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (

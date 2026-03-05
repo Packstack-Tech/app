@@ -50,7 +50,7 @@ export const ImportCsvModal: FC<Props> = ({ open, onOpenChange }) => {
             Download template
           </Button>
 
-          <p className="text-slate-100 text-lg">Available Fields</p>
+          <p className="text-foreground text-lg">Available Fields</p>
           <ul>
             <li>
               <strong>name</strong> - item name (required)

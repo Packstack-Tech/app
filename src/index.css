@@ -12,44 +12,25 @@
 }
 
 @theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-primary-background: hsl(var(--primary-background));
-
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-
-  --color-surface: hsl(var(--surface));
-
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #e5e5e6;
-  --color-slate-200: #abb2bb;
-  --color-slate-300: #6c7d93;
-  --color-slate-500: #64748b;
-  --color-slate-600: #181825;
-  --color-slate-900: #111622;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
   --color-transparent: transparent;
   --color-current: currentColor;
@@ -82,137 +63,100 @@
   }
 }
 
-@layer base {
-  :root {
-    --background: 360 100% 100%;
-    --foreground: 224 71% 4%;
+:root {
+  color-scheme: light dark;
+  --background: rgb(250 250 250);
+  --foreground: rgb(24 24 27);
+  --card: rgb(255 255 255);
+  --card-foreground: rgb(24 24 27);
+  --popover: rgb(255 255 255);
+  --popover-foreground: rgb(24 24 27);
+  --primary: rgb(13 148 136);
+  --primary-foreground: rgb(255 255 255);
+  --secondary: rgb(240 245 244);
+  --secondary-foreground: rgb(24 24 27);
+  --muted: rgb(245 249 248);
+  --muted-foreground: rgb(113 113 122);
+  --accent: rgb(237 248 246);
+  --accent-foreground: rgb(15 118 110);
+  --destructive: rgb(239 68 68);
+  --destructive-foreground: rgb(255 255 255);
+  --border: rgb(229 231 233);
+  --input: rgb(229 231 233);
+  --ring: rgb(20 184 166);
+  --radius: 0.5rem;
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+}
 
-    --muted: 215.4 16.3% 93%;
-    --muted-foreground: 215 16% 47%;
-
-    --popover: 360 100% 100%;
-    --popover-foreground: 215 25% 40%;
-
-    --card: 360 100% 100%;
-    --card-foreground: 224 71% 4%;
-
-    --border: 215 20% 84%;
-    --input: 215 20% 78%;
-
-    --primary: 225 70% 48%;
-    --primary-foreground: 0 0% 100%;
-    --primary-background: 225 70% 8%;
-
-    --secondary: 133 45% 70%;
-    --secondary-foreground: 133 95% 4%;
-
-    --accent: 225 30% 95%;
-    --accent-foreground: 225 50% 30%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --ring: 225 60% 52%;
-
-    --surface: 220 14% 96%;
-
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-
-    --popover: 224 71% 4%;
-    --popover-foreground: 215 20.2% 65.1%;
-
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
-
-    --border: 214 25% 25%;
-    --input: 214 25% 25%;
-
-    --primary: 180 65% 65%;
-    --primary-foreground: 230 1% 2%;
-    --primary-background: 230 82% 8%;
-
-    --secondary: 133 35% 60%;
-    --secondary-foreground: 133 95% 4%;
-
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --ring: 216 34% 17%;
-
-    --surface: 224 71% 4%;
-  }
+.dark {
+  --background: rgb(20 18 11);
+  --foreground: rgb(237 236 236);
+  --card: rgb(27 25 19);
+  --card-foreground: rgb(237 236 236);
+  --popover: rgb(27 25 19);
+  --popover-foreground: rgb(237 236 236);
+  --primary: rgb(224, 96, 46);
+  --primary-foreground: rgb(255 255 255);
+  --secondary: rgb(29 27 21);
+  --secondary-foreground: rgb(237 236 236);
+  --muted: rgb(29 27 21);
+  --muted-foreground: rgb(173, 171, 169);
+  --accent: rgb(32 30 24);
+  --accent-foreground: rgb(237 236 236);
+  --destructive: rgb(239 68 68);
+  --destructive-foreground: rgb(255 255 255);
+  --border: rgb(38 36 30);
+  --input: rgb(38 36 30);
+  --ring: rgb(129 140 248);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
 
   body {
-    @apply text-base text-slate-900 bg-background;
+    @apply text-base text-foreground bg-background;
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
   }
 
   .page-heading {
-    @apply text-2xl font-bold text-slate-900;
-  }
-
-  .dark body {
-    @apply text-slate-100;
+    @apply text-2xl font-bold text-foreground;
   }
 
   p {
-    @apply text-slate-600;
-  }
-
-  .dark p {
-    @apply text-slate-200;
+    @apply text-muted-foreground;
   }
 
   h1 {
-    @apply text-2xl font-bold text-slate-900;
+    @apply text-2xl font-bold text-foreground;
   }
 
   h2 {
-    @apply md:text-xl font-bold text-slate-900;
+    @apply md:text-xl font-bold text-foreground;
   }
 
   h3 {
     @apply font-semibold text-sm text-primary;
   }
 
-  .dark h1,
-  .dark h2 {
-    @apply text-slate-100;
-  }
-
   h4 {
-    @apply font-semibold text-xl text-slate-600;
-  }
-
-  .dark h4 {
-    @apply text-slate-50;
+    @apply font-semibold text-xl text-muted-foreground;
   }
 
   label {
-    @apply text-slate-500 text-sm inline-block mb-1;
-  }
-
-  .dark label {
-    @apply text-slate-200;
+    @apply text-muted-foreground text-sm inline-block mb-1;
   }
 
   .link {

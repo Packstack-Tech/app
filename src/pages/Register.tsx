@@ -116,7 +116,7 @@ export const Register = () => {
       <h1>Create an account</h1>
       <p className="text-sm mt-1 mb-4">Create packing lists and organize your gear</p>
       {error && (
-        <p className="text-destructive-foreground bg-destructive/20 text-xs rounded-md px-3 py-2 mb-3">
+        <p className="text-destructive bg-destructive/20 text-xs rounded-md px-3 py-2 mb-3">
           {error}
         </p>
       )}

@@ -54,7 +54,7 @@ export const Login = () => {
       <h1>Welcome back</h1>
       <p className="text-sm mt-1 mb-4">Sign in to your account</p>
       {error && (
-        <p className="text-destructive-foreground bg-destructive/20 text-xs rounded-md px-3 py-2 mb-3">
+        <p className="text-destructive bg-destructive/20 text-xs rounded-md px-3 py-2 mb-3">
           {error}
         </p>
       )}

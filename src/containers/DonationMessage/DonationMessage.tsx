@@ -3,7 +3,7 @@ import { Box } from '@/components/ui'
 export const DonationMessage = () => (
   <Box className="mb-8">
     <p className="text-sm">
-      <strong className="text-slate-900 dark:text-slate-100">
+      <strong className="text-foreground">
         Help support this project!
       </strong>{' '}
       Packstack is now open source software. Your contribution helps pay for

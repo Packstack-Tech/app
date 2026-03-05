@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/Dialog'
+import { useDarkMode } from '@/hooks/useDarkMode'
 import { Mixpanel } from '@/lib/mixpanel'
 import { CategoryWeight } from '@/types/category'
 
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export const BreakdownDialog: FC<Props> = ({ data }) => {
+  const { isDark } = useDarkMode()
   const chartColors = [
     '#3366CC',
     '#DC3912',
@@ -55,7 +57,7 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
     <Dialog>
       <DialogTrigger asChild>
         <button
-          className="flex gap-1 text-xs items-center text-primary active:text-white"
+          className="flex gap-1 text-xs items-center text-primary active:text-white cursor-pointer"
           onClick={() => Mixpanel.track('Pack:View breakdown')}
         >
           <PieChart size={12} /> View breakdown
@@ -65,7 +67,7 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
         <DialogHeader>
           <DialogTitle>Weight Breakdown</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col sm:flex-row bg-white text-slate-900 px-6 py-6 gap-4">
+        <div className="flex flex-col sm:flex-row bg-card text-foreground px-6 py-6 gap-4">
           <div className="flex-1 h-96 min-w-0">
             <ResponsivePie
               data={chartData}
@@ -74,10 +76,10 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
               activeOuterRadiusOffset={8}
               colors={chartColors}
               borderWidth={1}
-              borderColor="#ffffff"
+              borderColor={isDark ? '#1b1913' : '#ffffff'}
               enableArcLinkLabels={true}
               arcLinkLabelsSkipAngle={8}
-              arcLinkLabelsTextColor="#334155"
+              arcLinkLabelsTextColor={isDark ? '#edecec' : '#334155'}
               arcLinkLabelsThickness={1}
               arcLinkLabelsColor={{ from: 'color' }}
               arcLinkLabel={d =>
@@ -87,6 +89,9 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
               theme={{
                 labels: {
                   text: { fontSize: 11 },
+                },
+                tooltip: {
+                  container: { color: '#1a1a1a' },
                 },
               }}
             />
@@ -102,7 +107,7 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
               </thead>
               <tbody>
                 {chartData.map(({ label, value }, index) => (
-                  <tr key={label} className="border-b border-slate-100">
+                  <tr key={label} className="border-b border-border">
                     <td className="py-1.5">
                       <div
                         className="w-3 h-3 rounded-full"

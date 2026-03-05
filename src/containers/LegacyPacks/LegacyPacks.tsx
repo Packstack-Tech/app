@@ -50,7 +50,7 @@ export const LegacyPacks: FC<Props> = ({ packs }) => {
             <p className="text-sm">{rec.title}</p>
             <div className="flex items-center gap-3">
               <AlertDialog>
-                <AlertDialogTrigger className="text-slate-300 hover:text-primary">
+                <AlertDialogTrigger className="text-muted-foreground hover:text-primary">
                   <Trash2Icon size={16} />
                 </AlertDialogTrigger>
                 <AlertDialogContent>

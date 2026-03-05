@@ -27,7 +27,7 @@ export const CategoryList = ({ showRemoved }: Props) => {
               <button
                 key={categoryName}
                 onClick={() => scrollToCategory(categoryName)}
-                className="w-full text-left px-2 py-1 text-xs md:text-sm rounded-sm hover:bg-muted dark:hover:bg-slate-900 transition-colors"
+                className="w-full text-left px-2 py-1 text-xs md:text-sm rounded-sm hover:bg-muted transition-colors"
               >
                 {categoryName}
               </button>

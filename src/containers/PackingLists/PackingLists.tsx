@@ -105,7 +105,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
             return (
               <div
                 key={id}
-                className="group rounded-md border bg-surface p-5 transition-colors hover:border-primary/30"
+                className="group rounded-md border bg-card p-5 transition-colors hover:border-primary/30"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">

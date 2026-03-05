@@ -23,7 +23,7 @@ export const PackTabs: FC<Props> = ({ packs }) => {
         <PackSelector key={pack.index} pack={pack} />
       ))}
       <button
-        className={`border rounded-sm text-sm semibold px-2 py-1 h-[30px] w-[30px] flex items-center justify-center`}
+        className={`border rounded-sm text-sm semibold px-2 py-1 h-[30px] w-[30px] flex items-center justify-center cursor-pointer hover:shadow-[0_0_8px] hover:shadow-ring/35 transition-shadow`}
         onClick={() => addPack()}
       >
         <Plus size={16} />

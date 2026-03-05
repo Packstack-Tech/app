@@ -21,11 +21,11 @@ export const PackWeights: FC<Props> = ({
 }) => (
   <div className="text-sm mb-4">
     <div className="border-b items-center border-dashed flex justify-between pb-0.5">
-      <Label className="font-semibold text-slate-900 dark:text-white">
+      <Label className="font-semibold text-foreground">
         {title}
       </Label>
     </div>
-    <div className="flex justify-between hover:bg-slate-900">
+    <div className="flex justify-between hover:bg-muted">
       <p>Base</p>
       <p>
         {weights.base.toFixed(2)} {aggregateWeightUnit}

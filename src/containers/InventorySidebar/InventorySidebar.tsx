@@ -71,7 +71,7 @@ export const InventorySidebar = () => {
       <ScrollArea className="flex-1 min-h-0">
         {items.map(category => (
           <div key={category.category?.category_id || 'undefined'}>
-            <Label className="text-slate-300 text-xs rounded-sm bg-muted dark:bg-slate-900 mb-1 p-1 block">
+            <Label className="text-muted-foreground text-xs rounded-sm bg-muted mb-1 p-1 block">
               {category.category?.category.name || 'Uncategorized'}
             </Label>
             <ul>

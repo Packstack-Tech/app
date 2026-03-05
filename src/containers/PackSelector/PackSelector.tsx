@@ -52,9 +52,9 @@ export const PackSelector: FC<Props> = ({ pack }) => {
 
   return (
     <div>
-      <div className={`border rounded-sm flex items-center ${selectedStyle}`}>
+      <div className={`border rounded-sm flex items-center cursor-pointer hover:shadow-[0_0_8px] hover:shadow-ring/35 transition-shadow ${selectedStyle}`}>
         <button
-          className={`text-sm semibold px-2 py-1`}
+          className={`text-sm semibold px-2 py-1 cursor-pointer`}
           disabled={isSelected}
           onClick={() => selectPack(pack.index)}
         >
@@ -63,7 +63,7 @@ export const PackSelector: FC<Props> = ({ pack }) => {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="px-1">
+            <button className="px-1 cursor-pointer">
               <MoreVertical size={16} />
             </button>
           </DropdownMenuTrigger>

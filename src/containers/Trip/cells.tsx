@@ -117,7 +117,7 @@ export const WornCell: FC<Props> = ({
         className={
           original.worn
             ? 'fill-primary stroke-primary'
-            : 'stroke-slate-300 dark:stroke-slate-600'
+            : 'stroke-muted-foreground'
         }
         size={20}
         strokeWidth={1.5}
@@ -191,7 +191,7 @@ export const RemoveItemCell: FC<Props> = ({
   return (
     <button
       onClick={() => removeItem(original.item_id)}
-      className="text-slate-300 mt-1.5 hover:text-slate-100"
+      className="text-muted-foreground mt-1.5 hover:text-foreground"
     >
       <XCircleIcon size={16} strokeWidth={1} />
     </button>

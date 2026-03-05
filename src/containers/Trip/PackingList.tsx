@@ -69,7 +69,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
           </Button>
         )}
       </div>
-      <div className="flex items-center justify-between border rounded-sm border-slate-100 dark:border-slate-900 mb-4 p-3">
+      <div className="flex items-center justify-between border rounded-sm border-border mb-4 p-3">
         <div className="flex gap-1.5">
           <Checkbox
             checked={checklistMode}
@@ -84,7 +84,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
           <BreakdownDialog data={categorizedWeights} />
           {!!trip && (
             <button
-              className="flex gap-1 text-xs items-center text-primary active:text-white"
+              className="flex gap-1 text-xs items-center text-primary active:text-white cursor-pointer"
               onClick={() => {
                 navigator.clipboard.writeText(`https://packstack.io/pack/${trip.uuid}`)
                 Mixpanel.track('Trip:Copy shareable link', { id: trip.uuid })

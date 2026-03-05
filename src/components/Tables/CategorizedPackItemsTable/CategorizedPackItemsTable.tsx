@@ -72,13 +72,13 @@ export function CategorizedPackItemsTable<TData, TValue>({
 
   return (
     <div className="mb-6">
-      <div className="rounded-t-md px-3 py-2 bg-muted dark:bg-slate-900 flex justify-between items-center">
+      <div className="rounded-t-md px-3 py-2 bg-muted flex justify-between items-center">
         <h3 className="font-bold text-primary text-xs md:text-sm">{category}</h3>
         <span className="text-xs text-primary">
           {categoryWeight.toFixed(2)} {user.conversion_unit}
         </span>
       </div>
-      <div className="rounded-b-md border border-slate-100 dark:border-slate-900">
+      <div className="rounded-b-md border border-border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
