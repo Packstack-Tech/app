@@ -64,8 +64,19 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
       align: 'center',
       style: {
         textAlign: 'center',
-        width: '15%',
+        width: '10%',
       },
+    },
+  },
+  {
+    header: 'kcal',
+    accessorFn: ({ item, quantity }) => {
+      if (!item.calories) return null
+      return item.calories * quantity
+    },
+    meta: {
+      align: 'right',
+      style: { textAlign: 'right', width: '7%' },
     },
   },
   {

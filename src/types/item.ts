@@ -16,6 +16,7 @@ export type ItemForm = {
   weight: number
   unit: Unit
   price: number
+  calories: number
   consumable: boolean
   product_url: string
   notes: string
@@ -39,6 +40,7 @@ export type Item = {
   created_at: string
   notes: string
   price?: number
+  calories?: number | null
   product_id?: number
   product_variant_id?: number
   product_url: string

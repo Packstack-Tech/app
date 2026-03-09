@@ -1,8 +1,8 @@
 import { FC, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { InfoIcon, Trash2Icon } from 'lucide-react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { InfoIcon, Trash2Icon } from 'lucide-react'
 
 import { Input } from '@/components/ui'
 import { Button } from '@/components/ui'
@@ -26,11 +26,6 @@ import {
 import { Label } from '@/components/ui/Label'
 import { ScrollArea } from '@/components/ui/ScrollArea'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/Tooltip'
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -38,6 +33,11 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/Tooltip'
 import { toSelectOptions } from '@/lib/utils'
 import { convertWeight } from '@/lib/weight'
 import { useCategories } from '@/queries/category'
@@ -64,6 +64,7 @@ const schema = z.object({
   weight: z.coerce.number().min(0, 'Weight must be positive').optional(),
   unit: z.string().optional(),
   price: z.coerce.number().min(0, 'Price must be positive').optional(),
+  calories: z.coerce.number().min(0, 'Calories must be positive').optional(),
   consumable: z.boolean().optional(),
   product_url: z.string().optional(),
   notes: z.string().optional(),
@@ -88,6 +89,7 @@ const formDefaults = (item?: Item) => ({
   weight: item?.weight || 0,
   unit: item?.unit || 'g',
   price: item?.price || 0,
+  calories: item?.calories || 0,
   consumable: item?.consumable || false,
   product_url: item?.product_url || '',
   notes: item?.notes || '',
@@ -497,6 +499,26 @@ export const ItemForm: FC<Props> = ({
                           type="number"
                           step=".01"
                           placeholder="0.00"
+                          onFocus={() => {
+                            if (!field.value) field.onChange('')
+                          }}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="calories"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormLabel>Calories (kcal)</FormLabel>
+                        <Input
+                          {...field}
+                          type="number"
+                          step="1"
+                          placeholder="0"
                           onFocus={() => {
                             if (!field.value) field.onChange('')
                           }}

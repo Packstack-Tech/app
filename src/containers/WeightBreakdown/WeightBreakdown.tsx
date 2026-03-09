@@ -2,7 +2,11 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
-import { calculateWeightBreakdown, WeightBreakdown as Breakdown } from '@/lib/weight'
+import {
+  calculateWeightBreakdown,
+  sumPackItemCalories,
+  WeightBreakdown as Breakdown,
+} from '@/lib/weight'
 
 import { PackWeights } from './PackWeights'
 
@@ -13,6 +17,7 @@ export const WeightBreakdown = () => {
   const breakdowns = packs.map(({ items, title }) => ({
     title,
     weights: calculateWeightBreakdown(items, user.conversion_unit),
+    calories: sumPackItemCalories(items),
   }))
 
   const totals = breakdowns.reduce<Breakdown>(
@@ -25,20 +30,27 @@ export const WeightBreakdown = () => {
     { worn: 0, consumable: 0, total: 0, base: 0 }
   )
 
+  const totalCalories = breakdowns.reduce(
+    (acc, { calories }) => acc + calories,
+    0
+  )
+
   return (
     <div className="w-1/2 md:w-full md:mt-4">
       <div className="text-sm font-semibold mb-4">Pack Weights</div>
       <PackWeights
         title="Total"
         weights={totals}
+        calories={totalCalories}
         aggregateWeightUnit={user.conversion_unit}
       />
       {packs.length > 1 &&
-        breakdowns.map(({ title, weights }) => (
+        breakdowns.map(({ title, weights, calories }) => (
           <PackWeights
             key={title}
             title={title}
             weights={weights}
+            calories={calories}
             aggregateWeightUnit={user.conversion_unit}
           />
         ))}

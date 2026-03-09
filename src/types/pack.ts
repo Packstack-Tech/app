@@ -23,6 +23,7 @@ export type Pack = BasePack & {
   items: PackItem[]
   weight_breakdown: PackWeightBreakdown
   category_weights: PackCategoryWeight[]
+  total_calories: number
 }
 
 type PackItemEditable = {

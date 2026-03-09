@@ -94,6 +94,16 @@ export function calculateWeightBreakdown(
 }
 
 /**
+ * Sums the total calories for a set of pack items, multiplying by quantity.
+ */
+export function sumPackItemCalories(items: PackItem[]): number {
+  return items.reduce(
+    (total, { item, quantity }) => total + (item.calories || 0) * quantity,
+    0
+  )
+}
+
+/**
  * Calculates total weight per category for a list of categorized pack items.
  */
 export function calculateCategoryWeights(

@@ -77,6 +77,15 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     },
   },
   {
+    header: 'kcal',
+    accessorKey: 'calories',
+    cell: ({ getValue }) => getValue() || <EmptyDash />,
+    meta: {
+      align: 'right',
+      style: { textAlign: 'right', width: '7%' },
+    },
+  },
+  {
     header: 'Weight',
     cell: ({ cell }) => <WeightCell cell={cell} />,
     meta: {

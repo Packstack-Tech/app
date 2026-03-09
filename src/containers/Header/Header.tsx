@@ -17,6 +17,7 @@ import { logout } from '@/lib/api'
 const navLinks = [
   { name: 'Packing Lists', path: '/' as const },
   { name: 'Inventory', path: '/inventory' as const },
+  { name: 'Kits', path: '/kits' as const },
 ]
 
 export const Header = () => {

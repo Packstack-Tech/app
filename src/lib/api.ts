@@ -12,6 +12,7 @@ import {
 } from '@/types/api'
 import { Category, CategoryItems } from '@/types/category'
 import { CreateItem, EditItem, Item } from '@/types/item'
+import { Kit, KitPayload } from '@/types/kit'
 import { Pack } from '@/types/pack'
 import {
   CatalogBrand,
@@ -131,6 +132,21 @@ export const getCatalogEntries = (brand: string, product: string) =>
   http.get<CatalogEntry[]>('/resources/catalog/search', {
     params: { brand, product },
   })
+
+/**
+ * Kit endpoints
+ */
+
+export const getKits = () => http.get<Kit[]>('/kits')
+
+export const getKit = (id: number) => http.get<Kit>(`/kit/${id}`)
+
+export const createKit = (data: KitPayload) => http.post<Kit>('/kit', data)
+
+export const updateKit = (id: number, data: KitPayload) =>
+  http.put<Kit>(`/kit/${id}`, data)
+
+export const deleteKit = (id: number) => http.delete(`/kit/${id}`)
 
 /**
  * Item endpoints
