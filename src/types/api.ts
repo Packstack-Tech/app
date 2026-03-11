@@ -1,15 +1,17 @@
 import { SortOrder } from './image'
 import { User } from './user'
 
-export type LoginRequest = {
-  emailOrUsername: string
-  password: string
+export type SendOtpRequest = {
+  email: string
+  username?: string
+  is_registration: boolean
 }
 
-export type RegisterRequest = {
+export type VerifyOtpRequest = {
   email: string
-  username: string
-  password: string
+  otp: string
+  is_registration: boolean
+  username?: string
 }
 
 export type AuthResponse = {
@@ -107,7 +109,3 @@ export type ImportInventoryResponse = {
   count: number
 }
 
-export type PasswordReset = {
-  password: string
-  callback_id: string
-}

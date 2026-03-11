@@ -1,14 +1,13 @@
 import {
   AuthResponse,
   ImportInventoryResponse,
-  LoginRequest,
   PackPayload,
-  PasswordReset,
-  RegisterRequest,
+  SendOtpRequest,
   UpdateItemSortOrder,
   UpdateUser,
   UploadAvatar,
   UploadInventory,
+  VerifyOtpRequest,
 } from '@/types/api'
 import { Category, CategoryItems } from '@/types/category'
 import { CreateItem, EditItem, Item } from '@/types/item'
@@ -45,22 +44,16 @@ export const uploadUserAvatar = (data: UploadAvatar) => {
 
 export const updateUser = (data: UpdateUser) => http.put<User>('/user', data)
 
-export const userLogin = (data: LoginRequest) =>
-  http.post<AuthResponse>('/user/login', data)
+export const sendOtp = (data: SendOtpRequest) =>
+  http.post<{ sent: boolean }>('/user/send-otp', data)
 
-export const userRegister = (data: RegisterRequest) =>
-  http.post<AuthResponse>('/user', data)
+export const verifyOtp = (data: VerifyOtpRequest) =>
+  http.post<AuthResponse>('/user/verify-otp', data)
 
 export const googleAuth = (credential: string) =>
   http.post<AuthResponse>('/user/google-auth', { credential })
 
 export const logout = () => http.post('/user/logout')
-
-export const requestPasswordReset = (email: string) =>
-  http.post('/user/request-password-reset', { email })
-
-export const resetPassword = (data: PasswordReset) =>
-  http.post('/user/reset-password', data)
 
 export const verifyEmail = (callbackId: string) =>
   http.post('/user/verify-email', { callback_id: callbackId })

@@ -9,23 +9,16 @@ import { useToast } from '@/hooks/useToast'
 import {
   getUser,
   googleAuth,
-  requestPasswordReset,
   resendVerificationEmail,
-  resetPassword,
+  sendOtp,
   updateUser,
-  userLogin,
-  userRegister,
   verifyEmail,
+  verifyOtp,
 } from '@/lib/api'
 import { getCurrency } from '@/lib/currencies'
 import { Mixpanel } from '@/lib/mixpanel'
 import { getConversionUnit } from '@/lib/weight'
-import {
-  LoginRequest,
-  PasswordReset,
-  RegisterRequest,
-  UpdateUser,
-} from '@/types/api'
+import { SendOtpRequest, UpdateUser, VerifyOtpRequest } from '@/types/api'
 
 export const USER_QUERY = 'user'
 
@@ -64,22 +57,20 @@ export const useUserQuery = () => {
   })
 }
 
-export const useUserLogin = () => {
-  const queryClient = useQueryClient()
+export const useSendOtp = () => {
   return useMutation({
-    mutationFn: async (params: LoginRequest) => {
-      const res = await userLogin(params)
-      queryClient.setQueryData([USER_QUERY], res.data.user)
+    mutationFn: async (params: SendOtpRequest) => {
+      const res = await sendOtp(params)
       return res.data
     },
   })
 }
 
-export const useUserRegister = () => {
+export const useVerifyOtp = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (params: RegisterRequest) => {
-      const res = await userRegister(params)
+    mutationFn: async (params: VerifyOtpRequest) => {
+      const res = await verifyOtp(params)
       queryClient.setQueryData([USER_QUERY], res.data.user)
       return res.data
     },
@@ -93,31 +84,6 @@ export const useGoogleAuth = () => {
       const res = await googleAuth(credential)
       queryClient.setQueryData([USER_QUERY], res.data.user)
       return res.data
-    },
-  })
-}
-
-export const useRequestPasswordReset = () => {
-  return useMutation({
-    mutationFn: async (email: string) => {
-      const res = await requestPasswordReset(email)
-      return res.data
-    },
-  })
-}
-
-export const useResetPassword = () => {
-  const { toast } = useToast()
-  return useMutation({
-    mutationFn: async (params: PasswordReset) => {
-      const res = await resetPassword(params)
-      return res.data
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Password reset',
-        description: 'Your password has been reset. Please log in.',
-      })
     },
   })
 }
@@ -147,22 +113,12 @@ export const useResendVerification = () => {
   })
 }
 
-// export const useUploadAvatar = () => {
-//   const queryClient = useQueryClient()
-//   return useMutation(async (params: UploadAvatar) => {
-//     const res = await uploadUserAvatar(params)
-//     queryClient.setQueryData(USER_QUERY, res.data)
-//     return res.data
-//   })
-// }
-
 export const useUpdateUser = () => {
   const queryClient = useQueryClient()
   const { toast } = useToast()
   return useMutation({
     mutationFn: async (params: UpdateUser) => {
       const res = await updateUser(params)
-      // queryClient.setQueryData(USER_QUERY, res.data)
       return res.data
     },
     onSuccess: () => {

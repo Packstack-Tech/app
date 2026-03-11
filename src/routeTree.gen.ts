@@ -12,14 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
-import { Route as AuthRequestPasswordResetRouteImport } from './routes/auth/request-password-reset'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppKitsRouteImport } from './routes/_app/kits'
 import { Route as AppInventoryRouteImport } from './routes/_app/inventory'
-import { Route as AuthVerifyEmailCallbackIdRouteImport } from './routes/auth/verify-email.$callbackId'
-import { Route as AuthResetPasswordCallbackIdRouteImport } from './routes/auth/reset-password.$callbackId'
 import { Route as AppPackNewRouteImport } from './routes/_app/pack.new'
 import { Route as AppPackIdRouteImport } from './routes/_app/pack.$id'
 
@@ -37,12 +34,6 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AuthRequestPasswordResetRoute =
-  AuthRequestPasswordResetRouteImport.update({
-    id: '/request-password-reset',
-    path: '/request-password-reset',
-    getParentRoute: () => AuthRoute,
-  } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -68,18 +59,6 @@ const AppInventoryRoute = AppInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AppRoute,
 } as any)
-const AuthVerifyEmailCallbackIdRoute =
-  AuthVerifyEmailCallbackIdRouteImport.update({
-    id: '/verify-email/$callbackId',
-    path: '/verify-email/$callbackId',
-    getParentRoute: () => AuthRoute,
-  } as any)
-const AuthResetPasswordCallbackIdRoute =
-  AuthResetPasswordCallbackIdRouteImport.update({
-    id: '/reset-password/$callbackId',
-    path: '/reset-password/$callbackId',
-    getParentRoute: () => AuthRoute,
-  } as any)
 const AppPackNewRoute = AppPackNewRouteImport.update({
   id: '/pack/new',
   path: '/pack/new',
@@ -99,11 +78,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/auth/request-password-reset': typeof AuthRequestPasswordResetRoute
   '/pack/$id': typeof AppPackIdRoute
   '/pack/new': typeof AppPackNewRoute
-  '/auth/reset-password/$callbackId': typeof AuthResetPasswordCallbackIdRoute
-  '/auth/verify-email/$callbackId': typeof AuthVerifyEmailCallbackIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
@@ -112,12 +88,9 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/auth/request-password-reset': typeof AuthRequestPasswordResetRoute
   '/': typeof AppIndexRoute
   '/pack/$id': typeof AppPackIdRoute
   '/pack/new': typeof AppPackNewRoute
-  '/auth/reset-password/$callbackId': typeof AuthResetPasswordCallbackIdRoute
-  '/auth/verify-email/$callbackId': typeof AuthVerifyEmailCallbackIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -128,12 +101,9 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/auth/request-password-reset': typeof AuthRequestPasswordResetRoute
   '/_app/': typeof AppIndexRoute
   '/_app/pack/$id': typeof AppPackIdRoute
   '/_app/pack/new': typeof AppPackNewRoute
-  '/auth/reset-password/$callbackId': typeof AuthResetPasswordCallbackIdRoute
-  '/auth/verify-email/$callbackId': typeof AuthVerifyEmailCallbackIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -145,11 +115,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/auth/login'
     | '/auth/register'
-    | '/auth/request-password-reset'
     | '/pack/$id'
     | '/pack/new'
-    | '/auth/reset-password/$callbackId'
-    | '/auth/verify-email/$callbackId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -158,12 +125,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/auth/login'
     | '/auth/register'
-    | '/auth/request-password-reset'
     | '/'
     | '/pack/$id'
     | '/pack/new'
-    | '/auth/reset-password/$callbackId'
-    | '/auth/verify-email/$callbackId'
   id:
     | '__root__'
     | '/_app'
@@ -173,12 +137,9 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/auth/login'
     | '/auth/register'
-    | '/auth/request-password-reset'
     | '/_app/'
     | '/_app/pack/$id'
     | '/_app/pack/new'
-    | '/auth/reset-password/$callbackId'
-    | '/auth/verify-email/$callbackId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -208,13 +169,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
-    }
-    '/auth/request-password-reset': {
-      id: '/auth/request-password-reset'
-      path: '/request-password-reset'
-      fullPath: '/auth/request-password-reset'
-      preLoaderRoute: typeof AuthRequestPasswordResetRouteImport
-      parentRoute: typeof AuthRoute
     }
     '/auth/register': {
       id: '/auth/register'
@@ -250,20 +204,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/inventory'
       preLoaderRoute: typeof AppInventoryRouteImport
       parentRoute: typeof AppRoute
-    }
-    '/auth/verify-email/$callbackId': {
-      id: '/auth/verify-email/$callbackId'
-      path: '/verify-email/$callbackId'
-      fullPath: '/auth/verify-email/$callbackId'
-      preLoaderRoute: typeof AuthVerifyEmailCallbackIdRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/auth/reset-password/$callbackId': {
-      id: '/auth/reset-password/$callbackId'
-      path: '/reset-password/$callbackId'
-      fullPath: '/auth/reset-password/$callbackId'
-      preLoaderRoute: typeof AuthResetPasswordCallbackIdRouteImport
-      parentRoute: typeof AuthRoute
     }
     '/_app/pack/new': {
       id: '/_app/pack/new'
@@ -305,17 +245,11 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 interface AuthRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
-  AuthRequestPasswordResetRoute: typeof AuthRequestPasswordResetRoute
-  AuthResetPasswordCallbackIdRoute: typeof AuthResetPasswordCallbackIdRoute
-  AuthVerifyEmailCallbackIdRoute: typeof AuthVerifyEmailCallbackIdRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
-  AuthRequestPasswordResetRoute: AuthRequestPasswordResetRoute,
-  AuthResetPasswordCallbackIdRoute: AuthResetPasswordCallbackIdRoute,
-  AuthVerifyEmailCallbackIdRoute: AuthVerifyEmailCallbackIdRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
