@@ -12,7 +12,6 @@ import {
   resendVerificationEmail,
   sendOtp,
   updateUser,
-  verifyEmail,
   verifyOtp,
 } from '@/lib/api'
 import { getCurrency } from '@/lib/currencies'
@@ -83,15 +82,6 @@ export const useGoogleAuth = () => {
     mutationFn: async (credential: string) => {
       const res = await googleAuth(credential)
       queryClient.setQueryData([USER_QUERY], res.data.user)
-      return res.data
-    },
-  })
-}
-
-export const useVerifyEmail = () => {
-  return useMutation({
-    mutationFn: async (callbackId: string) => {
-      const res = await verifyEmail(callbackId)
       return res.data
     },
   })

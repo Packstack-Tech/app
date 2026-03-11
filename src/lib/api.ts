@@ -55,9 +55,6 @@ export const googleAuth = (credential: string) =>
 
 export const logout = () => http.post('/user/logout')
 
-export const verifyEmail = (callbackId: string) =>
-  http.post('/user/verify-email', { callback_id: callbackId })
-
 export const resendVerificationEmail = () =>
   http.post('/user/resend-verification')
 
