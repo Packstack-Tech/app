@@ -20,7 +20,7 @@ export const PackTabs: FC<Props> = ({ packs }) => {
   return (
     <div className="flex flex-row flex-wrap gap-2">
       {packs.map(pack => (
-        <PackSelector key={pack.index} pack={pack} />
+        <PackSelector key={pack.index} pack={pack} canDelete={packs.length > 1} />
       ))}
       <button
         className={`border rounded-sm text-sm semibold px-2 py-1 h-[30px] w-[30px] flex items-center justify-center cursor-pointer hover:shadow-[0_0_8px] hover:shadow-ring/35 transition-shadow`}

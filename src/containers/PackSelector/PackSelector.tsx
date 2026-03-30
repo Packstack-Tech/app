@@ -17,9 +17,10 @@ import { EditPackDialog } from './EditPackDialog'
 
 interface Props {
   pack: TripPackRecord
+  canDelete: boolean
 }
 
-export const PackSelector: FC<Props> = ({ pack }) => {
+export const PackSelector: FC<Props> = ({ pack, canDelete }) => {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const deletePack = useDeletePack()
@@ -71,9 +72,11 @@ export const PackSelector: FC<Props> = ({ pack }) => {
             <DropdownMenuItem onClick={() => setEditOpen(true)}>
               Rename
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
-              Delete
-            </DropdownMenuItem>
+            {canDelete && (
+              <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
