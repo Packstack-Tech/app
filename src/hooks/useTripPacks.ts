@@ -9,11 +9,13 @@ interface TripPacksState {
   packs: TripPack[]
   checklistMode: boolean
   synced: boolean
+  isDragging: boolean
   addPack: () => void
   removePack: (index: number) => void
   updatePack: (index: number, key: TripPackKeys, value: string) => void
   selectPack: (index: number) => void
   setPacks: (packs: TripPack[]) => void
+  setDragging: (dragging: boolean) => void
 
   updateItem: (
     id: number,
@@ -65,6 +67,7 @@ export const useTripPacks = create<TripPacksState>(set => ({
   selectedIndex: 0,
   checklistMode: false,
   synced: true,
+  isDragging: false,
   packs: [initPack],
 
   addPack: () =>
@@ -99,6 +102,9 @@ export const useTripPacks = create<TripPacksState>(set => ({
 
   selectPack: index => set({ selectedIndex: index }),
 
+  setDragging: dragging =>
+    set({ isDragging: dragging, ...(!dragging && { synced: false }) }),
+
   setPacks: packs =>
     set({
       packs: [...packs].sort((a, b) => a.title.localeCompare(b.title)),
@@ -127,10 +133,18 @@ export const useTripPacks = create<TripPacksState>(set => ({
   setCategoryItems: updatedItems =>
     set(state => {
       const categoryId = updatedItems[0].item.category_id
-      return updateCurrentPackItems(state, items => [
-        ...items.filter(item => item.item.category_id !== categoryId),
-        ...updatedItems,
-      ])
+      const pack = state.packs[state.selectedIndex]
+      const updatedPack = {
+        ...pack,
+        items: [
+          ...pack.items.filter(item => item.item.category_id !== categoryId),
+          ...updatedItems,
+        ],
+      }
+      return {
+        packs: replacePack(state.packs, state.selectedIndex, updatedPack),
+        synced: state.isDragging ? state.synced : false,
+      }
     }),
 
   updateBaseItem: (itemId, updatedFields) =>

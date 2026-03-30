@@ -53,10 +53,11 @@ const formDefaults = (trip?: Trip): TripFormValues => ({
 export const TripForm: FC<Props> = ({ trip }) => {
   const { toast } = useToast()
   const user = useUser()
-  const { packs, synced, setPacks } = useTripPacks(
+  const { packs, synced, isDragging, setPacks } = useTripPacks(
     useShallow(store => ({
       packs: store.packs,
       synced: store.synced,
+      isDragging: store.isDragging,
       setPacks: store.setPacks,
     }))
   )
@@ -110,10 +111,10 @@ export const TripForm: FC<Props> = ({ trip }) => {
       })
     }
 
-    if (trip?.id && !synced) {
+    if (trip?.id && !synced && !isDragging) {
       savePacks(trip.id)
     }
-  }, [trip, synced, packs])
+  }, [trip, synced, isDragging, packs])
 
   // saves new pack and redirects to pack page
   const onSubmit = async (data: TripFormValues) => {

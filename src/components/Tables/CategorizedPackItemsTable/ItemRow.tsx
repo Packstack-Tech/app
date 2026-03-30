@@ -31,10 +31,11 @@ export function ItemRow<TData>({
   disabled,
   moveItem,
 }: ItemRowProps<TData>) {
-  const { checklistMode, updateItem } = useTripPacks(
+  const { checklistMode, updateItem, setDragging } = useTripPacks(
     useShallow(state => ({
       checklistMode: state.checklistMode,
       updateItem: state.updateItem,
+      setDragging: state.setDragging,
     }))
   )
   const dragRef = useRef<HTMLDivElement>(null)
@@ -106,7 +107,11 @@ export function ItemRow<TData>({
   const [_, drag, preview] = useDrag({
     type: itemType,
     item: () => {
-      return { id: row.id, idx }
+      setDragging(true)
+      return { id: row.id, index: idx }
+    },
+    end: () => {
+      setDragging(false)
     },
     collect: (monitor: any) => ({
       isDragging: monitor.isDragging(),
