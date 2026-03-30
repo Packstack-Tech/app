@@ -6,6 +6,8 @@ import {
 } from '@tanstack/react-query'
 
 import { useToast } from '@/hooks/useToast'
+import * as Sentry from '@sentry/react'
+
 import {
   getUser,
   googleAuth,
@@ -30,6 +32,7 @@ export const userQueryOptions = queryOptions({
       $name: res.data.username,
       $email: res.data.email,
     })
+    Sentry.setUser({ id: `${res.data.id}`, email: res.data.email, username: res.data.username })
     return res.data
   },
   retry: false,
@@ -45,6 +48,7 @@ export const useUserQuery = () => {
         $name: res.data.username,
         $email: res.data.email,
       })
+      Sentry.setUser({ id: `${res.data.id}`, email: res.data.email, username: res.data.username })
       return res.data
     },
     select: data => ({

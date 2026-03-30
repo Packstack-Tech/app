@@ -54,6 +54,7 @@ function updateCurrentPackItems(
   updater: (items: PackItem[]) => PackItem[]
 ) {
   const pack = state.packs[state.selectedIndex]
+  if (!pack) return {}
   return {
     packs: replacePack(state.packs, state.selectedIndex, {
       ...pack,
@@ -84,10 +85,13 @@ export const useTripPacks = create<TripPacksState>(set => ({
     set(state => {
       if (state.packs.length === 1) return state
       const packs = state.packs.filter((_, i) => i !== index)
-      return {
-        selectedIndex: index === state.selectedIndex ? 0 : state.selectedIndex,
-        packs,
+      let selectedIndex = state.selectedIndex
+      if (index === selectedIndex) {
+        selectedIndex = 0
+      } else if (index < selectedIndex) {
+        selectedIndex = selectedIndex - 1
       }
+      return { selectedIndex, packs }
     }),
 
   updatePack: (index, key, value) =>
@@ -134,6 +138,7 @@ export const useTripPacks = create<TripPacksState>(set => ({
     set(state => {
       const categoryId = updatedItems[0].item.category_id
       const pack = state.packs[state.selectedIndex]
+      if (!pack) return {}
       const updatedPack = {
         ...pack,
         items: [

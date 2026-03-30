@@ -20,6 +20,10 @@ export const Mixpanel = {
     if (import.meta.env.PROD) mixpanel.track(name, props)
     else console.log('Mixpanel.track', name, props)
   },
+  reset: () => {
+    if (import.meta.env.PROD) mixpanel.reset()
+    else console.log('Mixpanel.reset')
+  },
   people: {
     set: (props: object) => {
       if (import.meta.env.PROD) mixpanel.people.set(props)

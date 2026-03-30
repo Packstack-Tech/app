@@ -51,7 +51,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
 
   const tableCols = useMemo(() => columns(user.currency), [user.currency])
 
-  const categorizedItems = useCategorizedPackItems(packs[selectedIndex].items)
+  const categorizedItems = useCategorizedPackItems(packs[selectedIndex]?.items ?? [])
   const categorizedWeights = useCategorizedWeights(categorizedItems)
 
   return (

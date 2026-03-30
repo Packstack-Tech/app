@@ -1,4 +1,5 @@
 import { ExternalLink, LogOut, Moon, Plus, Settings, Sun } from 'lucide-react'
+import * as Sentry from '@sentry/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/DropdownMenu'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import { logout } from '@/lib/api'
+import { Mixpanel } from '@/lib/mixpanel'
 
 const navLinks = [
   { name: 'Packing Lists', path: '/' as const },
@@ -29,6 +31,8 @@ export const Header = () => {
     try {
       await logout()
     } finally {
+      Sentry.setUser(null)
+      Mixpanel.reset()
       queryClient.clear()
       navigate({ to: '/auth/login' })
     }

@@ -35,7 +35,7 @@ export const InventorySidebar = () => {
     }))
   )
   const items = useCategorizedItems({ filter: search })
-  const selectedItems = packs[selectedIndex].items
+  const selectedItems = packs[selectedIndex]?.items ?? []
   const { data: kits } = useKits()
   const { toast } = useToast()
 
