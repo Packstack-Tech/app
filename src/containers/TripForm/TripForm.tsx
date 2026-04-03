@@ -1,8 +1,9 @@
-import { FC, useEffect } from 'react'
+import { FC, useEffect, useRef } from 'react'
 import { DateRange } from 'react-day-picker'
 import { useForm } from 'react-hook-form'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 import { useShallow } from 'zustand/react/shallow'
 
 import { Button, Input } from '@/components/ui'
@@ -52,15 +53,19 @@ const formDefaults = (trip?: Trip): TripFormValues => ({
 // TODO define ZOD schema for validation
 export const TripForm: FC<Props> = ({ trip }) => {
   const { toast } = useToast()
+  const navigate = useNavigate()
   const user = useUser()
-  const { packs, synced, isDragging, setPacks } = useTripPacks(
-    useShallow(store => ({
-      packs: store.packs,
-      synced: store.synced,
-      isDragging: store.isDragging,
-      setPacks: store.setPacks,
-    }))
-  )
+  const { packs, synced, isDragging, setPacks, markSynced, assignPackId } =
+    useTripPacks(
+      useShallow(store => ({
+        packs: store.packs,
+        synced: store.synced,
+        isDragging: store.isDragging,
+        setPacks: store.setPacks,
+        markSynced: store.markSynced,
+        assignPackId: store.assignPackId,
+      }))
+    )
   const createTrip = useCreateTrip()
   const createPack = useCreatePack()
   const updateTrip = useUpdateTrip()
@@ -89,31 +94,37 @@ export const TripForm: FC<Props> = ({ trip }) => {
     updateTrip.mutate({ id: trip.id, ...payload })
   }
 
-  // Auto-save when editing existing trip
+  const savingRef = useRef(false)
+
   useEffect(() => {
+    if (!trip?.id || synced || isDragging || savingRef.current) return
+
+    savingRef.current = true
+
     async function savePacks(tripId: number) {
-      packs.forEach(async pack => {
-        if (pack.id) {
-          await updatePack.mutateAsync({
-            id: pack.id,
-            data: pack,
+      try {
+        await Promise.all(
+          packs.map(async (pack, index) => {
+            if (pack.id) {
+              await updatePack.mutateAsync({ id: pack.id, data: pack })
+            } else {
+              const created = await createPack.mutateAsync({
+                title: pack.title,
+                items: pack.items,
+                trip_id: tripId,
+              })
+              assignPackId(index, created.id)
+            }
           })
-        } else {
-          await createPack.mutateAsync({
-            title: pack.title,
-            items: pack.items,
-            trip_id: tripId,
-          })
-        }
-      })
-      toast({
-        title: 'Pack updated',
-      })
+        )
+        markSynced()
+        toast({ title: 'Pack updated' })
+      } finally {
+        savingRef.current = false
+      }
     }
 
-    if (trip?.id && !synced && !isDragging) {
-      savePacks(trip.id)
-    }
+    savePacks(trip.id)
   }, [trip, synced, isDragging, packs])
 
   // saves new pack and redirects to pack page
@@ -131,7 +142,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
     )
 
     setPacks([initPack])
-    window.location.replace(`/pack/${newTrip.id}`)
+    navigate({ to: '/pack/$id', params: { id: String(newTrip.id) } })
   }
 
   return (

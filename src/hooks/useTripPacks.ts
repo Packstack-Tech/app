@@ -16,6 +16,8 @@ interface TripPacksState {
   selectPack: (index: number) => void
   setPacks: (packs: TripPack[]) => void
   setDragging: (dragging: boolean) => void
+  markSynced: () => void
+  assignPackId: (index: number, id: number) => void
 
   updateItem: (
     id: number,
@@ -111,8 +113,17 @@ export const useTripPacks = create<TripPacksState>(set => ({
 
   setPacks: packs =>
     set({
-      packs: [...packs].sort((a, b) => a.title.localeCompare(b.title)),
+      packs: [...packs].sort((a, b) => (a.id ?? Infinity) - (b.id ?? Infinity)),
       synced: true,
+    }),
+
+  markSynced: () => set({ synced: true }),
+
+  assignPackId: (index, id) =>
+    set(state => {
+      const pack = state.packs[index]
+      if (!pack) return state
+      return { packs: replacePack(state.packs, index, { ...pack, id }) }
     }),
 
   addItem: item =>

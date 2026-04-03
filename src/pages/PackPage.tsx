@@ -25,7 +25,12 @@ export const PackPage = () => {
 
   useBlocker({
     shouldBlockFn: () => {
-      if (!hasUnsavedWork) return false
+      if (!isNewPack) return false
+      const currentPacks = useTripPacks.getState().packs
+      const hasWork = currentPacks.some(
+        p => p.items.length > 0 || p.title !== 'New pack'
+      )
+      if (!hasWork) return false
       return !window.confirm(
         'You have unsaved changes. Are you sure you want to leave?'
       )

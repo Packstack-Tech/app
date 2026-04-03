@@ -2,6 +2,8 @@ import { FC } from 'react'
 import { FlameIcon } from 'lucide-react'
 
 import { Label } from '@/components/ui/Label'
+import { BreakdownDialog } from '@/containers/BreakdownDialog'
+import { CategoryWeight } from '@/types/category'
 import { Unit } from '@/types/item'
 
 type Props = {
@@ -14,6 +16,7 @@ type Props = {
   }
   calories: number
   aggregateWeightUnit: Unit
+  breakdownData?: CategoryWeight[]
 }
 
 export const PackWeights: FC<Props> = ({
@@ -21,6 +24,7 @@ export const PackWeights: FC<Props> = ({
   weights,
   calories,
   aggregateWeightUnit,
+  breakdownData,
 }) => (
   <div className="text-sm mb-4 rounded-lg border border-border bg-muted/30 overflow-hidden">
     <div className="bg-muted/50 px-3 py-2 border-b border-border">
@@ -60,6 +64,11 @@ export const PackWeights: FC<Props> = ({
           <p className="text-orange-400 font-semibold">
             {Math.round(calories).toLocaleString()} kcal
           </p>
+        </div>
+      )}
+      {breakdownData && breakdownData.length > 0 && (
+        <div className="border-t border-border mt-1 pt-2 pb-1">
+          <BreakdownDialog data={breakdownData} />
         </div>
       )}
     </div>

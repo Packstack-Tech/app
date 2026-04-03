@@ -1,15 +1,17 @@
 import { FC, useMemo } from 'react'
-import { Link, PackageOpen } from 'lucide-react'
+import { CheckSquare, Link, PackageOpen, Settings } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { EmptyState } from '@/components/EmptyState'
 import { CategorizedPackItemsTable } from '@/components/Tables/CategorizedPackItemsTable'
 import { Button } from '@/components/ui'
-import { Checkbox } from '@/components/ui/Checkbox'
-import { Label } from '@/components/ui/Label'
-import { BreakdownDialog } from '@/containers/BreakdownDialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu'
 import { useCategorizedPackItems } from '@/hooks/useCategorizedPackItems'
-import { useCategorizedWeights } from '@/hooks/useCategorizedWeights'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
@@ -39,6 +41,9 @@ export const PackingList: FC<Props> = ({ trip }) => {
       }))
     )
 
+  const currentPack = packs[selectedIndex]
+  const isSavedPack = !!currentPack?.id
+
   const availablePacks = useMemo(
     () =>
       packs.map(({ id, title }, idx) => ({
@@ -52,51 +57,69 @@ export const PackingList: FC<Props> = ({ trip }) => {
   const tableCols = useMemo(() => columns(user.currency), [user.currency])
 
   const categorizedItems = useCategorizedPackItems(packs[selectedIndex]?.items ?? [])
-  const categorizedWeights = useCategorizedWeights(categorizedItems)
 
   return (
     <div>
       <div className="mb-4 flex gap-4 justify-between items-center">
         <PackTabs packs={availablePacks} />
-        {!trip && (
-          <Button
-            type="submit"
-            size="lg"
-            form="pack-form"
-            disabled={creatingTrip || updatingTrip}
-          >
-            Save
-          </Button>
-        )}
-      </div>
-      <div className="flex items-center justify-between border rounded-sm border-border mb-4 p-3">
-        <div className="flex gap-1.5">
-          <Checkbox
-            checked={checklistMode}
-            id="pack-checklist"
-            onClick={() => toggleChecklistMode()}
-          />
-          <Label id="pack-checklist" className="font-normal text-xs mb-0">
-            Checklist mode
-          </Label>
-        </div>
-        <div className="flex items-center gap-3">
-          <BreakdownDialog data={categorizedWeights} />
-          {!!trip && (
-            <button
-              className="flex gap-1 text-xs items-center text-primary active:text-white cursor-pointer"
-              onClick={() => {
-                navigator.clipboard.writeText(`https://packstack.io/pack/${trip.uuid}`)
-                Mixpanel.track('Trip:Copy shareable link', { id: trip.uuid })
-                toast({
-                  title: 'Link copied',
-                  duration: 1000,
-                })
-              }}
+        <div className="flex items-center gap-2">
+          {isSavedPack && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings size={14} />
+                  Options
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={e => {
+                    e.preventDefault()
+                    toggleChecklistMode()
+                  }}
+                >
+                  <CheckSquare size={14} />
+                  Checklist mode
+                  <span
+                    role="switch"
+                    aria-checked={checklistMode}
+                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors bg-input data-[state=checked]:bg-primary"
+                    data-state={checklistMode ? 'checked' : 'unchecked'}
+                  >
+                    <span
+                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-background shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
+                      data-state={checklistMode ? 'checked' : 'unchecked'}
+                    />
+                  </span>
+                </DropdownMenuItem>
+                {!!trip && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `https://packstack.io/pack/${trip.uuid}`
+                      )
+                      Mixpanel.track('Trip:Copy shareable link', {
+                        id: trip.uuid,
+                      })
+                      toast({ title: 'Link copied', duration: 1000 })
+                    }}
+                  >
+                    <Link size={14} />
+                    Copy shareable link
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          {!trip && (
+            <Button
+              type="submit"
+              size="lg"
+              form="pack-form"
+              disabled={creatingTrip || updatingTrip}
             >
-              <Link width={10} />
-              Copy shareable link
-            </button>
+              Save
+            </Button>
           )}
         </div>
       </div>

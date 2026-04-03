@@ -2,6 +2,7 @@ import { FC } from 'react'
 import { PieChart } from 'lucide-react'
 import { ResponsivePie } from '@nivo/pie'
 
+import { Button } from '@/components/ui'
 import {
   Dialog,
   DialogContent,
@@ -56,12 +57,15 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button
-          className="flex gap-1 text-xs items-center text-primary active:text-white cursor-pointer"
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full h-7 text-xs gap-1.5"
           onClick={() => Mixpanel.track('Pack:View breakdown')}
         >
-          <PieChart size={12} /> View breakdown
-        </button>
+          <PieChart size={12} />
+          View Breakdown
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
