@@ -2,7 +2,14 @@ import { saveAs } from 'file-saver'
 
 import { Item } from '@/types/item'
 
-// download a csv containing the inventory data
+const csvEscape = (value: string | number | null | undefined): string => {
+  const str = String(value ?? '')
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
+}
+
 export const downloadInventory = (items?: Item[]) => {
   if (!items) return
 
@@ -32,11 +39,20 @@ export const downloadInventory = (items?: Item[]) => {
         product_url,
         notes,
       }) =>
-        `${name},${brand?.name || ''},${product?.name || ''},${
-          category?.category.name || ''
-        },${weight},${unit},${price || 0},${
-          consumable ? 'true' : ''
-        },${product_url},${notes}`
+        [
+          name,
+          brand?.name || '',
+          product?.name || '',
+          category?.category.name || '',
+          weight,
+          unit,
+          price || 0,
+          consumable ? 'true' : '',
+          product_url,
+          notes,
+        ]
+          .map(csvEscape)
+          .join(',')
     )
     .join('\n')
 

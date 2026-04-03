@@ -129,7 +129,9 @@ export const InventoryPage = () => {
                 <DropdownMenuItem onClick={() => setOpenCsvImport(true)}>
                   Import CSV
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => downloadInventory(inventory)}>
+                <DropdownMenuItem onClick={() => downloadInventory(
+                  showRemoved ? inventory : inventory?.filter(i => !i.removed)
+                )}>
                   Export Inventory
                 </DropdownMenuItem>
               </DropdownMenuContent>
