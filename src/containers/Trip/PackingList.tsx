@@ -1,5 +1,5 @@
 import { FC, useMemo } from 'react'
-import { CheckSquare, Link, PackageOpen, Settings } from 'lucide-react'
+import { CheckSquare, Download, Link, PackageOpen, Settings } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { EmptyState } from '@/components/EmptyState'
@@ -15,6 +15,7 @@ import { useCategorizedPackItems } from '@/hooks/useCategorizedPackItems'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
+import { downloadPackingListCsv } from '@/lib/download'
 import { Mixpanel } from '@/lib/mixpanel'
 import { useCreateTrip, useUpdateTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
@@ -91,6 +92,20 @@ export const PackingList: FC<Props> = ({ trip }) => {
                       data-state={checklistMode ? 'checked' : 'unchecked'}
                     />
                   </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    downloadPackingListCsv(currentPack.items, {
+                      currency: user.currency,
+                      title: currentPack.title,
+                    })
+                    Mixpanel.track('Trip:Export packing list', {
+                      packId: currentPack.id,
+                    })
+                  }}
+                >
+                  <Download size={14} />
+                  Export packing list
                 </DropdownMenuItem>
                 {!!trip && (
                   <DropdownMenuItem
