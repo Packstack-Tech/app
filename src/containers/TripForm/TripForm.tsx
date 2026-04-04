@@ -106,7 +106,10 @@ export const TripForm: FC<Props> = ({ trip }) => {
         await Promise.all(
           packs.map(async (pack, index) => {
             if (pack.id) {
-              await updatePack.mutateAsync({ id: pack.id, data: pack })
+              await updatePack.mutateAsync({
+                id: pack.id,
+                data: { ...pack, trip_id: tripId },
+              })
             } else {
               const created = await createPack.mutateAsync({
                 title: pack.title,

@@ -88,8 +88,8 @@ export const useUpdatePack = () => {
       const res = await updatePack(id, data)
       return res.data
     },
-    onSuccess: data => {
-      queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY, data.id] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TRIP_PACKS_QUERY] })
     },
   })
 }
