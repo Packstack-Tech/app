@@ -1087,3 +1087,16 @@ export const getCurrency = (code: string) => {
   const currency = currencies[index]
   return { ...currency, id: index }
 }
+
+export const formatCurrency = (amount: number, currency: Currency): string => {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: currency.code,
+      minimumFractionDigits: currency.decimal_digits,
+      maximumFractionDigits: currency.decimal_digits,
+    }).format(amount)
+  } catch {
+    return `${currency.symbol}${amount.toFixed(currency.decimal_digits)}`
+  }
+}

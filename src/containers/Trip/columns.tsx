@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 
-import { Currency } from '@/lib/currencies'
+import { Currency, formatCurrency } from '@/lib/currencies'
 import { PackItem } from '@/types/pack'
 
 import {
@@ -48,7 +48,7 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
     header: 'Value',
     accessorFn: ({ item }) => {
       if (!item.price) return null
-      return `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`
+      return formatCurrency(item.price, currency)
     },
     meta: {
       style: {

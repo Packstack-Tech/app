@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver'
 
 import { groupByCategory } from '@/lib/categorize'
-import { Currency } from '@/lib/currencies'
+import { Currency, formatCurrency } from '@/lib/currencies'
 import { Item } from '@/types/item'
 import { PackItem } from '@/types/pack'
 
@@ -110,9 +110,7 @@ export const downloadPackingListCsv = (
     return items.map(packItem => {
       const { item, quantity, worn, checked } = packItem
       const kcal = item.calories ? item.calories * quantity : ''
-      const value = item.price
-        ? `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`
-        : ''
+      const value = item.price ? formatCurrency(item.price, currency) : ''
       return [
         categoryName,
         item.name,

@@ -17,6 +17,7 @@ import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { ItemForm } from '@/containers/ItemForm'
 import { useUser } from '@/hooks/useUser'
 import { downloadInventory } from '@/lib/download'
+import { formatCurrency } from '@/lib/currencies'
 import { useBulkArchiveItems, useBulkRestoreItems, useInventory } from '@/queries/item'
 
 export const InventoryPage = () => {
@@ -149,8 +150,7 @@ export const InventoryPage = () => {
             <div className="text-sm text-muted-foreground">
               Total value{' '}
               <span className="font-semibold text-foreground">
-                {user.currency.symbol}
-                {totalValue.toFixed(user.currency.decimal_digits)}
+                {formatCurrency(totalValue, user.currency)}
               </span>
             </div>
           )}

@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 
-import { Currency } from '@/lib/currencies'
+import { Currency, formatCurrency } from '@/lib/currencies'
 import { Item } from '@/types/item'
 
 import { Action, EmptyDash, NotesCell, WeightCell } from './cells'
@@ -55,7 +55,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     header: 'Value',
     accessorFn: item => {
       if (!item.price) return null
-      return `${currency.symbol}${item.price.toFixed(currency.decimal_digits)}`
+      return formatCurrency(item.price, currency)
     },
     cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
