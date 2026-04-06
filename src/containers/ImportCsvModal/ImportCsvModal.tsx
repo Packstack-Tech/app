@@ -43,7 +43,7 @@ export const ImportCsvModal: FC<Props> = ({ open, onOpenChange }) => {
         <div className="text-sm text-muted-foreground mx-6">
           <Button
             variant="link"
-            size="none"
+            size="sm"
             className="my-4"
             onClick={() => downloadTemplate()}
           >

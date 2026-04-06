@@ -1,35 +1,32 @@
-import { FC } from 'react'
+import { FC, useState } from 'react'
 
-import { ScrollArea } from '@/components/ui/ScrollArea'
-import { InventorySidebar } from '@/containers/InventorySidebar'
-import { PackingList } from '@/containers/Trip/PackingList'
-import { TripForm } from '@/containers/TripForm'
-import { WeightBreakdown } from '@/containers/WeightBreakdown'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { PackingView } from '@/containers/PackingView/PackingView'
+import { TripDetails } from '@/containers/TripDetails/TripDetails'
+import { TripSidebar } from '@/containers/TripSidebar/TripSidebar'
+import { usePackSync } from '@/hooks/usePackSync'
 import { Trip } from '@/types/trip'
 
+type TripView = 'packing' | 'details'
+
 interface Props {
-  trip?: Trip
+  trip: Trip
 }
 
-export const Pack: FC<Props> = ({ trip }) => (
-  <div className="flex flex-col md:flex-row md:flex-1 md:overflow-hidden">
-    <div className="md:flex-none md:w-64 md:border-r border-border min-h-0 bg-card">
-      <ScrollArea className="h-full">
-        <div className="flex gap-3 md:gap-0 md:flex-col p-3 md:p-5">
-          <TripForm trip={trip} />
-          <WeightBreakdown />
-        </div>
-      </ScrollArea>
-    </div>
-    <div className="grow min-h-0">
-      <ScrollArea className="h-full">
-        <div className="p-3 md:p-5">
-          <PackingList trip={trip} />
-        </div>
-      </ScrollArea>
-    </div>
-    <div className="md:flex-none md:w-64 md:border-l border-border flex flex-col min-h-0 h-full p-3 md:p-5 bg-card">
-      <InventorySidebar />
-    </div>
-  </div>
-)
+export const Pack: FC<Props> = ({ trip }) => {
+  const [view, setView] = useState<TripView>('packing')
+
+  usePackSync(trip.id)
+
+  return (
+    <SidebarProvider className="min-h-0 flex-1">
+      <TripSidebar trip={trip} onEditDetails={() => setView('details')} />
+      <div className="relative flex w-full flex-1 flex-col overflow-hidden bg-background">
+        {view === 'packing' && <PackingView trip={trip} />}
+        {view === 'details' && (
+          <TripDetails trip={trip} onBack={() => setView('packing')} />
+        )}
+      </div>
+    </SidebarProvider>
+  )
+}

@@ -11,13 +11,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { useCategorizedPackItems } from '@/hooks/useCategorizedPackItems'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
+import { groupByCategory } from '@/lib/categorize'
 import { downloadPackingListCsv } from '@/lib/download'
 import { Mixpanel } from '@/lib/mixpanel'
+import {
+  calculateCategoryWeights,
+  calculateWeightBreakdown,
+} from '@/lib/weight'
 import { useCreateTrip, useUpdateTrip } from '@/queries/trip'
+import { PackItem } from '@/types/pack'
 import { Trip } from '@/types/trip'
 
 import { PackTabs } from '../PackTabs/PackTabs'
@@ -25,6 +32,16 @@ import { columns } from './columns'
 
 type Props = {
   trip?: Trip
+}
+
+function categorizePackItems(items: PackItem[], toUnit: string) {
+  const grouped = groupByCategory<PackItem>(
+    items,
+    item => item.item.category_id?.toString() || 'uncategorized',
+    item => item.item.category,
+    item => item.sort_order || 0
+  )
+  return calculateCategoryWeights(grouped, toUnit as never)
 }
 
 export const PackingList: FC<Props> = ({ trip }) => {
@@ -44,6 +61,17 @@ export const PackingList: FC<Props> = ({ trip }) => {
 
   const currentPack = packs[selectedIndex]
   const isSavedPack = !!currentPack?.id
+  const currentItems = currentPack?.items ?? []
+
+  const weights = useMemo(
+    () => calculateWeightBreakdown(currentItems, user.conversion_unit),
+    [currentItems, user.conversion_unit]
+  )
+
+  const breakdownData = useMemo(
+    () => categorizePackItems(currentItems, user.conversion_unit),
+    [currentItems, user.conversion_unit]
+  )
 
   const availablePacks = useMemo(
     () =>
@@ -57,11 +85,13 @@ export const PackingList: FC<Props> = ({ trip }) => {
 
   const tableCols = useMemo(() => columns(user.currency), [user.currency])
 
-  const categorizedItems = useCategorizedPackItems(packs[selectedIndex]?.items ?? [])
+  const categorizedItems = useCategorizedPackItems(currentItems)
+
+  const unit = user.conversion_unit
 
   return (
     <div>
-      <div className="mb-4 flex gap-4 justify-between items-center">
+      <div className="mb-2 flex gap-4 justify-between items-center">
         <PackTabs packs={availablePacks} />
         <div className="flex items-center gap-2">
           {isSavedPack && (
@@ -138,6 +168,32 @@ export const PackingList: FC<Props> = ({ trip }) => {
           )}
         </div>
       </div>
+
+      {currentItems.length > 0 && (
+        <div className="mb-4 flex items-center justify-between gap-4 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-3">
+            <span>
+              Base <span className="ml-1 font-medium text-foreground">{weights.base.toFixed(2)} {unit}</span>
+            </span>
+            <span className="text-border">|</span>
+            <span>
+              Worn <span className="ml-1 font-medium text-foreground">{weights.worn.toFixed(2)} {unit}</span>
+            </span>
+            <span className="text-border">|</span>
+            <span>
+              Consumable <span className="ml-1 font-medium text-foreground">{weights.consumable.toFixed(2)} {unit}</span>
+            </span>
+            <span className="text-border">|</span>
+            <span>
+              Total <span className="ml-1 font-semibold text-primary">{weights.total.toFixed(2)} {unit}</span>
+            </span>
+          </div>
+          {breakdownData.length > 0 && (
+            <BreakdownDialog data={breakdownData} />
+          )}
+        </div>
+      )}
+
       {categorizedItems.length === 0 && (
         <EmptyState icon={PackageOpen} heading="Your pack is empty">
           <p>

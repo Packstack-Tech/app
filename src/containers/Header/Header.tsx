@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ExternalLink, LogOut, Moon, Plus, Settings, Sun } from 'lucide-react'
 import * as Sentry from '@sentry/react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -12,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import { NewTripModal } from '@/containers/NewTripModal'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import { logout } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -26,6 +28,7 @@ export const Header = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
+  const [showNewTrip, setShowNewTrip] = useState(false)
 
   const onLogout = async () => {
     try {
@@ -67,12 +70,11 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/pack/new">
-              <Plus size={16} strokeWidth={2.5} />
-              Create Pack
-            </Link>
+          <Button variant="outline" size="sm" onClick={() => setShowNewTrip(true)}>
+            <Plus size={16} strokeWidth={2.5} />
+            Create Pack
           </Button>
+          <NewTripModal open={showNewTrip} onOpenChange={setShowNewTrip} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

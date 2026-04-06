@@ -3,13 +3,18 @@ import { User } from './user'
 
 type BaseTrip = {
   title: string
-  location: string
+  location?: string
   start_date?: string
   end_date?: string
   temp_min?: number
   temp_max?: number
+  temp_category?: string
   distance?: number
+  daily_elevation_gain?: number
+  terrain?: string
+  pace?: string
   notes?: string
+  enrich_status?: 'pending' | 'processing' | 'completed' | 'failed' | null
 }
 
 export type CreateTrip = BaseTrip

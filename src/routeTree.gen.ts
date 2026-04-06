@@ -17,7 +17,6 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppKitsRouteImport } from './routes/_app/kits'
 import { Route as AppInventoryRouteImport } from './routes/_app/inventory'
-import { Route as AppPackNewRouteImport } from './routes/_app/pack.new'
 import { Route as AppPackIdRouteImport } from './routes/_app/pack.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -59,11 +58,6 @@ const AppInventoryRoute = AppInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AppRoute,
 } as any)
-const AppPackNewRoute = AppPackNewRouteImport.update({
-  id: '/pack/new',
-  path: '/pack/new',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppPackIdRoute = AppPackIdRouteImport.update({
   id: '/pack/$id',
   path: '/pack/$id',
@@ -79,7 +73,6 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/pack/$id': typeof AppPackIdRoute
-  '/pack/new': typeof AppPackNewRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
@@ -90,7 +83,6 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/': typeof AppIndexRoute
   '/pack/$id': typeof AppPackIdRoute
-  '/pack/new': typeof AppPackNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -103,7 +95,6 @@ export interface FileRoutesById {
   '/auth/register': typeof AuthRegisterRoute
   '/_app/': typeof AppIndexRoute
   '/_app/pack/$id': typeof AppPackIdRoute
-  '/_app/pack/new': typeof AppPackNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,7 +107,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/pack/$id'
-    | '/pack/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -127,7 +117,6 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/'
     | '/pack/$id'
-    | '/pack/new'
   id:
     | '__root__'
     | '/_app'
@@ -139,7 +128,6 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/_app/'
     | '/_app/pack/$id'
-    | '/_app/pack/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -205,13 +193,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/pack/new': {
-      id: '/_app/pack/new'
-      path: '/pack/new'
-      fullPath: '/pack/new'
-      preLoaderRoute: typeof AppPackNewRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/pack/$id': {
       id: '/_app/pack/$id'
       path: '/pack/$id'
@@ -228,7 +209,6 @@ interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppPackIdRoute: typeof AppPackIdRoute
-  AppPackNewRoute: typeof AppPackNewRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -237,7 +217,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
   AppPackIdRoute: AppPackIdRoute,
-  AppPackNewRoute: AppPackNewRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

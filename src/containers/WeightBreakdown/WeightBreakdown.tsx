@@ -65,8 +65,8 @@ export const WeightBreakdown = () => {
   )
 
   return (
-    <div className="w-1/2 md:w-full md:mt-4">
-      <div className="text-sm font-semibold mb-4">Pack Weights</div>
+    <div>
+      
       <PackWeights
         title="Total"
         weights={totals}

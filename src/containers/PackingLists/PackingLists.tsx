@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { format } from 'date-fns'
 import { Calendar, CopyPlus, Map, PlusIcon, Trash2Icon } from 'lucide-react'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -22,6 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
+import { NewTripModal } from '@/containers/NewTripModal'
 import { useCloneTrip, useDeleteTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
 
@@ -35,6 +36,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
   const navigate = useNavigate()
   const deleteTrip = useDeleteTrip()
   const cloneTrip = useCloneTrip()
+  const [showNewTrip, setShowNewTrip] = useState(false)
 
   const onDelete = (id: number) => deleteTrip.mutate(id)
 
@@ -60,10 +62,11 @@ export const PackingLists: FC<Props> = ({ trips }) => {
           size="sm"
           variant="outline"
           className="gap-1"
-          onClick={() => navigate({ to: '/pack/new' })}
+          onClick={() => setShowNewTrip(true)}
         >
           <PlusIcon size={14} /> Create Pack
         </Button>
+        <NewTripModal open={showNewTrip} onOpenChange={setShowNewTrip} />
       </div>
 
       {!trips.length && (
@@ -82,7 +85,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
             <Button
               size="sm"
               className="gap-1"
-              onClick={() => navigate({ to: '/pack/new' })}
+              onClick={() => setShowNewTrip(true)}
             >
               <PlusIcon size={14} /> Create Pack
             </Button>

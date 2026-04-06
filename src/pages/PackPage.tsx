@@ -1,53 +1,30 @@
 import { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { useBlocker, useMatch } from '@tanstack/react-router'
+import { useMatch } from '@tanstack/react-router'
 
-import { initPack, useTripPacks } from '@/hooks/useTripPacks'
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { useTripQuery } from '@/queries/trip'
 import { Pack } from './Pack'
 
 export const PackPage = () => {
-  const { setPacks, packs: storePacks } = useTripPacks(
-    useShallow(store => ({
-      setPacks: store.setPacks,
-      packs: store.packs,
-    }))
+  const setPacks = useTripPacks(
+    useShallow(store => store.setPacks)
   )
 
-  // Check if we're on the /pack/$id route (vs /pack/new)
   const packMatch = useMatch({ from: '/_app/pack/$id', shouldThrow: false })
   const loaderData = packMatch?.loaderData
-  const trip = loaderData?.trip
   const packs = loaderData?.packs
+  const tripId = loaderData?.trip?.id
 
-  const isNewPack = !packMatch
-  const hasUnsavedWork =
-    isNewPack && storePacks.some(p => p.items.length > 0 || p.title !== 'New pack')
-
-  useBlocker({
-    shouldBlockFn: () => {
-      if (!isNewPack) return false
-      const currentPacks = useTripPacks.getState().packs
-      const hasWork = currentPacks.some(
-        p => p.items.length > 0 || p.title !== 'New pack'
-      )
-      if (!hasWork) return false
-      return !window.confirm(
-        'You have unsaved changes. Are you sure you want to leave?'
-      )
-    },
-    enableBeforeUnload: hasUnsavedWork,
-  })
+  const { data: trip } = useTripQuery(tripId)
 
   useEffect(() => {
     if (packs) {
       setPacks(packs)
     }
-    if (!packMatch) {
-      // /pack/new route
-      setPacks([initPack])
-    }
-  }, [setPacks, packs, packMatch])
+  }, [setPacks, packs])
 
-  // No loading state needed -- route loader already ensured data
+  if (!trip) return null
+
   return <Pack trip={trip} />
 }

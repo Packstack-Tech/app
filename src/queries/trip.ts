@@ -29,6 +29,11 @@ export const tripQueryOptions = (id: string | number) =>
       const res = await getTrip(id)
       return res.data
     },
+    refetchInterval: query => {
+      const status = query.state.data?.enrich_status
+      if (status === 'pending' || status === 'processing') return 2000
+      return false
+    },
   })
 
 export const useTripQuery = (id?: string | number) => {
@@ -39,6 +44,11 @@ export const useTripQuery = (id?: string | number) => {
       return res.data
     },
     enabled: !!id,
+    refetchInterval: query => {
+      const status = query.state.data?.enrich_status
+      if (status === 'pending' || status === 'processing') return 2000
+      return false
+    },
   })
 }
 

@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-react'
 
 import { Button, Input } from '@/components/ui'
 import {
@@ -18,12 +20,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogDestructiveAction,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/AlertDialog'
 import { useUser } from '@/hooks/useUser'
 import { DISTANCE, distances, weightUnits } from '@/lib/consts'
 import { SYSTEM_UNIT } from '@/lib/consts'
 import { currencies } from '@/lib/currencies'
 import { Mixpanel } from '@/lib/mixpanel'
 import { useUpdateUser } from '@/queries/user'
+import {
+  useHikerProfilesQuery,
+  useDeleteHikerProfile,
+} from '@/queries/hiker-profile'
+import { HikerProfileForm } from '@/containers/HikerProfileForm/HikerProfileForm'
+import type { HikerProfile } from '@/types/hiker-profile'
 
 type SettingsForm = {
   email: string
@@ -42,6 +60,13 @@ const schema = z.object({
 export const Settings = () => {
   const user = useUser()
   const updateUser = useUpdateUser()
+  const { data: hikerProfiles = [] } = useHikerProfilesQuery()
+  const deleteProfile = useDeleteHikerProfile()
+
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false)
+  const [editingProfile, setEditingProfile] = useState<HikerProfile | null>(null)
+  const [deletingProfile, setDeletingProfile] = useState<HikerProfile | null>(null)
+
   const form = useForm<SettingsForm>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -58,6 +83,24 @@ export const Settings = () => {
         Mixpanel.track('Settings:Updated', { ...data })
       },
     })
+  }
+
+  const openCreateDialog = () => {
+    setEditingProfile(null)
+    setProfileDialogOpen(true)
+  }
+
+  const openEditDialog = (profile: HikerProfile) => {
+    setEditingProfile(profile)
+    setProfileDialogOpen(true)
+  }
+
+  const handleDeleteProfile = () => {
+    if (deletingProfile) {
+      deleteProfile.mutate(deletingProfile.id, {
+        onSuccess: () => setDeletingProfile(null),
+      })
+    }
   }
 
   return (
@@ -191,6 +234,89 @@ export const Settings = () => {
           </Button>
         </div>
       </form>
+
+      <hr className="border-border" />
+
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Hiker Profiles
+          </h3>
+          <Button variant="outline" size="sm" onClick={openCreateDialog}>
+            <PlusIcon className="size-4 mr-1" />
+            Add Profile
+          </Button>
+        </div>
+
+        {hikerProfiles.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No hiker profiles yet. Add one to enable calorie and fitness
+            calculations for your trips.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {hikerProfiles.map(profile => (
+              <div
+                key={profile.id}
+                className="flex items-center justify-between rounded-md border px-4 py-3"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{profile.name}</span>
+                  {profile.is_default && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                      Default
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openEditDialog(profile)}
+                  >
+                    <PencilIcon className="size-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeletingProfile(profile)}
+                  >
+                    <TrashIcon className="size-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <HikerProfileForm
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
+        profile={editingProfile}
+        isFirstProfile={hikerProfiles.length === 0 && !editingProfile}
+      />
+
+      <AlertDialog
+        open={!!deletingProfile}
+        onOpenChange={open => !open && setDeletingProfile(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Hiker Profile</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &ldquo;{deletingProfile?.name}
+              &rdquo;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogDestructiveAction onClick={handleDeleteProfile}>
+              Delete
+            </AlertDialogDestructiveAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <hr className="border-border" />
 

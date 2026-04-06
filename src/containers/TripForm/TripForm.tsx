@@ -1,10 +1,8 @@
-import { FC, useEffect, useRef } from 'react'
+import { FC, useEffect } from 'react'
 import { DateRange } from 'react-day-picker'
 import { useForm } from 'react-hook-form'
 import { format } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
-import { useNavigate } from '@tanstack/react-router'
-import { useShallow } from 'zustand/react/shallow'
+import { Calendar as CalendarIcon, Loader2 } from 'lucide-react'
 
 import { Button, Input } from '@/components/ui'
 import { Calendar } from '@/components/ui/Calendar'
@@ -20,13 +18,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/Popover'
-import { useToast } from '@/hooks/useToast'
-import { initPack, useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
-import { cn } from '@/lib/utils'
-import { dateToUtc } from '@/lib/utils'
-import { useCreatePack, useUpdatePack } from '@/queries/pack'
-import { useCreateTrip, useUpdateTrip } from '@/queries/trip'
+import { cn, dateToUtc } from '@/lib/utils'
+import { useUpdateTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
 
 type TripFormValues = {
@@ -36,40 +30,26 @@ type TripFormValues = {
 }
 
 interface Props {
-  trip?: Trip
+  trip: Trip
 }
 
-const formDefaults = (trip?: Trip): TripFormValues => ({
-  location: trip?.location || '',
-  dates: trip?.start_date
+const formDefaults = (trip: Trip): TripFormValues => ({
+  location: trip.location || '',
+  dates: trip.start_date
     ? {
       from: dateToUtc(new Date(trip.start_date)),
       to: trip.end_date ? dateToUtc(new Date(trip.end_date)) : undefined,
     }
     : undefined,
-  distance: trip?.distance || 0,
+  distance: trip.distance || 0,
 })
 
-// TODO define ZOD schema for validation
 export const TripForm: FC<Props> = ({ trip }) => {
-  const { toast } = useToast()
-  const navigate = useNavigate()
   const user = useUser()
-  const { packs, synced, isDragging, setPacks, markSynced, assignPackId } =
-    useTripPacks(
-      useShallow(store => ({
-        packs: store.packs,
-        synced: store.synced,
-        isDragging: store.isDragging,
-        setPacks: store.setPacks,
-        markSynced: store.markSynced,
-        assignPackId: store.assignPackId,
-      }))
-    )
-  const createTrip = useCreateTrip()
-  const createPack = useCreatePack()
   const updateTrip = useUpdateTrip()
-  const updatePack = useUpdatePack()
+
+  const isEnriching =
+    trip.enrich_status === 'pending' || trip.enrich_status === 'processing'
 
   const form = useForm<TripFormValues>({
     defaultValues: formDefaults(trip),
@@ -79,84 +59,33 @@ export const TripForm: FC<Props> = ({ trip }) => {
     form.reset(formDefaults(trip))
   }, [trip])
 
-  const getPackPayload = ({ location, dates, distance }: TripFormValues) => ({
-    title: location,
-    location: location,
+  const getTripPayload = ({ location, dates, distance }: TripFormValues) => ({
+    title: trip.title,
+    location,
     start_date: dates?.from ? format(dates.from, 'yyyy-MM-dd') : undefined,
     end_date: dates?.to ? format(dates.to, 'yyyy-MM-dd') : undefined,
     distance,
   })
 
   const onFieldUpdate = () => {
-    if (!trip) return
     const formData = form.getValues()
-    const payload = getPackPayload(formData)
+    const payload = getTripPayload(formData)
     updateTrip.mutate({ id: trip.id, ...payload })
-  }
-
-  const savingRef = useRef(false)
-
-  useEffect(() => {
-    if (!trip?.id || synced || isDragging || savingRef.current) return
-
-    savingRef.current = true
-
-    async function savePacks(tripId: number) {
-      try {
-        await Promise.all(
-          packs.map(async (pack, index) => {
-            if (pack.id) {
-              await updatePack.mutateAsync({
-                id: pack.id,
-                data: { ...pack, trip_id: tripId },
-              })
-            } else {
-              const created = await createPack.mutateAsync({
-                title: pack.title,
-                items: pack.items,
-                trip_id: tripId,
-              })
-              assignPackId(index, created.id)
-            }
-          })
-        )
-        markSynced()
-        toast({ title: 'Pack updated' })
-      } finally {
-        savingRef.current = false
-      }
-    }
-
-    savePacks(trip.id)
-  }, [trip, synced, isDragging, packs])
-
-  // saves new pack and redirects to pack page
-  const onSubmit = async (data: TripFormValues) => {
-    const payload = getPackPayload(data)
-    const newTrip = await createTrip.mutateAsync(payload)
-    await Promise.all(
-      packs.map(async ({ title, items }) => {
-        await createPack.mutateAsync({
-          title,
-          items,
-          trip_id: newTrip.id,
-        })
-      })
-    )
-
-    setPacks([initPack])
-    navigate({ to: '/pack/$id', params: { id: String(newTrip.id) } })
   }
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        id="pack-form"
-        className="w-1/2 md:w-full"
-      >
-        <div className='flex flex-col gap-4'>
+      <div className="w-1/2 md:w-full">
+        <div className="flex flex-col gap-4">
           <div className="text-sm font-semibold">Details</div>
+
+          {isEnriching && (
+            <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Analyzing trail...
+            </div>
+          )}
+
           <FormField
             control={form.control}
             name="location"
@@ -168,6 +97,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
                     {...field}
                     placeholder="Trail or region..."
                     onBlur={() => onFieldUpdate()}
+                    disabled={isEnriching}
                   />
                 </FormControl>
               </FormItem>
@@ -186,6 +116,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
                       <Button
                         id="date"
                         variant="outline"
+                        disabled={isEnriching}
                         className={cn(
                           'w-full justify-start text-left font-normal md:text-sm whitespace-pre overflow-hidden text-ellipsis',
                           !field.value?.from && 'text-muted-foreground'
@@ -239,6 +170,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
                     step=".01"
                     placeholder="Distance"
                     onBlur={() => onFieldUpdate()}
+                    disabled={isEnriching}
                     onFocus={() => {
                       if (!field.value) field.onChange('')
                     }}
@@ -248,7 +180,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
             )}
           />
         </div>
-      </form>
+      </div>
     </Form>
   )
 }

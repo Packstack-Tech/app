@@ -16,9 +16,10 @@ import { CategoryWeight } from '@/types/category'
 
 interface Props {
   data: CategoryWeight[]
+  label?: string
 }
 
-export const BreakdownDialog: FC<Props> = ({ data }) => {
+export const BreakdownDialog: FC<Props> = ({ data, label = 'View Breakdown' }) => {
   const { isDark } = useDarkMode()
   const chartColors = [
     '#3366CC',
@@ -60,11 +61,11 @@ export const BreakdownDialog: FC<Props> = ({ data }) => {
         <Button
           variant="outline"
           size="sm"
-          className="w-full h-7 text-xs gap-1.5"
+          className="h-7 text-xs gap-1.5"
           onClick={() => Mixpanel.track('Pack:View breakdown')}
         >
           <PieChart size={12} />
-          View Breakdown
+          {label}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl">
