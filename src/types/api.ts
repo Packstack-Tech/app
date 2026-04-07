@@ -94,6 +94,7 @@ type PackItem = {
 export type PackPayload = {
   title: string
   trip_id?: number
+  hiker_profile_id?: number | null
   items: PackItem[]
 }
 

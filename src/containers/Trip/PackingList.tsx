@@ -75,10 +75,11 @@ export const PackingList: FC<Props> = ({ trip }) => {
 
   const availablePacks = useMemo(
     () =>
-      packs.map(({ id, title }, idx) => ({
+      packs.map(({ id, title, hiker_profile_id }, idx) => ({
         index: idx,
         id,
         title,
+        hiker_profile_id,
       })),
     [packs]
   )

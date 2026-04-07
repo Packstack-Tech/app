@@ -20,52 +20,68 @@ import {
 import { HikerProfile } from '@/types/hiker-profile'
 
 interface Props {
-  title: string
-  hikerProfileId?: number | null
-  profiles: HikerProfile[] | undefined
   open: boolean
+  profiles: HikerProfile[] | undefined
   onClose: () => void
-  onSave: (title: string, hikerProfileId: number | null) => void
+  onSave: (title: string, hikerProfileId?: number) => void
 }
 
 const NO_PROFILE = '__none__'
 
-export const EditPackDialog: FC<Props> = ({
-  title,
-  hikerProfileId,
-  profiles,
-  open,
-  onClose,
-  onSave,
-}) => {
-  const [value, setValue] = useState(title)
+export const NewPackDialog: FC<Props> = ({ open, profiles, onClose, onSave }) => {
+  const [title, setTitle] = useState('')
+  const defaultProfile = profiles?.find(p => p.is_default) ?? profiles?.[0]
   const [profileId, setProfileId] = useState<string>(
-    hikerProfileId ? String(hikerProfileId) : NO_PROFILE,
+    defaultProfile ? String(defaultProfile.id) : NO_PROFILE,
   )
 
   const hasProfiles = profiles && profiles.length > 0
 
+  const reset = () => {
+    setTitle('')
+    setProfileId(defaultProfile ? String(defaultProfile.id) : NO_PROFILE)
+  }
+
+  const handleSave = () => {
+    const name = title.trim()
+    if (!name) return
+    const selectedProfileId = profileId !== NO_PROFILE ? Number(profileId) : undefined
+    onSave(name, selectedProfileId)
+    reset()
+    onClose()
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={v => {
+        if (!v) {
+          reset()
+          onClose()
+        }
+      }}
+    >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit pack</DialogTitle>
+          <DialogTitle>New Pack</DialogTitle>
         </DialogHeader>
         <div className="px-6 py-4 space-y-4">
           <div className="grid gap-1">
-            <Label htmlFor="edit-pack-title">Pack Name</Label>
+            <Label htmlFor="pack-title">Pack Name</Label>
             <Input
-              id="edit-pack-title"
-              value={value}
-              onChange={e => setValue(e.target.value)}
+              id="pack-title"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="e.g. Main Pack"
+              autoFocus
             />
           </div>
 
           {hasProfiles && (
             <div className="grid gap-1">
-              <Label htmlFor="edit-pack-profile">Hiker Profile</Label>
+              <Label htmlFor="pack-profile">Hiker Profile</Label>
               <Select value={profileId} onValueChange={setProfileId}>
-                <SelectTrigger id="edit-pack-profile" className="w-full">
+                <SelectTrigger id="pack-profile" className="w-full">
                   <SelectValue placeholder="Select profile..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -81,15 +97,17 @@ export const EditPackDialog: FC<Props> = ({
           )}
         </div>
         <DialogFooter className="flex justify-between">
-          <Button onClick={onClose} variant="outline">
+          <Button
+            onClick={() => {
+              reset()
+              onClose()
+            }}
+            variant="outline"
+          >
             Cancel
           </Button>
-          <Button
-            onClick={() =>
-              onSave(value, profileId !== NO_PROFILE ? Number(profileId) : null)
-            }
-          >
-            Save
+          <Button onClick={handleSave} disabled={!title.trim()}>
+            Create
           </Button>
         </DialogFooter>
       </DialogContent>

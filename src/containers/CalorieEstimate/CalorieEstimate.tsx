@@ -38,12 +38,30 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
     return defaultProfile ?? null
   }, [profiles, selectedProfileId, defaultProfile])
 
+  const relevantProfiles = useMemo(() => {
+    if (!profiles?.length) return []
+    const assignedIds = new Set(
+      packs.map(p => p.hiker_profile_id).filter((id): id is number => id != null),
+    )
+    if (assignedIds.size === 0) return profiles
+    return profiles.filter(p => assignedIds.has(p.id))
+  }, [profiles, packs])
+
+  const showProfileSelector = relevantProfiles.length > 1
+
   const [safetyMargin, setSafetyMargin] = useState(false)
 
+  const packsForProfile = useMemo(() => {
+    if (!activeProfile) return packs
+    return packs.filter(
+      p => p.hiker_profile_id === activeProfile.id || !p.hiker_profile_id,
+    )
+  }, [packs, activeProfile])
+
   const totalPackWeight = useMemo(() => {
-    const allItems = packs.flatMap(p => p.items)
+    const allItems = packsForProfile.flatMap(p => p.items)
     return calculateWeightBreakdown(allItems, user.conversion_unit).total
-  }, [packs, user.conversion_unit])
+  }, [packsForProfile, user.conversion_unit])
 
   const missing = useMemo(
     () => getMissingCalorieInputs(activeProfile, trip),
@@ -82,21 +100,27 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
         {/* Profile selector */}
         <div className="px-3 py-2 border-b border-border bg-muted/50">
           {profiles && profiles.length > 0 ? (
-            <Select
-              value={selectedProfileId ?? String(activeProfile?.id ?? '')}
-              onValueChange={setSelectedProfileId}
-            >
-              <SelectTrigger size="sm" className="w-full text-xs">
-                <SelectValue placeholder="Select profile..." />
-              </SelectTrigger>
-              <SelectContent>
-                {profiles.map(p => (
-                  <SelectItem key={p.id} value={String(p.id)}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            showProfileSelector ? (
+              <Select
+                value={selectedProfileId ?? String(activeProfile?.id ?? '')}
+                onValueChange={setSelectedProfileId}
+              >
+                <SelectTrigger size="sm" className="w-full text-xs">
+                  <SelectValue placeholder="Select profile..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {relevantProfiles.map(p => (
+                    <SelectItem key={p.id} value={String(p.id)}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {activeProfile?.name}
+              </p>
+            )
           ) : (
             <p className="text-xs text-muted-foreground">
               <a href="/settings" className="text-primary hover:underline">

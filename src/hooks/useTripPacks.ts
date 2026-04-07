@@ -10,9 +10,9 @@ interface TripPacksState {
   checklistMode: boolean
   synced: boolean
   isDragging: boolean
-  addPack: () => void
+  addPack: (title: string, hikerProfileId?: number | null) => void
   removePack: (index: number) => void
-  updatePack: (index: number, key: TripPackKeys, value: string) => void
+  updatePack: (index: number, key: TripPackKeys, value: string | number | null) => void
   selectPack: (index: number) => void
   setPacks: (packs: TripPack[]) => void
   setDragging: (dragging: boolean) => void
@@ -73,12 +73,12 @@ export const useTripPacks = create<TripPacksState>(set => ({
   isDragging: false,
   packs: [initPack],
 
-  addPack: () =>
+  addPack: (title, hikerProfileId) =>
     set(state => {
       const count = state.packs.length
       return {
         selectedIndex: count,
-        packs: [...state.packs, { title: `Pack ${count + 1}`, items: [] }],
+        packs: [...state.packs, { title, hiker_profile_id: hikerProfileId ?? null, items: [] }],
         synced: false,
       }
     }),
