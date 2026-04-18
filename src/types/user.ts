@@ -18,6 +18,7 @@ export type User = {
   banned: boolean
   deactivated: boolean
   email_verified: boolean
+  is_subscribed: boolean
   hide_table_headers: boolean | null
 
   instagram_url: string | null

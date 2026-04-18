@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
+import { UpgradePrompt } from '@/components/UpgradePrompt'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
 import {
@@ -26,8 +28,25 @@ interface Props {
 
 export const CalorieEstimate: FC<Props> = ({ trip }) => {
   const user = useUser()
+  const { isSubscribed } = useSubscription()
   const { packs } = useTripPacks(useShallow(store => ({ packs: store.packs })))
   const { data: profiles } = useHikerProfilesQuery()
+
+  if (!isSubscribed) {
+    return (
+      <div>
+        <div className="text-sm font-semibold mb-2 inline-flex items-center gap-1.5">
+          <FlameIcon size={14} className="text-orange-400" />
+          Calorie Estimate
+        </div>
+        <UpgradePrompt
+          compact
+          title="Calorie Calculator"
+          description="Upgrade to estimate daily calorie needs for your trips."
+        />
+      </div>
+    )
+  }
 
   const defaultProfile = profiles?.find(p => p.is_default) ?? profiles?.[0]
   const [selectedProfileId, setSelectedProfileId] = useState<string | undefined>(undefined)

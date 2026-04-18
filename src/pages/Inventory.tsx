@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Archive, ArchiveRestore, MoreHorizontal, X } from 'lucide-react'
+import { Archive, ArchiveRestore, MoreHorizontal } from 'lucide-react'
 
 import { Button, Input } from '@/components/ui'
 import { Checkbox } from '@/components/ui/Checkbox'
@@ -58,6 +58,17 @@ export const InventoryPage = () => {
 
   const deselectAll = useCallback(() => setSelectedIds(new Set()), [])
 
+  const allVisibleIds = useMemo(() => {
+    if (!inventory) return []
+    return inventory
+      .filter(item => showRemoved || !item.removed)
+      .map(item => item.id)
+  }, [inventory, showRemoved])
+
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(allVisibleIds))
+  }, [allVisibleIds])
+
   const handleBulkArchive = () => {
     const ids = Array.from(selectedIds)
     bulkArchive.mutate(ids, { onSuccess: () => setSelectedIds(new Set()) })
@@ -76,6 +87,8 @@ export const InventoryPage = () => {
   }, [inventory])
 
   const selectionCount = selectedIds.size
+  const allSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedIds.has(id))
+  const someSelected = selectionCount > 0 && !allSelected
 
   const { hasActive, hasRemoved } = useMemo(() => {
     if (!inventory || selectionCount === 0) return { hasActive: false, hasRemoved: false }
@@ -158,11 +171,17 @@ export const InventoryPage = () => {
 
         <div className="flex items-center justify-between gap-2 min-h-8">
           <div className="flex items-center gap-2">
+            {allVisibleIds.length > 0 && (
+              <Checkbox
+                checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                onClick={() => allSelected ? deselectAll() : selectAll()}
+              />
+            )}
+            <span className="text-xs font-medium text-foreground">
+              {selectionCount} selected
+            </span>
             {selectionCount > 0 && (
               <>
-                <span className="text-xs font-medium text-foreground">
-                  {selectionCount} selected
-                </span>
                 {hasActive && (
                   <Button
                     variant="outline"
@@ -187,13 +206,6 @@ export const InventoryPage = () => {
                     Restore
                   </Button>
                 )}
-                <button
-                  onClick={deselectAll}
-                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-0.5 transition-colors"
-                >
-                  <X size={12} />
-                  Deselect
-                </button>
               </>
             )}
           </div>
