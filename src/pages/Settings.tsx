@@ -88,10 +88,6 @@ export const Settings = () => {
   }
 
   const openCreateDialog = () => {
-    if (!isSubscribed && hikerProfiles.length >= 1) {
-      openUpgrade()
-      return
-    }
     setEditingProfile(null)
     setProfileDialogOpen(true)
   }
