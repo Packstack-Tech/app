@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 
+import { SYSTEM_UNIT } from '@/lib/consts'
 import { Item } from '@/types/item'
 import { PackItem, PackItemEditableKeys, TripPackKeys } from '@/types/pack'
 import { TripPack } from '@/types/pack'
@@ -8,6 +9,7 @@ interface TripPacksState {
   selectedIndex: number
   packs: TripPack[]
   checklistMode: boolean
+  displayUnitSystem: SYSTEM_UNIT | null
   synced: boolean
   isDragging: boolean
   addPack: (title: string, hikerProfileId?: number | null) => void
@@ -30,6 +32,7 @@ interface TripPacksState {
   setCategoryItems: (items: PackItem[]) => void
   updateBaseItem: (itemId: number, updatedFields: Partial<Item>) => void
   toggleChecklistMode: () => void
+  setDisplayUnitSystem: (system: SYSTEM_UNIT) => void
 }
 
 export const initPack = {
@@ -69,6 +72,7 @@ function updateCurrentPackItems(
 export const useTripPacks = create<TripPacksState>(set => ({
   selectedIndex: 0,
   checklistMode: false,
+  displayUnitSystem: null,
   synced: true,
   isDragging: false,
   packs: [initPack],
@@ -177,4 +181,6 @@ export const useTripPacks = create<TripPacksState>(set => ({
 
   toggleChecklistMode: () =>
     set(state => ({ checklistMode: !state.checklistMode })),
+
+  setDisplayUnitSystem: system => set({ displayUnitSystem: system }),
 }))

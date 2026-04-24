@@ -17,7 +17,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
-import { sumPackItemWeights } from '@/lib/weight'
+import { getConversionUnit, sumPackItemWeights } from '@/lib/weight'
 import { PackItem } from '@/types/pack'
 
 import { ItemRow } from './ItemRow'
@@ -34,11 +34,13 @@ export function CategorizedPackItemsTable<TData, TValue>({
   category,
 }: DataTableProps<TData, TValue>) {
   const user = useUser()
-  const { setCategoryItems } = useTripPacks(
+  const { setCategoryItems, displayUnitSystem } = useTripPacks(
     useShallow(store => ({
       setCategoryItems: store.setCategoryItems,
+      displayUnitSystem: store.displayUnitSystem,
     }))
   )
+  const unit = getConversionUnit(displayUnitSystem ?? user.unit_weight)
 
   const table = useReactTable({
     data,
@@ -68,14 +70,14 @@ export function CategorizedPackItemsTable<TData, TValue>({
   const packItems = table
     .getRowModel()
     .rows.map(row => row.original as PackItem)
-  const categoryWeight = sumPackItemWeights(packItems, user.conversion_unit)
+  const categoryWeight = sumPackItemWeights(packItems, unit)
 
   return (
     <div className="mb-6">
       <div className="rounded-t-md px-3 py-2 bg-muted flex justify-between items-center">
         <h3 className="font-bold text-primary text-xs md:text-sm">{category}</h3>
         <span className="text-xs text-primary">
-          {categoryWeight.toFixed(2)} {user.conversion_unit}
+          {categoryWeight.toFixed(2)} {unit}
         </span>
       </div>
       <div className="rounded-b-md border border-border">

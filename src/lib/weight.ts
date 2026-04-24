@@ -41,6 +41,41 @@ export const getConversionUnit = (unit_system: SYSTEM_UNIT): Unit => {
   return unit_system === 'METRIC' ? 'kg' : 'lb'
 }
 
+export const getItemDisplayUnit = (unit_system: SYSTEM_UNIT): Unit => {
+  return unit_system === 'METRIC' ? 'g' : 'oz'
+}
+
+const PROMOTE_THRESHOLDS: Partial<
+  Record<Unit, { threshold: number; to: Unit }>
+> = {
+  g: { threshold: 1000, to: 'kg' },
+  oz: { threshold: 16, to: 'lb' },
+}
+
+/**
+ * Formats an item weight for display, promoting to the larger unit
+ * (g -> kg, oz -> lb) when the value exceeds a natural threshold.
+ */
+export function formatItemWeight(
+  weight: number,
+  fromUnit: Unit,
+  targetItemUnit: Unit
+): string {
+  const converted = convertWeight(weight, fromUnit, targetItemUnit)
+  const promo = PROMOTE_THRESHOLDS[targetItemUnit]
+
+  if (promo && converted.weight >= promo.threshold) {
+    const promoted = convertWeight(weight, fromUnit, promo.to)
+    return `${promoted.weight.toFixed(2)} ${promo.to}`
+  }
+
+  const rounded =
+    targetItemUnit === 'g'
+      ? Math.round(converted.weight)
+      : parseFloat(converted.weight.toFixed(2))
+  return `${rounded} ${targetItemUnit}`
+}
+
 /**
  * Sums the total weight of pack items, converting each to the target unit
  * and multiplying by quantity.

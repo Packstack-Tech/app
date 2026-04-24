@@ -1,5 +1,5 @@
 import { FC, useMemo } from 'react'
-import { CheckSquare, Download, Link, PackageOpen, Settings } from 'lucide-react'
+import { CheckSquare, Download, Link, PackageOpen, Scale, Settings } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { EmptyState } from '@/components/EmptyState'
@@ -22,6 +22,7 @@ import { Mixpanel } from '@/lib/mixpanel'
 import {
   calculateCategoryWeights,
   calculateWeightBreakdown,
+  getConversionUnit,
 } from '@/lib/weight'
 import { useCreateTrip, useUpdateTrip } from '@/queries/trip'
 import { PackItem } from '@/types/pack'
@@ -49,28 +50,40 @@ export const PackingList: FC<Props> = ({ trip }) => {
   const { toast } = useToast()
   const { isPending: creatingTrip } = useCreateTrip()
   const { isPending: updatingTrip } = useUpdateTrip()
-  const { packs, selectedIndex, checklistMode, toggleChecklistMode } =
-    useTripPacks(
-      useShallow(state => ({
-        packs: state.packs,
-        selectedIndex: state.selectedIndex,
-        checklistMode: state.checklistMode,
-        toggleChecklistMode: state.toggleChecklistMode,
-      }))
-    )
+  const {
+    packs,
+    selectedIndex,
+    checklistMode,
+    toggleChecklistMode,
+    displayUnitSystem,
+    setDisplayUnitSystem,
+  } = useTripPacks(
+    useShallow(state => ({
+      packs: state.packs,
+      selectedIndex: state.selectedIndex,
+      checklistMode: state.checklistMode,
+      toggleChecklistMode: state.toggleChecklistMode,
+      displayUnitSystem: state.displayUnitSystem,
+      setDisplayUnitSystem: state.setDisplayUnitSystem,
+    }))
+  )
+
+  const effectiveSystem = displayUnitSystem ?? user.unit_weight
+  const unit = getConversionUnit(effectiveSystem)
+  const isMetric = effectiveSystem === 'METRIC'
 
   const currentPack = packs[selectedIndex]
   const isSavedPack = !!currentPack?.id
   const currentItems = currentPack?.items ?? []
 
   const weights = useMemo(
-    () => calculateWeightBreakdown(currentItems, user.conversion_unit),
-    [currentItems, user.conversion_unit]
+    () => calculateWeightBreakdown(currentItems, unit),
+    [currentItems, unit]
   )
 
   const breakdownData = useMemo(
-    () => categorizePackItems(currentItems, user.conversion_unit),
-    [currentItems, user.conversion_unit]
+    () => categorizePackItems(currentItems, unit),
+    [currentItems, unit]
   )
 
   const availablePacks = useMemo(
@@ -87,8 +100,6 @@ export const PackingList: FC<Props> = ({ trip }) => {
   const tableCols = useMemo(() => columns(user.currency), [user.currency])
 
   const categorizedItems = useCategorizedPackItems(currentItems)
-
-  const unit = user.conversion_unit
 
   return (
     <div>
@@ -121,6 +132,26 @@ export const PackingList: FC<Props> = ({ trip }) => {
                     <span
                       className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-background shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
                       data-state={checklistMode ? 'checked' : 'unchecked'}
+                    />
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={e => {
+                    e.preventDefault()
+                    setDisplayUnitSystem(isMetric ? 'IMPERIAL' : 'METRIC')
+                  }}
+                >
+                  <Scale size={14} />
+                  Metric units
+                  <span
+                    role="switch"
+                    aria-checked={isMetric}
+                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors bg-input data-[state=checked]:bg-primary"
+                    data-state={isMetric ? 'checked' : 'unchecked'}
+                  >
+                    <span
+                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-background shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
+                      data-state={isMetric ? 'checked' : 'unchecked'}
                     />
                   </span>
                 </DropdownMenuItem>

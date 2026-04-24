@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/Popover'
 import { ItemForm } from '@/containers/ItemForm'
 import { useTripPacks } from '@/hooks/useTripPacks'
+import { useUser } from '@/hooks/useUser'
+import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
 import { ItemForm as ItemFormValues, Unit } from '@/types/item'
 import { PackItem } from '@/types/pack'
 
@@ -158,11 +160,17 @@ export const WeightCell: FC<Props> = ({
     row: { original },
   },
 }) => {
+  const user = useUser()
+  const { displayUnitSystem } = useTripPacks(
+    useShallow(store => ({ displayUnitSystem: store.displayUnitSystem }))
+  )
   const { item } = original
   if (!item.weight) return '-'
-  const displayWeight = ['g', 'oz'].includes(item.unit)
-    ? item.weight
-    : item.weight.toFixed(2)
+
+  const effectiveSystem = displayUnitSystem ?? user.unit_weight
+  const targetUnit = getItemDisplayUnit(effectiveSystem)
+  const formatted = formatItemWeight(item.weight, item.unit, targetUnit)
+
   return (
     <div className="flex pl-1">
       {item.consumable && (
@@ -172,9 +180,7 @@ export const WeightCell: FC<Props> = ({
           strokeWidth={1}
         />
       )}
-      <span className="ml-auto">
-        {displayWeight} {item.unit}
-      </span>
+      <span className="ml-auto">{formatted}</span>
     </div>
   )
 }

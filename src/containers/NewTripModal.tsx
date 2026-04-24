@@ -96,13 +96,13 @@ export const NewTripModal: FC<Props> = ({ open, onOpenChange }) => {
           <DialogHeader>
             <DialogTitle>New Pack</DialogTitle>
             <DialogDescription>
-              Create a trip and start building your packing list.
+              Give your pack a name to get started.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 px-6 py-5">
+          <div className="flex flex-col gap-6 px-6 py-5">
             <div className="grid gap-1">
-              <Label htmlFor="trip-title">Trip Name *</Label>
+              <Label htmlFor="trip-title" className="text-foreground">Pack Name</Label>
               <Input
                 id="trip-title"
                 value={title}
@@ -112,78 +112,93 @@ export const NewTripModal: FC<Props> = ({ open, onOpenChange }) => {
               />
             </div>
 
-            <div className="grid gap-1">
-              <div className="flex items-center gap-1.5">
-                <Label htmlFor="trip-location">Trail name or location</Label>
-                <Tooltip>
-                  <TooltipTrigger type="button" tabIndex={-1}>
-                    <InfoIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Be as specific as possible. We'll use this to gather
-                    detailed information about your trip.
-                  </TooltipContent>
-                </Tooltip>
+            <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <p className="text-sm font-medium text-foreground">
+                  Trip Details
+                </p>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Optional
+                </span>
               </div>
-              <Input
-                id="trip-location"
-                value={location}
-                onChange={e => setLocation(e.target.value)}
-                placeholder="SHT Oberg Mountain Loop"
-              />
-            </div>
 
-            <div className="grid gap-1">
-              <Label>Dates</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      'w-full justify-start text-left font-normal',
-                      !dates?.from && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dates?.from ? (
-                      dates.to ? (
-                        <>
-                          {format(dates.from, 'LLL dd')} -{' '}
-                          {format(dates.to, 'LLL dd, y')}
-                        </>
-                      ) : (
-                        format(dates.from, 'LLL dd, y')
-                      )
-                    ) : (
-                      <span>Select dates...</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    defaultMonth={dates?.from}
-                    selected={dates}
-                    onSelect={setDates}
-                    numberOfMonths={2}
+              <div className="grid gap-3">
+                <div className="grid gap-1">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Label htmlFor="trip-location" className='mb-0'>Trail name or location</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button" tabIndex={-1}>
+                        <InfoIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Be as specific as possible. We'll use this to gather
+                        detailed information about your trip.
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="trip-location"
+                    value={location}
+                    onChange={e => setLocation(e.target.value)}
+                    placeholder="SHT Oberg Mountain Loop"
                   />
-                </PopoverContent>
-              </Popover>
-            </div>
+                </div>
 
-            <div className="grid gap-1">
-              <Label htmlFor="trip-distance">
-                Distance ({user.unit_distance})
-              </Label>
-              <Input
-                id="trip-distance"
-                type="number"
-                step=".01"
-                value={distance}
-                onChange={e => setDistance(e.target.value)}
-                placeholder="0"
-              />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-1">
+                    <Label>Dates</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left font-normal',
+                            !dates?.from && 'text-muted-foreground'
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dates?.from ? (
+                            dates.to ? (
+                              <>
+                                {format(dates.from, 'LLL dd')} -{' '}
+                                {format(dates.to, 'LLL dd, y')}
+                              </>
+                            ) : (
+                              format(dates.from, 'LLL dd, y')
+                            )
+                          ) : (
+                            <span>Select dates...</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="range"
+                          defaultMonth={dates?.from}
+                          selected={dates}
+                          onSelect={setDates}
+                          numberOfMonths={2}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="grid gap-1">
+                    <Label htmlFor="trip-distance">
+                      Distance ({user.unit_distance})
+                    </Label>
+                    <Input
+                      id="trip-distance"
+                      type="number"
+                      step=".01"
+                      value={distance}
+                      onChange={e => setDistance(e.target.value)}
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

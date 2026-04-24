@@ -7,6 +7,7 @@ import { groupByCategory } from '@/lib/categorize'
 import {
   calculateCategoryWeights,
   calculateWeightBreakdown,
+  getConversionUnit,
   sumPackItemCalories,
   WeightBreakdown as Breakdown,
 } from '@/lib/weight'
@@ -26,12 +27,15 @@ function categorizePackItems(items: PackItem[], toUnit: string) {
 
 export const WeightBreakdown = () => {
   const user = useUser()
-  const { packs } = useTripPacks(useShallow(store => ({ packs: store.packs })))
+  const { packs, displayUnitSystem } = useTripPacks(
+    useShallow(store => ({ packs: store.packs, displayUnitSystem: store.displayUnitSystem }))
+  )
+  const unit = getConversionUnit(displayUnitSystem ?? user.unit_weight)
 
   const breakdowns = packs.map(({ items, title }) => ({
     title,
     items,
-    weights: calculateWeightBreakdown(items, user.conversion_unit),
+    weights: calculateWeightBreakdown(items, unit),
     calories: sumPackItemCalories(items),
   }))
 
@@ -55,13 +59,13 @@ export const WeightBreakdown = () => {
     [packs]
   )
   const totalCategoryWeights = useMemo(
-    () => categorizePackItems(allItems, user.conversion_unit),
-    [allItems, user.conversion_unit]
+    () => categorizePackItems(allItems, unit),
+    [allItems, unit]
   )
 
   const perPackCategoryWeights = useMemo(
-    () => breakdowns.map(({ items }) => categorizePackItems(items, user.conversion_unit)),
-    [breakdowns, user.conversion_unit]
+    () => breakdowns.map(({ items }) => categorizePackItems(items, unit)),
+    [breakdowns, unit]
   )
 
   return (
@@ -71,7 +75,7 @@ export const WeightBreakdown = () => {
         title="Total"
         weights={totals}
         calories={totalCalories}
-        aggregateWeightUnit={user.conversion_unit}
+        aggregateWeightUnit={unit}
         breakdownData={totalCategoryWeights}
       />
       {packs.length > 1 &&
@@ -81,7 +85,7 @@ export const WeightBreakdown = () => {
             title={title}
             weights={weights}
             calories={calories}
-            aggregateWeightUnit={user.conversion_unit}
+            aggregateWeightUnit={unit}
             breakdownData={perPackCategoryWeights[index]}
           />
         ))}

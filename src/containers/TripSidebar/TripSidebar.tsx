@@ -32,6 +32,7 @@ import {
 import {
   calculateCategoryWeights,
   calculateWeightBreakdown,
+  getConversionUnit,
   sumPackItemCalories,
   WeightBreakdown,
 } from '@/lib/weight'
@@ -55,7 +56,9 @@ function categorizePackItems(items: PackItem[], toUnit: string) {
 
 export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
   const user = useUser()
-  const { packs } = useTripPacks(useShallow(store => ({ packs: store.packs })))
+  const { packs, displayUnitSystem } = useTripPacks(
+    useShallow(store => ({ packs: store.packs, displayUnitSystem: store.displayUnitSystem }))
+  )
 
   const isEnriching =
     trip.enrich_status === 'pending' || trip.enrich_status === 'processing'
@@ -79,7 +82,7 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
     { label: 'Conditions', value: labelFor(trip.temp_category, TEMP_CATEGORY_OPTIONS) },
   ].filter((row): row is { label: string; value: string } => row.value != null)
 
-  const unit = user.conversion_unit
+  const unit = getConversionUnit(displayUnitSystem ?? user.unit_weight)
 
   const totals = useMemo(() => {
     const breakdowns = packs.map(({ items }) => ({
