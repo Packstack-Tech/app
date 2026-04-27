@@ -14,6 +14,7 @@ type BaseTrip = {
   terrain?: string
   pace?: string
   notes?: string
+  trail_system?: string | null
   enrich_status?: 'pending' | 'processing' | 'completed' | 'failed' | null
 }
 
