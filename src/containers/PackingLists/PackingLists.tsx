@@ -95,7 +95,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
 
       <div className="flex flex-col gap-3">
         {(trips || []).map(
-          ({ created_at, start_date, end_date, id, location, removed }) => {
+          ({ created_at, start_date, end_date, id, title, location, removed }) => {
             const created = format(new Date(created_at), DATE_FORMAT)
             const start = start_date
               ? format(new Date(start_date), DATE_FORMAT)
@@ -117,8 +117,15 @@ export const PackingLists: FC<Props> = ({ trips }) => {
                       params={{ id: `${id}` }}
                       className="text-base font-semibold text-foreground hover:text-primary transition-colors"
                     >
-                      {location || 'Untitled'}
+                      {title || 'Untitled'}
                     </Link>
+
+                    {location && (
+                      <div className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Map size={13} className="shrink-0" />
+                        <span>{location}</span>
+                      </div>
+                    )}
 
                     {start && (
                       <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -149,7 +156,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
                           </AlertDialogHeader>
                           <AlertDialogDescription>
                             This will create a copy of{' '}
-                            {location || 'Untitled'}.
+                            {title || 'Untitled'}.
                           </AlertDialogDescription>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -177,7 +184,7 @@ export const PackingLists: FC<Props> = ({ trips }) => {
                           </AlertDialogHeader>
                           <AlertDialogDescription>
                             This will permanently delete{' '}
-                            {location || 'Untitled'}.
+                            {title || 'Untitled'}.
                           </AlertDialogDescription>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
