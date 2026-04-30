@@ -38,6 +38,7 @@ import { useUpdateTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
 
 type TripDetailFormValues = {
+  title: string
   location: string
   dates?: DateRange
   distance: number | ''
@@ -56,6 +57,7 @@ interface Props {
 }
 
 const formDefaults = (trip: Trip): TripDetailFormValues => ({
+  title: trip.title || '',
   location: trip.location || '',
   dates: trip.start_date
     ? {
@@ -89,7 +91,7 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
     updateTrip.mutate(
       {
         id: trip.id,
-        title: trip.title,
+        title: data.title || trip.title,
         location: data.location || undefined,
         start_date: data.dates?.from ? format(data.dates.from, 'yyyy-MM-dd') : undefined,
         end_date: data.dates?.to ? format(data.dates.to, 'yyyy-MM-dd') : undefined,
@@ -129,6 +131,19 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Location & Dates
                 </p>
+
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pack Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Name this pack..." />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
