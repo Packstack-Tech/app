@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { AlertTriangle, Archive, ArchiveRestore, MoreHorizontal, Weight } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 
@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
+import { ScrollArea, ScrollBar } from '@/components/ui/ScrollArea'
 import { cn } from '@/lib/utils'
 import { CategoryManagementModal } from '@/containers/CategoryManagementModal'
 import { ImportCsvModal } from '@/containers/ImportCsvModal'
@@ -55,7 +56,6 @@ export const InventoryPage = () => {
       .filter((name, i, arr) => arr.indexOf(name) === i)
   }, [groups])
 
-  const pillScrollRef = useRef<HTMLDivElement>(null)
 
   const bulkArchive = useBulkArchiveItems()
   const bulkRestore = useBulkRestoreItems()
@@ -270,38 +270,38 @@ export const InventoryPage = () => {
 
         {/* Category pill tabs */}
         {categoryNames.length > 1 && (
-          <div
-            ref={pillScrollRef}
-            className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4 md:-mx-6 md:px-6"
-          >
-            <button
-              type="button"
-              onClick={() => setCategoryFilter(null)}
-              className={cn(
-                'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                categoryFilter === null
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              )}
-            >
-              All
-            </button>
-            {categoryNames.map(name => (
+          <ScrollArea className="-mx-4 md:-mx-6 pb-2">
+            <div className="flex items-center gap-1.5 px-4 md:px-6">
               <button
-                key={name}
                 type="button"
-                onClick={() => setCategoryFilter(categoryFilter === name ? null : name)}
+                onClick={() => setCategoryFilter(null)}
                 className={cn(
-                  'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap',
-                  categoryFilter === name
+                  'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                  categoryFilter === null
                     ? 'bg-foreground text-background'
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 )}
               >
-                {name}
+                All
               </button>
-            ))}
-          </div>
+              {categoryNames.map(name => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => setCategoryFilter(categoryFilter === name ? null : name)}
+                  className={cn(
+                    'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap',
+                    categoryFilter === name
+                      ? 'bg-foreground text-background'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  )}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         )}
 
         {/* Bulk selection toolbar */}
