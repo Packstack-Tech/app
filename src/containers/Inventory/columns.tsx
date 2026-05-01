@@ -22,7 +22,7 @@ export const columns = (
     accessorKey: 'name',
     cell: ({ cell }) => <NameCell cell={cell} />,
     meta: {
-      style: { width: '20%' },
+      style: { width: '22%' },
     },
   },
   {
@@ -42,7 +42,7 @@ export const columns = (
     },
     cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
-      style: { width: '16%' },
+      style: { width: '18%' },
     },
   },
   {
@@ -55,7 +55,7 @@ export const columns = (
       />
     ),
     meta: {
-      style: { width: '10%' },
+      style: { width: '5%' },
     },
   },
   {
