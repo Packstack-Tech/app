@@ -20,6 +20,30 @@ import { useUpdateItemSort } from '@/queries/item'
 
 import { ItemRow } from './ItemRow'
 
+function formatGroupWeight(totalGrams: number): string {
+  if (totalGrams >= 1000) return `${(totalGrams / 1000).toFixed(1)} kg`
+  return `${Math.round(totalGrams)} g`
+}
+
+function computeGroupSummary(data: any[]): { count: number; weightDisplay: string; value: number } {
+  const CONVERSION: Record<string, number> = { g: 1, kg: 1000, oz: 28.3495, lb: 453.592 }
+  let totalGrams = 0
+  let totalValue = 0
+
+  for (const item of data) {
+    if (item.weight && item.unit) {
+      totalGrams += item.weight * (CONVERSION[item.unit] || 1)
+    }
+    if (item.price) totalValue += item.price
+  }
+
+  return {
+    count: data.length,
+    weightDisplay: formatGroupWeight(totalGrams),
+    value: totalValue,
+  }
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -92,13 +116,21 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   const allSelected = selectedCount > 0 && selectedCount === visibleIds.length
   const someSelected = selectedCount > 0 && !allSelected
 
+  const groupSummary = useMemo(() => computeGroupSummary(data), [data])
+
   if (!visibleRows.length) return null
 
   return (
     <div className="mb-6" id={`category-${category}`}>
-      <h3 className="font-bold text-foreground rounded-t-md px-3 py-2 bg-muted text-xs md:text-sm">
-        {category}
-      </h3>
+      <div className="flex items-center justify-between rounded-t-md px-3 py-2 bg-muted">
+        <h3 className="font-bold text-foreground text-xs md:text-sm">
+          {category}
+        </h3>
+        <span className="text-[11px] text-muted-foreground tabular-nums">
+          {groupSummary.count} {groupSummary.count === 1 ? 'item' : 'items'} · {groupSummary.weightDisplay}
+          {groupSummary.value > 0 && ` · $${groupSummary.value.toFixed(0)}`}
+        </span>
+      </div>
       <div className="rounded-b-md border border-border">
         <Table>
           <TableHeader>

@@ -1,11 +1,13 @@
 import { useMemo } from 'react'
-import { Backpack } from 'lucide-react'
+import { Backpack, SearchX } from 'lucide-react'
 
 import { EmptyState } from '@/components/EmptyState'
 import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable'
 import { Loading } from '@/components/ui/Loading'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
+import { ItemScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
+import { ItemCondition, ItemStatus } from '@/types/item'
 
 import { columns } from './columns'
 
@@ -16,6 +18,10 @@ interface Props {
   selectedIds: Set<number>
   onToggleItem: (id: number) => void
   onToggleCategory: (ids: number[]) => void
+  scores: ItemScores
+  statusFilter?: ItemStatus | null
+  conditionFilter?: ItemCondition | null
+  categoryFilter?: string | null
 }
 
 export const InventoryTable = ({
@@ -25,11 +31,44 @@ export const InventoryTable = ({
   selectedIds,
   onToggleItem,
   onToggleCategory,
+  scores,
+  statusFilter,
+  conditionFilter,
+  categoryFilter,
 }: Props) => {
   const user = useUser()
   const data = useCategorizedItems({ showRemoved })
 
-  const tableCols = useMemo(() => columns(user.currency), [user.currency])
+  const filteredData = useMemo(() => {
+    let result = data
+
+    if (categoryFilter) {
+      result = result.filter(group => {
+        const name = group.category?.category?.name || 'Uncategorized'
+        return name === categoryFilter
+      })
+    }
+
+    if (statusFilter || conditionFilter) {
+      result = result
+        .map(group => ({
+          ...group,
+          items: group.items.filter(item => {
+            if (statusFilter && (item.status || 'active') !== statusFilter) return false
+            if (conditionFilter && item.condition !== conditionFilter) return false
+            return true
+          }),
+        }))
+        .filter(group => group.items.length > 0)
+    }
+
+    return result
+  }, [data, statusFilter, conditionFilter, categoryFilter])
+
+  const tableCols = useMemo(
+    () => columns(user.currency, scores),
+    [user.currency, scores]
+  )
 
   if (isLoading) {
     return (
@@ -39,19 +78,30 @@ export const InventoryTable = ({
     )
   }
 
+  const hasFilters = !!statusFilter || !!conditionFilter || !!searchFilter || !!categoryFilter
+  const hasAnyItems = data.length > 0
+
   return (
     <div>
-      {data.length === 0 && (
+      {filteredData.length === 0 && (
         <div className="mt-6">
-          <EmptyState icon={Backpack} heading="Your inventory is empty">
-            <p>
-              Add your gear to start building packing lists with automatic
-              weight breakdowns.
-            </p>
-          </EmptyState>
+          {hasAnyItems || hasFilters ? (
+            <EmptyState icon={SearchX} heading="No items match your filters">
+              <p>
+                Try adjusting your search or filter criteria to find what you're looking for.
+              </p>
+            </EmptyState>
+          ) : (
+            <EmptyState icon={Backpack} heading="Your gear closet is empty">
+              <p>
+                Add your gear to start building packing lists with automatic
+                weight breakdowns.
+              </p>
+            </EmptyState>
+          )}
         </div>
       )}
-      {data.map(({ category, items }) => {
+      {filteredData.map(({ category, items }) => {
         const categoryName = category?.category?.name || 'Uncategorized'
         return (
           <CategorizedItemsTable

@@ -1,35 +1,61 @@
-import { useCallback, useMemo, useState } from 'react'
-import { Archive, ArchiveRestore, MoreHorizontal } from 'lucide-react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { AlertTriangle, Archive, ArchiveRestore, MoreHorizontal, Weight } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 
 import { Button, Input } from '@/components/ui'
 import { Checkbox } from '@/components/ui/Checkbox'
-import { DialogTrigger } from '@/components/ui/Dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select'
+import { cn } from '@/lib/utils'
 import { CategoryManagementModal } from '@/containers/CategoryManagementModal'
 import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
 import { InventoryTable } from '@/containers/Inventory/InventoryTable'
-import { ItemForm } from '@/containers/ItemForm'
+import { useReplacementScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
 import { downloadInventory } from '@/lib/download'
 import { formatCurrency } from '@/lib/currencies'
+import { useGroupedInventory } from '@/queries/item'
 import { useBulkArchiveItems, useBulkRestoreItems, useInventory } from '@/queries/item'
+import { ItemCondition, ItemStatus } from '@/types/item'
+
+const CONVERSION: Record<string, number> = { g: 1, kg: 1000, oz: 28.3495, lb: 453.592 }
 
 export const InventoryPage = () => {
   const { data: inventory, isLoading } = useInventory()
   const user = useUser()
-  const [open, setOpen] = useState(false)
   const [openReorder, setOpenReorder] = useState(false)
   const [openLighterpackImport, setOpenLighterpackImport] = useState(false)
   const [openCsvmport, setOpenCsvImport] = useState(false)
   const [filter, setFilter] = useState('')
   const [showRemoved, setShowRemoved] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [statusFilter, setStatusFilter] = useState<ItemStatus | null>(null)
+  const [conditionFilter, setConditionFilter] = useState<ItemCondition | null>(null)
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
+
+  const scores = useReplacementScores(inventory)
+  const { data: groups } = useGroupedInventory()
+
+  const categoryNames = useMemo(() => {
+    if (!groups) return []
+    return groups
+      .map(g => g.category?.category?.name || 'Uncategorized')
+      .filter((name, i, arr) => arr.indexOf(name) === i)
+  }, [groups])
+
+  const pillScrollRef = useRef<HTMLDivElement>(null)
 
   const bulkArchive = useBulkArchiveItems()
   const bulkRestore = useBulkRestoreItems()
@@ -79,12 +105,29 @@ export const InventoryPage = () => {
     bulkRestore.mutate(ids, { onSuccess: () => setSelectedIds(new Set()) })
   }
 
-  const totalValue = useMemo(() => {
-    if (!inventory) return 0
-    return inventory
-      .filter(item => !item.removed)
-      .reduce((sum, item) => sum + (item.price || 0), 0)
-  }, [inventory])
+  const stats = useMemo(() => {
+    if (!inventory) return { count: 0, value: 0, weightDisplay: '0 g', attentionCount: 0 }
+    const active = inventory.filter(i => !i.removed)
+    const value = active.reduce((sum, i) => sum + (i.price || 0), 0)
+    let totalGrams = 0
+    for (const item of active) {
+      if (item.weight && item.unit) {
+        totalGrams += item.weight * (CONVERSION[item.unit] || 1)
+      }
+    }
+    const weightDisplay = totalGrams >= 1000
+      ? `${(totalGrams / 1000).toFixed(1)} kg`
+      : `${Math.round(totalGrams)} g`
+
+    let attentionCount = 0
+    for (const item of active) {
+      if (item.condition === 'retired' || item.status === 'retired') continue
+      const score = scores.get(item.id)
+      if (score != null && score >= 0.7) attentionCount++
+    }
+
+    return { count: active.length, value, weightDisplay, attentionCount }
+  }, [inventory, scores])
 
   const selectionCount = selectedIds.size
   const allSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedIds.has(id))
@@ -108,8 +151,9 @@ export const InventoryPage = () => {
   return (
     <div className="px-4 md:px-6 py-4">
       <div className="sticky top-0 z-10 bg-background pb-2 -mx-4 px-4 md:-mx-6 md:px-6 -mt-4 pt-4 border-b border-border/50">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="page-heading">Inventory</h1>
+        {/* Title row */}
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="page-heading">Gear Closet</h1>
           <div className="flex justify-end items-end gap-2">
             <Button
               variant="outline"
@@ -119,16 +163,9 @@ export const InventoryPage = () => {
               Manage Categories
             </Button>
 
-            <ItemForm
-              title="New Item"
-              open={open}
-              onOpenChange={setOpen}
-              onClose={() => setOpen(false)}
-            >
-              <DialogTrigger asChild>
-                <Button size="sm">Add Gear</Button>
-              </DialogTrigger>
-            </ItemForm>
+            <Button size="sm" asChild>
+              <Link to="/inventory/new">Add Gear</Link>
+            </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -152,24 +189,123 @@ export const InventoryPage = () => {
             </DropdownMenu>
           </div>
         </div>
-        <div className="flex items-end justify-between gap-2 mb-2">
+
+        {/* Stat strip */}
+        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+          <span>
+            <span className="font-semibold text-foreground tabular-nums">{stats.count}</span> items
+          </span>
+          {stats.value > 0 && (
+            <span>
+              <span className="font-semibold text-foreground tabular-nums">
+                {formatCurrency(stats.value, user.currency)}
+              </span> total value
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1">
+            <Weight size={12} />
+            <span className="font-semibold text-foreground tabular-nums">{stats.weightDisplay}</span>
+          </span>
+          {stats.attentionCount > 0 && (
+            <span className="inline-flex items-center gap-1 text-orange-400">
+              <AlertTriangle size={12} />
+              <span className="font-semibold tabular-nums">{stats.attentionCount}</span> need attention
+            </span>
+          )}
+        </div>
+
+        {/* Toolbar row */}
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
           <Input
             placeholder="Search..."
             value={filter}
             onChange={e => setFilter(e.target.value)}
-            className="md:w-64 w-full"
+            className="md:w-56 w-full"
           />
-          {totalValue > 0 && (
-            <div className="text-sm text-muted-foreground">
-              Total value{' '}
-              <span className="font-semibold text-foreground">
-                {formatCurrency(totalValue, user.currency)}
-              </span>
-            </div>
-          )}
+
+          <Select
+            value={statusFilter || 'all'}
+            onValueChange={v => setStatusFilter(v === 'all' ? null : v as ItemStatus)}
+          >
+            <SelectTrigger className="w-[120px] h-9 text-xs">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="wishlist">Wishlist</SelectItem>
+              <SelectItem value="retired">Retired</SelectItem>
+              <SelectItem value="sold">Sold</SelectItem>
+              <SelectItem value="lost">Lost</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={conditionFilter || 'all'}
+            onValueChange={v => setConditionFilter(v === 'all' ? null : v as ItemCondition)}
+          >
+            <SelectTrigger className="w-[130px] h-9 text-xs">
+              <SelectValue placeholder="Condition" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All conditions</SelectItem>
+              <SelectItem value="new">New</SelectItem>
+              <SelectItem value="good">Good</SelectItem>
+              <SelectItem value="fair">Fair</SelectItem>
+              <SelectItem value="worn">Worn</SelectItem>
+              <SelectItem value="retired">Retired</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <label className="flex items-center gap-1.5 cursor-pointer select-none ml-auto">
+            <Checkbox
+              checked={showRemoved}
+              onClick={() => setShowRemoved(!showRemoved)}
+            />
+            <span className="text-xs text-muted-foreground leading-none text-nowrap">
+              Show removed
+            </span>
+          </label>
         </div>
 
-        <div className="flex items-center justify-between gap-2 min-h-8">
+        {/* Category pill tabs */}
+        {categoryNames.length > 1 && (
+          <div
+            ref={pillScrollRef}
+            className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4 md:-mx-6 md:px-6"
+          >
+            <button
+              type="button"
+              onClick={() => setCategoryFilter(null)}
+              className={cn(
+                'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                categoryFilter === null
+                  ? 'bg-foreground text-background'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              )}
+            >
+              All
+            </button>
+            {categoryNames.map(name => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => setCategoryFilter(categoryFilter === name ? null : name)}
+                className={cn(
+                  'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap',
+                  categoryFilter === name
+                    ? 'bg-foreground text-background'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                )}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Bulk selection toolbar */}
+        <div className="flex items-center gap-2 min-h-8">
           <div className="flex items-center gap-2">
             {allVisibleIds.length > 0 && (
               <Checkbox
@@ -209,36 +345,31 @@ export const InventoryPage = () => {
               </>
             )}
           </div>
-          <label className="flex items-center gap-1.5 cursor-pointer select-none">
-            <Checkbox
-              checked={showRemoved}
-              onClick={() => setShowRemoved(!showRemoved)}
-            />
-            <span className="text-xs text-muted-foreground leading-none text-nowrap">
-              Show removed items
-            </span>
-          </label>
         </div>
       </div>
 
       <div className="pt-4">
         <ImportLighterpackModal
-        open={openLighterpackImport}
-        onOpenChange={setOpenLighterpackImport}
-      />
-      <ImportCsvModal open={openCsvmport} onOpenChange={setOpenCsvImport} />
-      <CategoryManagementModal
-        open={openReorder}
-        onOpenChange={setOpenReorder}
-      />
-      <InventoryTable
-        searchFilter={filter}
-        isLoading={isLoading}
-        showRemoved={showRemoved}
-        selectedIds={selectedIds}
-        onToggleItem={toggleItem}
-        onToggleCategory={toggleCategory}
-      />
+          open={openLighterpackImport}
+          onOpenChange={setOpenLighterpackImport}
+        />
+        <ImportCsvModal open={openCsvmport} onOpenChange={setOpenCsvImport} />
+        <CategoryManagementModal
+          open={openReorder}
+          onOpenChange={setOpenReorder}
+        />
+        <InventoryTable
+          searchFilter={filter}
+          isLoading={isLoading}
+          showRemoved={showRemoved}
+          selectedIds={selectedIds}
+          onToggleItem={toggleItem}
+          onToggleCategory={toggleCategory}
+          scores={scores}
+          statusFilter={statusFilter}
+          conditionFilter={conditionFilter}
+          categoryFilter={categoryFilter}
+        />
       </div>
     </div>
   )

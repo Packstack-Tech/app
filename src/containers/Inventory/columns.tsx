@@ -2,29 +2,27 @@ import { ColumnDef } from '@tanstack/react-table'
 
 import { Currency, formatCurrency } from '@/lib/currencies'
 import { Item } from '@/types/item'
+import { ItemScores } from '@/hooks/useReplacementScores'
 
-import { Action, EmptyDash, NotesCell, WeightCell } from './cells'
+import {
+  ConditionCell,
+  EmptyDash,
+  NameCell,
+  NotesCell,
+  ViewAction,
+  WeightCell,
+} from './cells'
 
-export const columns = (currency: Currency): ColumnDef<Item>[] => [
+export const columns = (
+  currency: Currency,
+  scores: ItemScores
+): ColumnDef<Item>[] => [
   {
     header: 'Name',
     accessorKey: 'name',
-    cell: ({ getValue, row }) => {
-      const name = getValue() as string | null
-      if (!name) return <EmptyDash />
-      if (row.original.removed) {
-        return (
-          <span className="bg-red-500/10 text-red-400 rounded px-1.5 py-0.5">
-            {name}
-          </span>
-        )
-      }
-      return name
-    },
+    cell: ({ cell }) => <NameCell cell={cell} />,
     meta: {
-      style: {
-        width: '20%',
-      },
+      style: { width: '20%' },
     },
   },
   {
@@ -32,9 +30,7 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     accessorKey: 'brand.name',
     cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
-      style: {
-        width: '20%',
-      },
+      style: { width: '14%' },
     },
   },
   {
@@ -46,9 +42,20 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     },
     cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
-      style: {
-        width: '20%',
-      },
+      style: { width: '16%' },
+    },
+  },
+  {
+    header: 'Condition',
+    accessorKey: 'condition',
+    cell: ({ cell }) => (
+      <ConditionCell
+        cell={cell}
+        score={scores.get(cell.row.original.id)}
+      />
+    ),
+    meta: {
+      style: { width: '10%' },
     },
   },
   {
@@ -59,30 +66,8 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     },
     cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
-      style: {
-        width: '15%',
-      },
-    },
-  },
-  {
-    header: 'Notes',
-    accessorKey: 'notes',
-    cell: ({ cell }) => <NotesCell cell={cell} />,
-    meta: {
-      align: 'center',
-      style: {
-        textAlign: 'center',
-        width: '5%',
-      },
-    },
-  },
-  {
-    header: 'kcal',
-    accessorKey: 'calories',
-    cell: ({ getValue }) => getValue() || <EmptyDash />,
-    meta: {
       align: 'right',
-      style: { textAlign: 'right', width: '7%' },
+      style: { textAlign: 'right', width: '10%' },
     },
   },
   {
@@ -94,13 +79,33 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
     },
   },
   {
-    id: 'actions',
-    cell: ({ cell }) => <Action cell={cell} />,
+    header: 'kcal',
+    accessorKey: 'calories',
+    cell: ({ cell }) => {
+      const item = cell.row.original
+      if (!item.consumable || !item.calories) return <EmptyDash />
+      return item.calories
+    },
     meta: {
       align: 'right',
-      style: {
-        width: '10%',
-      },
+      style: { textAlign: 'right', width: '6%' },
+    },
+  },
+  {
+    header: 'Notes',
+    accessorKey: 'notes',
+    cell: ({ cell }) => <NotesCell cell={cell} />,
+    meta: {
+      align: 'center',
+      style: { textAlign: 'center', width: '5%' },
+    },
+  },
+  {
+    id: 'actions',
+    cell: ({ cell }) => <ViewAction cell={cell} />,
+    meta: {
+      align: 'right',
+      style: { width: '7%' },
     },
   },
 ]
