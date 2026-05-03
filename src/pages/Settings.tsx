@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/AlertDialog'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
-import { DISTANCE, distances, weightUnits } from '@/lib/consts'
+import { DISTANCE, distances, temps, weightUnits } from '@/lib/consts'
 import { SYSTEM_UNIT } from '@/lib/consts'
 import { currencies } from '@/lib/currencies'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -49,6 +49,7 @@ type SettingsForm = {
   currency: string
   unit_distance: DISTANCE
   unit_weight: SYSTEM_UNIT
+  unit_temperature: string
 }
 
 const schema = z.object({
@@ -56,6 +57,7 @@ const schema = z.object({
   currency: z.string(),
   unit_distance: z.string(),
   unit_weight: z.enum(['IMPERIAL', 'METRIC']),
+  unit_temperature: z.enum(['F', 'C']),
 })
 
 export const Settings = () => {
@@ -76,6 +78,7 @@ export const Settings = () => {
       currency: user.currency.code || '',
       unit_distance: user.unit_distance || DISTANCE.Kilometers,
       unit_weight: user.unit_weight || 'METRIC',
+      unit_temperature: user.unit_temperature || 'F',
     },
   })
 
@@ -190,6 +193,35 @@ export const Settings = () => {
                             {distances.map(({ label, value }) => (
                               <SelectItem key={value} value={value}>
                                 {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </SelectTrigger>
+                      </FormControl>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="unit_temperature"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Temperature Unit</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder="Select temperature unit..."
+                            defaultValue={field.value}
+                          />
+                          <SelectContent>
+                            {temps.map(({ label, value }) => (
+                              <SelectItem key={value} value={value}>
+                                °{label}
                               </SelectItem>
                             ))}
                           </SelectContent>

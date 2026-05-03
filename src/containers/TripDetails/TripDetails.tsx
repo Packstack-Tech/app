@@ -27,9 +27,8 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { useUser } from '@/hooks/useUser'
+import { useUnits } from '@/hooks/useUnits'
 import {
-  PACE_OPTIONS,
   TEMP_CATEGORY_OPTIONS,
   TERRAIN_OPTIONS,
 } from '@/lib/tripDetails'
@@ -55,7 +54,13 @@ interface Props {
   onBack?: () => void
 }
 
-const formDefaults = (trip: Trip): TripDetailFormValues => ({
+type FormatFns = {
+  formatDistance: (v: number) => number
+  formatElevation: (v: number) => number
+  formatTemperature: (v: number) => number
+}
+
+const formDefaults = (trip: Trip, fmt: FormatFns): TripDetailFormValues => ({
   location: trip.location || '',
   dates: trip.start_date
     ? {
@@ -63,26 +68,27 @@ const formDefaults = (trip: Trip): TripDetailFormValues => ({
       to: trip.end_date ? dateToUtc(new Date(trip.end_date)) : undefined,
     }
     : undefined,
-  distance: trip.distance ?? '',
-  temp_min: trip.temp_min ?? '',
-  temp_max: trip.temp_max ?? '',
+  distance: trip.distance != null ? Math.round(fmt.formatDistance(trip.distance) * 100) / 100 : '',
+  temp_min: trip.temp_min != null ? Math.round(fmt.formatTemperature(trip.temp_min)) : '',
+  temp_max: trip.temp_max != null ? Math.round(fmt.formatTemperature(trip.temp_max)) : '',
   temp_category: trip.temp_category || '',
-  daily_elevation_gain: trip.daily_elevation_gain ?? '',
+  daily_elevation_gain: trip.daily_elevation_gain != null ? Math.round(fmt.formatElevation(trip.daily_elevation_gain)) : '',
   terrain: trip.terrain || '',
   pace: trip.pace || '',
   notes: trip.notes || '',
 })
 
 export const TripDetails: FC<Props> = ({ trip, onBack }) => {
-  const user = useUser()
+  const units = useUnits()
   const updateTrip = useUpdateTrip()
 
+  const fmt: FormatFns = units
   const form = useForm<TripDetailFormValues>({
-    defaultValues: formDefaults(trip),
+    defaultValues: formDefaults(trip, fmt),
   })
 
   useEffect(() => {
-    form.reset(formDefaults(trip))
+    form.reset(formDefaults(trip, fmt))
   }, [trip])
 
   const onSave = (data: TripDetailFormValues) => {
@@ -93,12 +99,12 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
         location: data.location || undefined,
         start_date: data.dates?.from ? format(data.dates.from, 'yyyy-MM-dd') : undefined,
         end_date: data.dates?.to ? format(data.dates.to, 'yyyy-MM-dd') : undefined,
-        distance: data.distance === '' ? undefined : Number(data.distance),
-        temp_min: data.temp_min === '' ? undefined : Number(data.temp_min),
-        temp_max: data.temp_max === '' ? undefined : Number(data.temp_max),
+        distance: data.distance === '' ? undefined : units.toCanonicalDistance(Number(data.distance)),
+        temp_min: data.temp_min === '' ? undefined : Math.round(units.toCanonicalTemperature(Number(data.temp_min))),
+        temp_max: data.temp_max === '' ? undefined : Math.round(units.toCanonicalTemperature(Number(data.temp_max))),
         temp_category: data.temp_category || undefined,
         daily_elevation_gain:
-          data.daily_elevation_gain === '' ? undefined : Number(data.daily_elevation_gain),
+          data.daily_elevation_gain === '' ? undefined : Math.round(units.toCanonicalElevation(Number(data.daily_elevation_gain))),
         terrain: data.terrain || undefined,
         pace: data.pace || undefined,
         notes: data.notes || undefined,
@@ -106,9 +112,6 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
       { onSuccess: () => onBack?.() }
     )
   }
-
-  const tempUnit = user.unit_temperature === 'C' ? '°C' : '°F'
-  const distUnit = user.unit_distance
 
   return (
     <ScrollArea className="h-full">
@@ -195,7 +198,7 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
                     name="distance"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Distance ({distUnit})</FormLabel>
+                        <FormLabel>Distance ({units.distanceLabel})</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -216,7 +219,7 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
                     name="daily_elevation_gain"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Daily Elev. Gain (ft)</FormLabel>
+                        <FormLabel>Daily Elev. Gain ({units.elevationLabel})</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -276,7 +279,7 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {PACE_OPTIONS.map(o => (
+                            {units.paceOptions.map(o => (
                               <SelectItem key={o.value} value={o.value}>
                                 {o.label}
                               </SelectItem>
@@ -295,7 +298,7 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
                       name="temp_min"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Min ({tempUnit})</FormLabel>
+                          <FormLabel>Min ({units.temperatureLabel})</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -314,7 +317,7 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
                       name="temp_max"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Max ({tempUnit})</FormLabel>
+                          <FormLabel>Max ({units.temperatureLabel})</FormLabel>
                           <FormControl>
                             <Input
                               {...field}

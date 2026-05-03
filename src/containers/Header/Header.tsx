@@ -70,7 +70,7 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowNewTrip(true)}>
+          <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => setShowNewTrip(true)}>
             <Plus size={16} strokeWidth={2.5} />
             Create Pack
           </Button>

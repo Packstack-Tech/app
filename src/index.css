@@ -172,7 +172,7 @@
   }
 
   h3 {
-    @apply font-semibold text-sm text-primary;
+    @apply font-semibold text-sm text-foreground;
   }
 
   h4 {

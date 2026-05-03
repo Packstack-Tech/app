@@ -27,7 +27,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/Dialog'
-import { useUser } from '@/hooks/useUser'
+import { useUnits } from '@/hooks/useUnits'
 import {
   useCreateHikerProfile,
   useUpdateHikerProfile,
@@ -65,13 +65,12 @@ export const HikerProfileForm = ({
   profile,
   isFirstProfile = false,
 }: Props) => {
-  const user = useUser()
+  const units = useUnits()
   const createProfile = useCreateHikerProfile()
   const updateProfile = useUpdateHikerProfile()
 
-  const isMetric = user.unit_weight === 'METRIC'
-  const weightLabel = isMetric ? 'Weight (kg)' : 'Weight (lb)'
-  const heightLabel = isMetric ? 'Height (cm)' : 'Height (in)'
+  const weightLabel = `Weight (${units.weightLabel})`
+  const heightLabel = `Height (${units.heightLabel})`
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -90,8 +89,8 @@ export const HikerProfileForm = ({
     if (open) {
       form.reset({
         name: profile?.name ?? '',
-        weight: profile?.weight ?? null,
-        height: profile?.height ?? null,
+        weight: profile?.weight != null ? Math.round(units.formatWeight(profile.weight) * 10) / 10 : null,
+        height: profile?.height != null ? Math.round(units.formatHeight(profile.height) * 10) / 10 : null,
         year_of_birth: profile?.year_of_birth ?? null,
         sex: profile?.sex ?? null,
         body_type: profile?.body_type ?? null,
@@ -106,8 +105,8 @@ export const HikerProfileForm = ({
   const onSubmit = (data: FormValues) => {
     const payload = {
       name: data.name,
-      weight: data.weight || null,
-      height: data.height || null,
+      weight: data.weight ? units.toCanonicalWeight(data.weight) : null,
+      height: data.height ? units.toCanonicalHeight(data.height) : null,
       year_of_birth: data.year_of_birth || null,
       sex: data.sex || null,
       body_type: data.body_type || null,

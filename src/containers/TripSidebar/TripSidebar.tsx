@@ -20,12 +20,12 @@ import {
 import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { CalorieEstimate } from '@/containers/CalorieEstimate/CalorieEstimate'
 import { useTripPacks } from '@/hooks/useTripPacks'
+import { useUnits } from '@/hooks/useUnits'
 import { useUser } from '@/hooks/useUser'
 import { groupByCategory } from '@/lib/categorize'
 import {
   formatDateRange,
   labelFor,
-  PACE_OPTIONS,
   TEMP_CATEGORY_OPTIONS,
   TERRAIN_OPTIONS,
 } from '@/lib/tripDetails'
@@ -56,6 +56,7 @@ function categorizePackItems(items: PackItem[], toUnit: string) {
 
 export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
   const user = useUser()
+  const units = useUnits()
   const { packs, displayUnitSystem } = useTripPacks(
     useShallow(store => ({ packs: store.packs, displayUnitSystem: store.displayUnitSystem }))
   )
@@ -63,22 +64,23 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
   const isEnriching =
     trip.enrich_status === 'pending' || trip.enrich_status === 'processing'
 
-  const tempUnit = user.unit_temperature === 'C' ? '°C' : '°F'
-  const distUnit = user.unit_distance
-
+  const fmtTemp = (v: number) => Math.round(units.formatTemperature(v))
   const tempValue =
     trip.temp_min != null || trip.temp_max != null
-      ? `${trip.temp_min ?? '—'}${tempUnit} – ${trip.temp_max ?? '—'}${tempUnit}`
+      ? `${trip.temp_min != null ? fmtTemp(trip.temp_min) : '—'}${units.temperatureLabel} – ${trip.temp_max != null ? fmtTemp(trip.temp_max) : '—'}${units.temperatureLabel}`
       : null
+
+  const fmtDist = (v: number) => Math.round(units.formatDistance(v) * 100) / 100
+  const fmtElev = (v: number) => Math.round(units.formatElevation(v))
 
   const detailRows: { label: string; value: string | null }[] = [
     { label: 'Location', value: trip.location || null },
     { label: 'Dates', value: formatDateRange(trip.start_date, trip.end_date) },
-    { label: 'Distance', value: trip.distance ? `${trip.distance} ${distUnit}` : null },
-    { label: 'Elevation', value: trip.daily_elevation_gain ? `${trip.daily_elevation_gain} ft/day` : null },
+    { label: 'Distance', value: trip.distance ? `${fmtDist(trip.distance)} ${units.distanceLabel}` : null },
+    { label: 'Elevation', value: trip.daily_elevation_gain ? `${fmtElev(trip.daily_elevation_gain)} ${units.elevationLabel}/day` : null },
     { label: 'Temperature', value: tempValue },
     { label: 'Terrain', value: labelFor(trip.terrain, TERRAIN_OPTIONS) },
-    { label: 'Pace', value: labelFor(trip.pace, PACE_OPTIONS) },
+    { label: 'Pace', value: labelFor(trip.pace, units.paceOptions) },
     { label: 'Conditions', value: labelFor(trip.temp_category, TEMP_CATEGORY_OPTIONS) },
   ].filter((row): row is { label: string; value: string } => row.value != null)
 

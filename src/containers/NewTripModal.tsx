@@ -25,7 +25,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
-import { useUser } from '@/hooks/useUser'
+import { useUnits } from '@/hooks/useUnits'
 import { cn } from '@/lib/utils'
 import { useHikerProfilesQuery } from '@/queries/hiker-profile'
 import { useCreatePack } from '@/queries/pack'
@@ -38,7 +38,7 @@ interface Props {
 
 export const NewTripModal: FC<Props> = ({ open, onOpenChange }) => {
   const navigate = useNavigate()
-  const user = useUser()
+  const units = useUnits()
   const createTrip = useCreateTrip()
   const createPack = useCreatePack()
   const { data: profiles } = useHikerProfilesQuery()
@@ -68,7 +68,7 @@ export const NewTripModal: FC<Props> = ({ open, onOpenChange }) => {
       location: location.trim() || undefined,
       start_date: dates?.from ? format(dates.from, 'yyyy-MM-dd') : undefined,
       end_date: dates?.to ? format(dates.to, 'yyyy-MM-dd') : undefined,
-      distance: distance ? Number(distance) : undefined,
+      distance: distance ? units.toCanonicalDistance(Number(distance)) : undefined,
     })
 
     await createPack.mutateAsync({
@@ -186,7 +186,7 @@ export const NewTripModal: FC<Props> = ({ open, onOpenChange }) => {
 
                   <div className="grid gap-1">
                     <Label htmlFor="trip-distance">
-                      Distance ({user.unit_distance})
+                      Distance ({units.distanceLabel})
                     </Label>
                     <Input
                       id="trip-distance"
