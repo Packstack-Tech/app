@@ -388,7 +388,7 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    form.reset(formDefaults(trip))
+                    form.reset(formDefaults(trip, fmt))
                     onBack?.()
                   }}
                 >
