@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Calendar, CircleDot, Package, StickyNote } from 'lucide-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
 import * as z from 'zod'
@@ -16,9 +16,11 @@ import { CatalogSection } from '@/containers/ItemDetail/sections/CatalogSection'
 import { DangerZoneSection } from '@/containers/ItemDetail/sections/DangerZoneSection'
 import { LifecycleSection } from '@/containers/ItemDetail/sections/LifecycleSection'
 import { NotesSection } from '@/containers/ItemDetail/sections/NotesSection'
+import { ProFeaturePreview } from '@/containers/ItemDetail/sections/ProFeaturePreview'
 import { ReplacementSection } from '@/containers/ItemDetail/sections/ReplacementSection'
 import { RetirementSection } from '@/containers/ItemDetail/sections/RetirementSection'
 import { SpecsSection } from '@/containers/ItemDetail/sections/SpecsSection'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useCreateItem, useInventory, useUpdateItem } from '@/queries/item'
 import { Item, ItemForm as ItemFormValues } from '@/types/item'
 
@@ -98,6 +100,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
   const { data: inventory } = useInventory()
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
+  const { isSubscribed, openUpgrade } = useSubscription()
   const [another, setAnother] = useState(false)
 
   const item = mode === 'edit' && inventory
@@ -220,12 +223,41 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
           <Separator className="my-8" />
           <SpecsSection form={form} />
           <Separator className="my-8" />
-          <LifecycleSection form={form} />
-          {isRetired && (
+          {isSubscribed ? (
             <>
-              <Separator className="my-8" />
-              <RetirementSection form={form} />
+              <LifecycleSection form={form} />
+              {isRetired && (
+                <>
+                  <Separator className="my-8" />
+                  <RetirementSection form={form} />
+                </>
+              )}
             </>
+          ) : (
+            <ProFeaturePreview
+              title="Lifecycle"
+              description="Track gear status, condition, acquisition details, and retirement history over time."
+              onUpgrade={openUpgrade}
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium mb-1.5">Status</p>
+                  <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Active</div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-1.5">Condition</p>
+                  <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Good</div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-1.5">Acquired Date</p>
+                  <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Jan 15, 2025</div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-1.5">Acquisition Type</p>
+                  <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Purchased</div>
+                </div>
+              </div>
+            </ProFeaturePreview>
           )}
         </form>
       </Form>
@@ -234,9 +266,66 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
       {isEdit && item && (
         <>
           <Separator className="my-8" />
-          <ReplacementSection itemId={item.id} />
+          {isSubscribed ? (
+            <ReplacementSection itemId={item.id} />
+          ) : (
+            <ProFeaturePreview
+              title="Replacement Score"
+              description="See how close your gear is to end-of-life based on age, condition, and category benchmarks."
+              onUpgrade={openUpgrade}
+            >
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
+                    <div className="h-full rounded-full bg-yellow-500 w-[45%]" />
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums text-yellow-400">45%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-yellow-400">Moderate wear</span>
+                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" /> Good</span>
+                    <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-yellow-500" /> Moderate</span>
+                    <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-red-500" /> Replace</span>
+                  </div>
+                </div>
+              </div>
+            </ProFeaturePreview>
+          )}
           <Separator className="my-8" />
-          <ActivityLogSection itemId={item.id} />
+          {isSubscribed ? (
+            <ActivityLogSection itemId={item.id} />
+          ) : (
+            <ProFeaturePreview
+              title="Activity Log"
+              description="Record repairs, maintenance, condition changes, and other events for each piece of gear."
+              onUpgrade={openUpgrade}
+            >
+              <div className="space-y-0">
+                {[
+                  { icon: Package, label: 'Acquired', date: 'Jan 15, 2025', detail: 'Purchased new' },
+                  { icon: CircleDot, label: 'Condition Change', date: 'Jun 3, 2025', detail: 'New → Good' },
+                  { icon: StickyNote, label: 'Note', date: 'Sep 12, 2025', detail: 'Seam showing wear on left shoulder strap' },
+                ].map(({ icon: Icon, label, date, detail }) => (
+                  <div key={label} className="flex gap-3 pb-4">
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-muted shrink-0">
+                        <Icon size={14} className="text-muted-foreground" />
+                      </div>
+                      <div className="w-px flex-1 bg-border mt-1" />
+                    </div>
+                    <div className="flex-1 min-w-0 pb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">{label}</span>
+                        <span className="text-[11px] text-muted-foreground">{date}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ProFeaturePreview>
+          )}
           {item.catalog_product && (
             <>
               <Separator className="my-8" />

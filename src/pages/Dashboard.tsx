@@ -4,6 +4,7 @@ import { isAfter, isSameDay, startOfDay } from 'date-fns'
 import { GearSnapshot } from '@/containers/Dashboard/GearSnapshot'
 import { NeedsAttention } from '@/containers/Dashboard/NeedsAttention'
 import { PastTrips } from '@/containers/Dashboard/PastTrips'
+import { ProUpsell } from '@/containers/Dashboard/ProUpsell'
 import { SetupChecklist } from '@/containers/Dashboard/SetupChecklist'
 import { UpcomingTrips } from '@/containers/Dashboard/UpcomingTrips'
 import { useUser } from '@/hooks/useUser'
@@ -56,6 +57,7 @@ export const Dashboard: FC = () => {
         <div className="flex flex-col gap-6">
           <SetupChecklist />
           <NeedsAttention />
+          <ProUpsell />
           <GearSnapshot />
         </div>
       </div>

@@ -8,7 +8,6 @@ const CONDITION_SCORES: Record<string, number> = {
   good: 0.25,
   fair: 0.5,
   worn: 0.8,
-  retired: 1.0,
 }
 
 const FALLBACK_BENCHMARK = { lifespan_years: 5, expected_nights: 300 }

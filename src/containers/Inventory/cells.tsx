@@ -76,7 +76,6 @@ const CONDITION_STYLES: Record<ItemCondition, string> = {
   good: 'bg-emerald-500/15 text-emerald-400',
   fair: 'bg-yellow-500/15 text-yellow-400',
   worn: 'bg-orange-500/15 text-orange-400',
-  retired: 'bg-red-500/15 text-red-400',
 }
 
 type ConditionCellProps = Props & {

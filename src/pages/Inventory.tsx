@@ -24,6 +24,7 @@ import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
 import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { useReplacementScores } from '@/hooks/useReplacementScores'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
 import { downloadInventory } from '@/lib/download'
 import { formatCurrency } from '@/lib/currencies'
@@ -46,7 +47,9 @@ export const InventoryPage = () => {
   const [conditionFilter, setConditionFilter] = useState<ItemCondition | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
 
-  const scores = useReplacementScores(inventory)
+  const { isSubscribed } = useSubscription()
+  const allScores = useReplacementScores(inventory)
+  const scores = isSubscribed ? allScores : new Map<number, number>()
   const { data: groups } = useGroupedInventory()
 
   const categoryNames = useMemo(() => {
@@ -121,7 +124,7 @@ export const InventoryPage = () => {
 
     let attentionCount = 0
     for (const item of active) {
-      if (item.condition === 'retired' || item.status === 'retired') continue
+      if (item.status === 'retired') continue
       const score = scores.get(item.id)
       if (score != null && score >= 0.7) attentionCount++
     }
@@ -253,7 +256,6 @@ export const InventoryPage = () => {
               <SelectItem value="good">Good</SelectItem>
               <SelectItem value="fair">Fair</SelectItem>
               <SelectItem value="worn">Worn</SelectItem>
-              <SelectItem value="retired">Retired</SelectItem>
             </SelectContent>
           </Select>
 

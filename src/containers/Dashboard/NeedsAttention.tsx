@@ -3,6 +3,7 @@ import { AlertTriangle } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 
 import { useReplacementScores } from '@/hooks/useReplacementScores'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useInventory } from '@/queries/item'
 import { Item } from '@/types/item'
 
@@ -36,6 +37,7 @@ function ConditionBadge({ condition }: { condition: string }) {
 }
 
 export const NeedsAttention: FC = () => {
+  const { isSubscribed } = useSubscription()
   const { data: inventory, isLoading } = useInventory()
   const scores = useReplacementScores(inventory)
 
@@ -54,7 +56,7 @@ export const NeedsAttention: FC = () => {
     return items.slice(0, MAX_ITEMS)
   }, [inventory, scores])
 
-  if (isLoading || attentionItems.length === 0) return null
+  if (!isSubscribed || isLoading || attentionItems.length === 0) return null
 
   return (
     <div className="rounded-lg border bg-card p-5">

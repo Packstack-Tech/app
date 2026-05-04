@@ -75,7 +75,6 @@ export const LifecycleSection: FC<Props> = ({ form }) => {
                   <SelectItem value="good">Good</SelectItem>
                   <SelectItem value="fair">Fair</SelectItem>
                   <SelectItem value="worn">Worn</SelectItem>
-                  <SelectItem value="retired">Retired</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

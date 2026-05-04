@@ -2,6 +2,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import { Loader2, Pencil, Scale } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
+import { UpgradePrompt } from '@/components/UpgradePrompt'
 import { ScrollArea } from '@/components/ui/ScrollArea'
 import {
   Sidebar,
@@ -19,6 +20,7 @@ import {
 } from '@/components/ui/Tooltip'
 import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { CalorieEstimate } from '@/containers/CalorieEstimate/CalorieEstimate'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUnits } from '@/hooks/useUnits'
 import { useUser } from '@/hooks/useUser'
@@ -57,12 +59,13 @@ function categorizePackItems(items: PackItem[], toUnit: string) {
 export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
   const user = useUser()
   const units = useUnits()
+  const { isSubscribed } = useSubscription()
   const { packs, displayUnitSystem } = useTripPacks(
     useShallow(store => ({ packs: store.packs, displayUnitSystem: store.displayUnitSystem }))
   )
 
   const isEnriching =
-    trip.enrich_status === 'pending' || trip.enrich_status === 'processing'
+    isSubscribed && (trip.enrich_status === 'pending' || trip.enrich_status === 'processing')
 
   const fmtTemp = (v: number) => Math.round(units.formatTemperature(v))
   const tempValue =
@@ -158,6 +161,16 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
               )}
             </SidebarGroupContent>
           </SidebarGroup>
+
+          {!isSubscribed && (
+            <div className="px-2 pb-3">
+              <UpgradePrompt
+                compact
+                title="Unlock AI-enhanced trip details"
+                description="Auto-fill trail data, elevation, temperature, and conditions."
+              />
+            </div>
+          )}
         </ScrollArea>
       </SidebarContent>
 

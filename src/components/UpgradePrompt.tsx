@@ -19,16 +19,14 @@ export const UpgradePrompt: FC<Props> = ({
 
   if (compact) {
     return (
-      <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <SparklesIcon size={14} className="text-primary shrink-0" />
-            <p className="text-xs text-muted-foreground truncate">{title}</p>
-          </div>
-          <Button size="xs" onClick={openUpgrade}>
-            Upgrade
-          </Button>
+      <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2.5">
+        <div className="flex items-center gap-2">
+          <SparklesIcon size={14} className="text-primary shrink-0" />
+          <p className="text-xs text-muted-foreground">{title}</p>
         </div>
+        <Button size="xs" onClick={openUpgrade} className="w-full">
+          Upgrade
+        </Button>
       </div>
     )
   }

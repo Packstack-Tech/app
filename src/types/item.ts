@@ -3,7 +3,7 @@ import { Brand, Product } from './resources'
 
 export type Unit = 'g' | 'kg' | 'oz' | 'lb'
 
-export type ItemCondition = 'new' | 'good' | 'fair' | 'worn' | 'retired'
+export type ItemCondition = 'new' | 'good' | 'fair' | 'worn'
 export type ItemStatus = 'active' | 'wishlist' | 'retired' | 'sold' | 'lost'
 export type AcquisitionType = 'purchased' | 'gifted' | 'traded' | 'diy'
 export type RetiredReason = 'worn_out' | 'upgraded' | 'lost' | 'sold' | 'gifted'
