@@ -1,9 +1,9 @@
 import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ArrowLeft, Calendar, CircleDot, Package, StickyNote } from 'lucide-react'
+import { ArrowLeft, CircleDot, Package, StickyNote } from 'lucide-react'
+import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
-import * as z from 'zod'
 
 import { Button } from '@/components/ui'
 import { Checkbox } from '@/components/ui/Checkbox'
@@ -192,162 +192,162 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
       </div>
 
       <div className="px-4 md:px-6 py-6">
-      {/* Hero card */}
-      <div className="flex items-start gap-4 mb-8">
-        {isEdit && item?.catalog_product?.image_url && (
-          <img
-            src={item.catalog_product.image_url}
-            alt={heroTitle}
-            className="w-16 h-16 object-contain rounded-lg bg-muted shrink-0"
-          />
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-foreground truncate">{heroTitle}</h1>
-            {isEdit && (
-              <span className={`text-[11px] font-medium rounded-full px-2 py-0.5 leading-none ${STATUS_STYLES[watchedStatus] || ''}`}>
-                {STATUS_LABELS[watchedStatus] || watchedStatus}
-              </span>
+        {/* Hero card */}
+        <div className="flex items-start gap-4 mb-8">
+          {isEdit && item?.catalog_product?.image_url && (
+            <img
+              src={item.catalog_product.image_url}
+              alt={heroTitle}
+              className="w-16 h-16 object-contain rounded-lg bg-muted shrink-0"
+            />
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-foreground truncate">{heroTitle}</h1>
+              {isEdit && (
+                <span className={`text-[11px] font-medium rounded-full px-2 py-0.5 leading-none ${STATUS_STYLES[watchedStatus] || ''}`}>
+                  {STATUS_LABELS[watchedStatus] || watchedStatus}
+                </span>
+              )}
+            </div>
+            {heroSubtitle && (
+              <p className="text-sm text-muted-foreground mt-0.5">{heroSubtitle}</p>
             )}
           </div>
-          {heroSubtitle && (
-            <p className="text-sm text-muted-foreground mt-0.5">{heroSubtitle}</p>
-          )}
         </div>
-      </div>
 
-      {/* Form */}
-      <Form {...form}>
-        <form id="item-detail-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
-          <BasicsSection form={form} item={item} />
-          <Separator className="my-8" />
-          <SpecsSection form={form} />
-          <Separator className="my-8" />
-          {isSubscribed ? (
-            <>
-              <LifecycleSection form={form} />
-              {isRetired && (
-                <>
-                  <Separator className="my-8" />
-                  <RetirementSection form={form} />
-                </>
-              )}
-            </>
-          ) : (
-            <ProFeaturePreview
-              title="Lifecycle"
-              description="Track gear status, condition, acquisition details, and retirement history over time."
-              onUpgrade={openUpgrade}
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium mb-1.5">Status</p>
-                  <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Active</div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium mb-1.5">Condition</p>
-                  <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Good</div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium mb-1.5">Acquired Date</p>
-                  <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Jan 15, 2025</div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium mb-1.5">Acquisition Type</p>
-                  <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Purchased</div>
-                </div>
-              </div>
-            </ProFeaturePreview>
-          )}
-        </form>
-      </Form>
-
-      {/* Read-only sections (edit mode only) */}
-      {isEdit && item && (
-        <>
-          <Separator className="my-8" />
-          {isSubscribed ? (
-            <ReplacementSection itemId={item.id} />
-          ) : (
-            <ProFeaturePreview
-              title="Replacement Score"
-              description="See how close your gear is to end-of-life based on age, condition, and category benchmarks."
-              onUpgrade={openUpgrade}
-            >
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full rounded-full bg-yellow-500 w-[45%]" />
+        {/* Form */}
+        <Form {...form}>
+          <form id="item-detail-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
+            <BasicsSection form={form} item={item} />
+            <Separator className="my-8" />
+            <SpecsSection form={form} />
+            <Separator className="my-8" />
+            {isSubscribed ? (
+              <>
+                <LifecycleSection form={form} />
+                {isRetired && (
+                  <>
+                    <Separator className="my-8" />
+                    <RetirementSection form={form} />
+                  </>
+                )}
+              </>
+            ) : (
+              <ProFeaturePreview
+                title="Lifecycle"
+                description="Track gear status, condition, acquisition details, and retirement history over time."
+                onUpgrade={openUpgrade}
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium mb-1.5">Status</p>
+                    <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Active</div>
                   </div>
-                  <span className="text-sm font-semibold tabular-nums text-yellow-400">45%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-yellow-400">Moderate wear</span>
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                    <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" /> Good</span>
-                    <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-yellow-500" /> Moderate</span>
-                    <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-red-500" /> Replace</span>
+                  <div>
+                    <p className="text-sm font-medium mb-1.5">Condition</p>
+                    <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Good</div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1.5">Acquired Date</p>
+                    <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Jan 15, 2025</div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1.5">Acquisition Type</p>
+                    <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Purchased</div>
                   </div>
                 </div>
-              </div>
-            </ProFeaturePreview>
-          )}
-          <Separator className="my-8" />
-          {isSubscribed ? (
-            <ActivityLogSection itemId={item.id} />
-          ) : (
-            <ProFeaturePreview
-              title="Activity Log"
-              description="Record repairs, maintenance, condition changes, and other events for each piece of gear."
-              onUpgrade={openUpgrade}
-            >
-              <div className="space-y-0">
-                {[
-                  { icon: Package, label: 'Acquired', date: 'Jan 15, 2025', detail: 'Purchased new' },
-                  { icon: CircleDot, label: 'Condition Change', date: 'Jun 3, 2025', detail: 'New → Good' },
-                  { icon: StickyNote, label: 'Note', date: 'Sep 12, 2025', detail: 'Seam showing wear on left shoulder strap' },
-                ].map(({ icon: Icon, label, date, detail }) => (
-                  <div key={label} className="flex gap-3 pb-4">
-                    <div className="flex flex-col items-center">
-                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-muted shrink-0">
-                        <Icon size={14} className="text-muted-foreground" />
-                      </div>
-                      <div className="w-px flex-1 bg-border mt-1" />
+              </ProFeaturePreview>
+            )}
+          </form>
+        </Form>
+
+        {/* Read-only sections (edit mode only) */}
+        {isEdit && item && (
+          <>
+            <Separator className="my-8" />
+            {isSubscribed ? (
+              <ReplacementSection itemId={item.id} />
+            ) : (
+              <ProFeaturePreview
+                title="Replacement Score"
+                description="See how close your gear is to end-of-life based on age, condition, and category benchmarks."
+                onUpgrade={openUpgrade}
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full rounded-full bg-yellow-500 w-[45%]" />
                     </div>
-                    <div className="flex-1 min-w-0 pb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{label}</span>
-                        <span className="text-[11px] text-muted-foreground">{date}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{detail}</p>
+                    <span className="text-sm font-semibold tabular-nums text-yellow-400">45%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-yellow-400">Moderate wear</span>
+                    <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" /> Good</span>
+                      <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-yellow-500" /> Moderate</span>
+                      <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-red-500" /> Replace</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </ProFeaturePreview>
-          )}
-          {item.catalog_product && (
-            <>
-              <Separator className="my-8" />
-              <CatalogSection item={item} />
-            </>
-          )}
-        </>
-      )}
+                </div>
+              </ProFeaturePreview>
+            )}
+            <Separator className="my-8" />
+            {isSubscribed ? (
+              <ActivityLogSection itemId={item.id} />
+            ) : (
+              <ProFeaturePreview
+                title="Activity Log"
+                description="Record repairs, maintenance, condition changes, and other events for each piece of gear."
+                onUpgrade={openUpgrade}
+              >
+                <div className="space-y-0">
+                  {[
+                    { icon: Package, label: 'Acquired', date: 'Jan 15, 2025', detail: 'Purchased new' },
+                    { icon: CircleDot, label: 'Condition Change', date: 'Jun 3, 2025', detail: 'New → Good' },
+                    { icon: StickyNote, label: 'Note', date: 'Sep 12, 2025', detail: 'Seam showing wear on left shoulder strap' },
+                  ].map(({ icon: Icon, label, date, detail }) => (
+                    <div key={label} className="flex gap-3 pb-4">
+                      <div className="flex flex-col items-center">
+                        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-muted shrink-0">
+                          <Icon size={14} className="text-muted-foreground" />
+                        </div>
+                        <div className="w-px flex-1 bg-border mt-1" />
+                      </div>
+                      <div className="flex-1 min-w-0 pb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{label}</span>
+                          <span className="text-[11px] text-muted-foreground">{date}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">{detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ProFeaturePreview>
+            )}
+            {item.catalog_product && (
+              <>
+                <Separator className="my-8" />
+                <CatalogSection item={item} />
+              </>
+            )}
+          </>
+        )}
 
-      <Separator className="my-8" />
-      <Form {...form}>
-        <NotesSection form={form} />
-      </Form>
+        <Separator className="my-8" />
+        <Form {...form}>
+          <NotesSection form={form} />
+        </Form>
 
-      {isEdit && item && (
-        <>
-          <Separator className="my-8" />
-          <DangerZoneSection item={item} onComplete={() => navigate({ to: '/inventory' })} />
-        </>
-      )}
+        {isEdit && item && (
+          <>
+            <Separator className="my-8" />
+            <DangerZoneSection item={item} onComplete={() => navigate({ to: '/inventory' })} />
+          </>
+        )}
 
-      <div className="h-12" />
+        <div className="h-12" />
       </div>
     </div>
   )
