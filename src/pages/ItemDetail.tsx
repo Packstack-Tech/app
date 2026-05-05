@@ -120,10 +120,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
   const onSubmit = (data: ItemFormValues) => {
     const { itemname, ...payload } = data
     if (isEdit && item) {
-      updateItem.mutate(
-        { ...payload, name: itemname, id: item.id },
-        { onSuccess: () => navigate({ to: '/inventory' }) }
-      )
+      updateItem.mutate({ ...payload, name: itemname, id: item.id })
     } else {
       createItem.mutate(
         { ...payload, name: itemname },
@@ -131,8 +128,6 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
           onSuccess: () => {
             if (another) {
               form.reset(formDefaults())
-            } else {
-              navigate({ to: '/inventory' })
             }
           },
         }
