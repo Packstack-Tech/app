@@ -18,12 +18,12 @@ export const ProFeaturePreview: FC<Props> = ({
 }) => {
   return (
     <section className="relative">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2.5 mb-4">
         <h2 className="text-base font-semibold text-foreground">{title}</h2>
-        <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
-          <SparklesIcon size={12} />
+        <span className="inline-flex items-center gap-1 text-[11px] text-primary font-medium bg-primary/10 rounded-full px-2 py-0.5 leading-none">
+          <SparklesIcon size={10} />
           Pro
-        </div>
+        </span>
       </div>
 
       <p className="text-sm text-muted-foreground mb-4">{description}</p>
@@ -37,7 +37,7 @@ export const ProFeaturePreview: FC<Props> = ({
         </div>
       )}
 
-      <Button size="sm" variant="outline" onClick={onUpgrade} className="gap-1.5">
+      <Button type="button" size="sm" variant="outline" onClick={onUpgrade} className="gap-1.5">
         <SparklesIcon size={12} />
         Upgrade to unlock
       </Button>
