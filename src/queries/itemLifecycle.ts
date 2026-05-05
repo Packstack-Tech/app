@@ -10,6 +10,7 @@ import {
   getItemLogs,
   getReplacementScore,
   updateItemLifecycle,
+  updateItemLog,
 } from '@/lib/api'
 import { CreateItemLog } from '@/types/item'
 
@@ -37,6 +38,21 @@ export const useCreateItemLog = (itemId: number) => {
     },
     onSuccess: () => {
       toast({ title: 'Log entry added' })
+      queryClient.invalidateQueries({ queryKey: ['item-logs', itemId] })
+    },
+  })
+}
+
+export const useUpdateItemLog = (itemId: number) => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async ({ logId, data }: { logId: number; data: CreateItemLog }) => {
+      const res = await updateItemLog(itemId, logId, data)
+      return res.data
+    },
+    onSuccess: () => {
+      toast({ title: 'Log entry updated' })
       queryClient.invalidateQueries({ queryKey: ['item-logs', itemId] })
     },
   })

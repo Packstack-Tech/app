@@ -192,6 +192,9 @@ export const getItemLogs = (itemId: number) =>
 export const createItemLog = (itemId: number, data: CreateItemLog) =>
   http.post<ItemLogEntry>(`/item/${itemId}/log`, data)
 
+export const updateItemLog = (itemId: number, logId: number, data: CreateItemLog) =>
+  http.put<ItemLogEntry>(`/item/${itemId}/log/${logId}`, data)
+
 export const updateItemLifecycle = (itemId: number, data: Record<string, unknown>) =>
   http.put<Item>(`/item/${itemId}/lifecycle`, data)
 

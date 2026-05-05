@@ -91,7 +91,7 @@ export const BenchmarkSheet: FC<Props> = ({ open, onOpenChange }) => {
             Customize expected lifespan for each gear category. These are used to calculate replacement scores.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="flex-1 px-4">
+        <ScrollArea className="flex-1 min-h-0 px-4 pb-6">
           {defaultCategories.length > 0 && (
             <div className="divide-y divide-border">
               {defaultCategories.map(cat => (

@@ -135,9 +135,10 @@ export const useUpdateItem = () => {
       Mixpanel.track('Item:Update')
       return res.data
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: ['item-logs', variables.id] })
       toast({
         title: '✅ Item updated',
       })

@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
-import { useCreateItemLog, useItemLogs } from '@/queries/itemLifecycle'
+import { useCreateItemLog, useItemLogs, useUpdateItemLog } from '@/queries/itemLifecycle'
 import { CreateItemLog, ItemLogEntry } from '@/types/item'
 
 interface Props {
@@ -72,7 +72,7 @@ function formatDate(dateStr: string) {
   })
 }
 
-const LogEntry: FC<{ entry: ItemLogEntry }> = ({ entry }) => {
+const LogEntry: FC<{ entry: ItemLogEntry; onEdit: (entry: ItemLogEntry) => void }> = ({ entry, onEdit }) => {
   const Icon = EVENT_ICONS[entry.event_type] || StickyNote
   const label = EVENT_LABELS[entry.event_type] || entry.event_type
 
@@ -86,7 +86,11 @@ const LogEntry: FC<{ entry: ItemLogEntry }> = ({ entry }) => {
   }
 
   return (
-    <div className="flex gap-3 pb-4 last:pb-0">
+    <button
+      type="button"
+      onClick={() => onEdit(entry)}
+      className="flex gap-3 pb-4 last:pb-0 w-full text-left rounded-md hover:bg-muted/50 transition-colors -mx-2 px-2 py-1.5"
+    >
       <div className="flex flex-col items-center">
         <div className="flex items-center justify-center w-7 h-7 rounded-full bg-muted shrink-0">
           <Icon size={14} className="text-muted-foreground" />
@@ -105,7 +109,7 @@ const LogEntry: FC<{ entry: ItemLogEntry }> = ({ entry }) => {
           <p className="text-xs text-muted-foreground mt-1">{entry.note}</p>
         )}
       </div>
-    </div>
+    </button>
   )
 }
 
@@ -119,7 +123,9 @@ type LogFormValues = {
 export const ActivityLogSection: FC<Props> = ({ itemId }) => {
   const { data: logs } = useItemLogs(itemId)
   const createLog = useCreateItemLog(itemId)
+  const updateLog = useUpdateItemLog(itemId)
   const [open, setOpen] = useState(false)
+  const [editingLog, setEditingLog] = useState<ItemLogEntry | null>(null)
 
   const form = useForm<LogFormValues>({
     defaultValues: {
@@ -130,6 +136,28 @@ export const ActivityLogSection: FC<Props> = ({ itemId }) => {
     },
   })
 
+  const openCreate = () => {
+    setEditingLog(null)
+    form.reset({
+      event_type: 'note',
+      event_date: new Date().toISOString().split('T')[0],
+      note: '',
+      cost: '',
+    })
+    setOpen(true)
+  }
+
+  const openEdit = (entry: ItemLogEntry) => {
+    setEditingLog(entry)
+    form.reset({
+      event_type: entry.event_type,
+      event_date: entry.event_date,
+      note: entry.note || '',
+      cost: entry.cost ? String(entry.cost) : '',
+    })
+    setOpen(true)
+  }
+
   const onSubmit = (data: LogFormValues) => {
     const payload: CreateItemLog = {
       event_type: data.event_type,
@@ -137,19 +165,23 @@ export const ActivityLogSection: FC<Props> = ({ itemId }) => {
       note: data.note || undefined,
       cost: data.cost ? Number(data.cost) : undefined,
     }
-    createLog.mutate(payload, {
-      onSuccess: () => {
-        setOpen(false)
-        form.reset()
-      },
-    })
+    const onSuccess = () => {
+      setOpen(false)
+      setEditingLog(null)
+      form.reset()
+    }
+    if (editingLog) {
+      updateLog.mutate({ logId: editingLog.id, data: payload }, { onSuccess })
+    } else {
+      createLog.mutate(payload, { onSuccess })
+    }
   }
 
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-semibold text-foreground">Activity Log</h2>
-        <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setOpen(true)}>
+        <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={openCreate}>
           <Plus size={14} /> Add Entry
         </Button>
       </div>
@@ -157,7 +189,7 @@ export const ActivityLogSection: FC<Props> = ({ itemId }) => {
       {logs && logs.length > 0 ? (
         <div>
           {logs.map(entry => (
-            <LogEntry key={entry.id} entry={entry} />
+            <LogEntry key={entry.id} entry={entry} onEdit={openEdit} />
           ))}
         </div>
       ) : (
@@ -167,7 +199,7 @@ export const ActivityLogSection: FC<Props> = ({ itemId }) => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Log Entry</DialogTitle>
+            <DialogTitle>{editingLog ? 'Edit Log Entry' : 'Add Log Entry'}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -239,8 +271,8 @@ export const ActivityLogSection: FC<Props> = ({ itemId }) => {
               </div>
 
               <DialogFooter className="flex justify-end">
-                <Button type="submit" disabled={createLog.isPending}>
-                  Save Entry
+                <Button type="submit" disabled={createLog.isPending || updateLog.isPending}>
+                  {editingLog ? 'Update Entry' : 'Save Entry'}
                 </Button>
               </DialogFooter>
             </form>
