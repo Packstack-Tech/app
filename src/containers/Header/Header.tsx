@@ -19,7 +19,7 @@ import { logout } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
 
 const navLinks = [
-  { name: 'Packing Lists', path: '/' as const },
+  { name: 'Dashboard', path: '/' as const },
   { name: 'Gear Closet', path: '/inventory' as const },
   { name: 'Kits', path: '/kits' as const },
 ]

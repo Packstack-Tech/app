@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Purchases } from '@revenuecat/purchases-js'
 import { useQueryClient } from '@tanstack/react-query'
 
@@ -44,18 +44,41 @@ export function useSubscription() {
   const purchasesRef = useRef<Purchases | null>(null)
 
   const isSubscribed = user?.is_subscribed ?? false
+  const [managementUrl, setManagementUrl] = useState<string | null>(null)
 
-  const openUpgrade = useCallback(async () => {
-    if (!RC_API_KEY || !user) return
-
+  const ensurePurchases = useCallback(() => {
+    if (!RC_API_KEY || !user) return null
     if (!purchasesRef.current) {
       purchasesRef.current = Purchases.configure({ apiKey: RC_API_KEY, appUserId: String(user.id) })
     }
+    return purchasesRef.current
+  }, [user])
+
+  useEffect(() => {
+    if (!isSubscribed) {
+      setManagementUrl(null)
+      return
+    }
+
+    const purchases = ensurePurchases()
+    if (!purchases) return
+
+    let cancelled = false
+    purchases.getCustomerInfo().then(info => {
+      if (!cancelled) setManagementUrl(info.managementURL)
+    }).catch(() => {})
+
+    return () => { cancelled = true }
+  }, [isSubscribed, ensurePurchases])
+
+  const openUpgrade = useCallback(async () => {
+    const purchases = ensurePurchases()
+    if (!purchases) return
 
     const { overlay, container } = createModalOverlay()
 
     try {
-      const offerings = await purchasesRef.current.getOfferings()
+      const offerings = await purchases.getOfferings()
       const offering = offerings.all['web_full_access']
 
       if (!offering) {
@@ -64,7 +87,7 @@ export function useSubscription() {
         return
       }
 
-      await purchasesRef.current.presentPaywall({
+      await purchases.presentPaywall({
         htmlTarget: container,
         offering,
       })
@@ -74,7 +97,7 @@ export function useSubscription() {
     } finally {
       overlay.remove()
     }
-  }, [user, queryClient])
+  }, [ensurePurchases, queryClient])
 
-  return { isSubscribed, openUpgrade }
+  return { isSubscribed, openUpgrade, managementUrl }
 }

@@ -2,6 +2,7 @@ import { FC, useMemo } from 'react'
 import { isAfter, isSameDay, startOfDay } from 'date-fns'
 
 import { GearSnapshot } from '@/containers/Dashboard/GearSnapshot'
+import { HikerProfiles } from '@/containers/Dashboard/HikerProfiles'
 import { NeedsAttention } from '@/containers/Dashboard/NeedsAttention'
 import { PastTrips } from '@/containers/Dashboard/PastTrips'
 import { ProUpsell } from '@/containers/Dashboard/ProUpsell'
@@ -57,6 +58,7 @@ export const Dashboard: FC = () => {
         <div className="flex flex-col gap-6">
           <SetupChecklist />
           <NeedsAttention />
+          <HikerProfiles />
           <ProUpsell />
           <GearSnapshot />
         </div>
