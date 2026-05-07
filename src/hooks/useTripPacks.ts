@@ -31,7 +31,9 @@ interface TripPacksState {
   removeItem: (id: number) => void
   setCategoryItems: (items: PackItem[]) => void
   updateBaseItem: (itemId: number, updatedFields: Partial<Item>) => void
+  showCalories: boolean
   toggleChecklistMode: () => void
+  toggleShowCalories: () => void
   setDisplayUnitSystem: (system: SYSTEM_UNIT) => void
 }
 
@@ -72,6 +74,7 @@ function updateCurrentPackItems(
 export const useTripPacks = create<TripPacksState>(set => ({
   selectedIndex: 0,
   checklistMode: false,
+  showCalories: true,
   displayUnitSystem: null,
   synced: true,
   isDragging: false,
@@ -181,6 +184,9 @@ export const useTripPacks = create<TripPacksState>(set => ({
 
   toggleChecklistMode: () =>
     set(state => ({ checklistMode: !state.checklistMode })),
+
+  toggleShowCalories: () =>
+    set(state => ({ showCalories: !state.showCalories })),
 
   setDisplayUnitSystem: system => set({ displayUnitSystem: system }),
 }))
