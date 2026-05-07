@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import {
   ColumnDef,
   getCoreRowModel,
@@ -10,8 +11,6 @@ import {
   Table,
   TableBody,
 } from '@/components/ui/Table'
-import { useShallow } from 'zustand/react/shallow'
-
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
 import { getConversionUnit, sumPackItemWeights } from '@/lib/weight'
@@ -74,8 +73,8 @@ export function CategorizedPackItemsTable<TData, TValue>({
   return (
     <div>
       <div className="px-3 py-2 bg-muted flex justify-between items-center">
-        <h3 className="font-bold text-primary text-xs md:text-sm">{category}</h3>
-        <span className="text-xs text-primary">
+        <h3 className="font-semibold text-primary tracking-wide text-sm md:text-base">{category}</h3>
+        <span className="text-xs text-foreground">
           {categoryWeight.toFixed(2)} {unit}
         </span>
       </div>

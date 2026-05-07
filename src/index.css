@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/outfit';
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -39,7 +40,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Inter Variable', sans-serif;
+  --font-display: 'Outfit Variable', sans-serif;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -169,10 +171,12 @@
 
   h2 {
     @apply md:text-xl font-bold text-foreground;
+    font-family: var(--font-display);
   }
 
   h3 {
     @apply font-semibold text-sm text-foreground;
+    font-family: var(--font-display);
   }
 
   h4 {
@@ -181,6 +185,7 @@
 
   label {
     @apply text-muted-foreground text-sm inline-block mb-1;
+    font-family: var(--font-display);
   }
 
   .link {
