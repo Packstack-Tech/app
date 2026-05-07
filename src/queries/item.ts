@@ -7,6 +7,7 @@ import {
 
 import { useToast } from '@/hooks/useToast'
 import {
+  archiveItem,
   bulkArchiveItems,
   bulkRestoreItems,
   createItem,
@@ -21,6 +22,8 @@ import {
   updateItemSortOrder,
 } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
+import { CATEGORY_QUERY } from '@/queries/category'
+import { CATALOG_BRANDS_QUERY, CATALOG_PRODUCTS_QUERY } from '@/queries/resources'
 import { UpdateItemSortOrder, UploadInventory } from '@/types/api'
 import { CategoryItems } from '@/types/category'
 import { CreateItem, EditItem } from '@/types/item'
@@ -72,6 +75,9 @@ export const useCreateItem = () => {
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: [CATALOG_BRANDS_QUERY] })
+      queryClient.invalidateQueries({ queryKey: [CATALOG_PRODUCTS_QUERY] })
+      queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
     },
   })
 }
@@ -81,12 +87,30 @@ export const useDeleteItem = () => {
   const { toast } = useToast()
   return useMutation({
     mutationFn: async (itemId: number) => {
+      const res = await archiveItem(itemId)
+      return res.data
+    },
+    onSuccess: () => {
+      toast({
+        title: '✅ Item archived',
+      })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+    },
+  })
+}
+
+export const usePermanentlyDeleteItem = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (itemId: number) => {
       const res = await deleteItem(itemId)
       return res.data
     },
     onSuccess: () => {
       toast({
-        title: '✅ Item deleted',
+        title: '✅ Item permanently deleted',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })

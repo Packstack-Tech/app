@@ -125,9 +125,11 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
       createItem.mutate(
         { ...payload, name: itemname },
         {
-          onSuccess: () => {
+          onSuccess: (newItem) => {
             if (another) {
               form.reset(formDefaults())
+            } else {
+              navigate({ to: '/inventory/$itemId', params: { itemId: String(newItem.id) } })
             }
           },
         }

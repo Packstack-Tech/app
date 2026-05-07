@@ -159,7 +159,10 @@ export const getGroupedInventory = () =>
 
 export const createItem = (data: CreateItem) => http.post<Item>('/item', data)
 
-export const deleteItem = (itemId: number) => http.delete(`/item/${itemId}`)
+export const archiveItem = (itemId: number) => http.delete(`/item/${itemId}`)
+
+export const deleteItem = (itemId: number) =>
+  http.post(`/item/${itemId}/delete`)
 
 export const bulkArchiveItems = (ids: number[]) =>
   http.put('/item/bulk-archive', ids)
