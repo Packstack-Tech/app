@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ArrowLeft, CircleDot, Package, StickyNote } from 'lucide-react'
+import { ArrowLeft, X } from 'lucide-react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -16,7 +16,7 @@ import { CatalogSection } from '@/containers/ItemDetail/sections/CatalogSection'
 import { DangerZoneSection } from '@/containers/ItemDetail/sections/DangerZoneSection'
 import { LifecycleSection } from '@/containers/ItemDetail/sections/LifecycleSection'
 import { NotesSection } from '@/containers/ItemDetail/sections/NotesSection'
-import { ProFeaturePreview } from '@/containers/ItemDetail/sections/ProFeaturePreview'
+import { GearHealthPreview } from '@/containers/ItemDetail/sections/GearHealthPreview'
 import { ReplacementSection } from '@/containers/ItemDetail/sections/ReplacementSection'
 import { RetirementSection } from '@/containers/ItemDetail/sections/RetirementSection'
 import { SpecsSection } from '@/containers/ItemDetail/sections/SpecsSection'
@@ -77,6 +77,9 @@ const formDefaults = (item?: Item): ItemFormValues => ({
 interface Props {
   mode: 'create' | 'edit'
   itemId?: number
+  inline?: boolean
+  onClose?: () => void
+  onCreated?: (id: number) => void
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -95,7 +98,7 @@ const STATUS_STYLES: Record<string, string> = {
   lost: 'bg-red-500/15 text-red-400',
 }
 
-export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
+export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCreated }) => {
   const navigate = useNavigate()
   const { data: inventory } = useInventory()
   const createItem = useCreateItem()
@@ -128,6 +131,8 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
           onSuccess: (newItem) => {
             if (another) {
               form.reset(formDefaults())
+            } else if (onCreated) {
+              onCreated(newItem.id)
             } else {
               navigate({ to: '/inventory/$itemId', params: { itemId: String(newItem.id) } })
             }
@@ -145,50 +150,95 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
   const heroTitle = itemName || (isEdit ? 'Untitled Item' : 'New Item')
   const heroSubtitle = [brandDisplay, productDisplay].filter(Boolean).join(' · ')
 
-  return (
-    <div className="max-w-3xl mx-auto">
-      {/* Sticky header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border/50 px-4 md:px-6">
-        <div className="flex items-center justify-between h-14">
-          <div className="flex items-center gap-3 min-w-0">
-            <Button variant="ghost" size="sm" className="shrink-0" asChild>
-              <Link to="/inventory">
-                <ArrowLeft size={16} />
-                <span className="hidden sm:inline">Back to Gear Closet</span>
-              </Link>
+  const formId = inline ? `item-detail-form-${itemId ?? 'new'}` : 'item-detail-form'
+
+  const headerContent = inline ? (
+    <div className="sticky top-0 z-10 bg-background border-b border-border/50 px-4">
+      <div className="flex items-center justify-between h-12">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm font-medium text-foreground truncate">{heroTitle}</span>
+          {isEdit && (
+            <span className={`text-[10px] font-medium rounded-full px-1.5 py-0.5 leading-none shrink-0 ${STATUS_STYLES[watchedStatus] || ''}`}>
+              {STATUS_LABELS[watchedStatus] || watchedStatus}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {!isEdit && (
+            <div className="inline-flex items-center gap-1.5 mr-2">
+              <Checkbox
+                id={`create-another-${formId}`}
+                checked={another}
+                onCheckedChange={() => setAnother(!another)}
+              />
+              <Label htmlFor={`create-another-${formId}`} className="font-normal text-xs mb-0">
+                Create another
+              </Label>
+            </div>
+          )}
+          <Button
+            type="submit"
+            form={formId}
+            size="sm"
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </Button>
+          {onClose && (
+            <Button variant="ghost" size="sm" onClick={onClose} className="shrink-0 size-8 p-0">
+              <X size={16} />
             </Button>
-            <span className="text-sm font-medium text-foreground truncate">{heroTitle}</span>
-            {isEdit && (
-              <span className={`text-[10px] font-medium rounded-full px-1.5 py-0.5 leading-none shrink-0 ${STATUS_STYLES[watchedStatus] || ''}`}>
-                {STATUS_LABELS[watchedStatus] || watchedStatus}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {!isEdit && (
-              <div className="inline-flex items-center gap-1.5 mr-2">
-                <Checkbox
-                  id="create-another"
-                  checked={another}
-                  onCheckedChange={() => setAnother(!another)}
-                />
-                <Label htmlFor="create-another" className="font-normal text-xs mb-0">
-                  Create another
-                </Label>
-              </div>
-            )}
-            <Button
-              type="submit"
-              form="item-detail-form"
-              disabled={isSaving}
-            >
-              {isSaving ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
+          )}
         </div>
       </div>
+    </div>
+  ) : (
+    <div className="sticky top-0 z-10 bg-background border-b border-border/50 px-4 md:px-6">
+      <div className="flex items-center justify-between h-14">
+        <div className="flex items-center gap-3 min-w-0">
+          <Button variant="ghost" size="sm" className="shrink-0" asChild>
+            <Link to="/inventory">
+              <ArrowLeft size={16} />
+              <span className="hidden sm:inline">Back to Gear Closet</span>
+            </Link>
+          </Button>
+          <span className="text-sm font-medium text-foreground truncate">{heroTitle}</span>
+          {isEdit && (
+            <span className={`text-[10px] font-medium rounded-full px-1.5 py-0.5 leading-none shrink-0 ${STATUS_STYLES[watchedStatus] || ''}`}>
+              {STATUS_LABELS[watchedStatus] || watchedStatus}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {!isEdit && (
+            <div className="inline-flex items-center gap-1.5 mr-2">
+              <Checkbox
+                id="create-another"
+                checked={another}
+                onCheckedChange={() => setAnother(!another)}
+              />
+              <Label htmlFor="create-another" className="font-normal text-xs mb-0">
+                Create another
+              </Label>
+            </div>
+          )}
+          <Button
+            type="submit"
+            form={formId}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
 
-      <div className="px-4 md:px-6 py-6">
+  return (
+    <div className={inline ? '' : 'max-w-3xl mx-auto'}>
+      {headerContent}
+
+      <div className={inline ? 'px-4 py-4' : 'px-4 md:px-6 py-6'}>
         {/* Hero card */}
         <div className="flex items-start gap-4 mb-8">
           {isEdit && item?.catalog_product?.image_url && (
@@ -200,7 +250,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-foreground truncate">{heroTitle}</h1>
+              <h1 className={`font-bold text-foreground truncate ${inline ? 'text-lg' : 'text-xl'}`}>{heroTitle}</h1>
               {isEdit && (
                 <span className={`text-[11px] font-medium rounded-full px-2 py-0.5 leading-none ${STATUS_STYLES[watchedStatus] || ''}`}>
                   {STATUS_LABELS[watchedStatus] || watchedStatus}
@@ -215,13 +265,15 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
 
         {/* Form */}
         <Form {...form}>
-          <form id="item-detail-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
+          <form id={formId} onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
             <BasicsSection form={form} item={item} />
             <Separator className="my-8" />
             <SpecsSection form={form} />
             <Separator className="my-8" />
-            {isSubscribed ? (
+            <NotesSection form={form} />
+            {isSubscribed && (
               <>
+                <Separator className="my-8" />
                 <LifecycleSection form={form} />
                 {isRetired && (
                   <>
@@ -230,117 +282,38 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId }) => {
                   </>
                 )}
               </>
-            ) : (
-              <ProFeaturePreview
-                title="Lifecycle"
-                description="Track gear status, condition, acquisition details, and retirement history over time."
-                onUpgrade={openUpgrade}
-              >
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium mb-1.5">Status</p>
-                    <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Active</div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium mb-1.5">Condition</p>
-                    <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Good</div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium mb-1.5">Acquired Date</p>
-                    <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Jan 15, 2025</div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium mb-1.5">Acquisition Type</p>
-                    <div className="h-9 rounded-md border bg-muted px-3 flex items-center text-sm text-muted-foreground">Purchased</div>
-                  </div>
-                </div>
-              </ProFeaturePreview>
             )}
           </form>
         </Form>
 
         {/* Read-only sections (edit mode only) */}
-        {isEdit && item && (
+        {isEdit && item && isSubscribed && (
           <>
             <Separator className="my-8" />
-            {isSubscribed ? (
-              <ReplacementSection itemId={item.id} />
-            ) : (
-              <ProFeaturePreview
-                title="Replacement Score"
-                description="See how close your gear is to end-of-life based on age, condition, and category benchmarks."
-                onUpgrade={openUpgrade}
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full rounded-full bg-yellow-500 w-[45%]" />
-                    </div>
-                    <span className="text-sm font-semibold tabular-nums text-yellow-400">45%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-yellow-400">Moderate wear</span>
-                    <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                      <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" /> Good</span>
-                      <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-yellow-500" /> Moderate</span>
-                      <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-red-500" /> Replace</span>
-                    </div>
-                  </div>
-                </div>
-              </ProFeaturePreview>
-            )}
+            <ReplacementSection itemId={item.id} />
             <Separator className="my-8" />
-            {isSubscribed ? (
-              <ActivityLogSection itemId={item.id} />
-            ) : (
-              <ProFeaturePreview
-                title="Activity Log"
-                description="Record repairs, maintenance, condition changes, and other events for each piece of gear."
-                onUpgrade={openUpgrade}
-              >
-                <div className="space-y-0">
-                  {[
-                    { icon: Package, label: 'Acquired', date: 'Jan 15, 2025', detail: 'Purchased new' },
-                    { icon: CircleDot, label: 'Condition Change', date: 'Jun 3, 2025', detail: 'New → Good' },
-                    { icon: StickyNote, label: 'Note', date: 'Sep 12, 2025', detail: 'Seam showing wear on left shoulder strap' },
-                  ].map(({ icon: Icon, label, date, detail }) => (
-                    <div key={label} className="flex gap-3 pb-4">
-                      <div className="flex flex-col items-center">
-                        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-muted shrink-0">
-                          <Icon size={14} className="text-muted-foreground" />
-                        </div>
-                        <div className="w-px flex-1 bg-border mt-1" />
-                      </div>
-                      <div className="flex-1 min-w-0 pb-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{label}</span>
-                          <span className="text-[11px] text-muted-foreground">{date}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ProFeaturePreview>
-            )}
-            {item.catalog_product && (
-              <>
-                <Separator className="my-8" />
-                <CatalogSection item={item} />
-              </>
-            )}
+            <ActivityLogSection itemId={item.id} />
           </>
         )}
 
-        <Separator className="my-8" />
-        <Form {...form}>
-          <NotesSection form={form} />
-        </Form>
+        {isEdit && item?.catalog_product && (
+          <>
+            <Separator className="my-8" />
+            <CatalogSection item={item} />
+          </>
+        )}
+
+        {!isSubscribed && (
+          <>
+            <Separator className="my-8" />
+            <GearHealthPreview onUpgrade={openUpgrade} />
+          </>
+        )}
 
         {isEdit && item && (
           <>
             <Separator className="my-8" />
-            <DangerZoneSection item={item} onComplete={() => navigate({ to: '/inventory' })} />
+            <DangerZoneSection item={item} onComplete={onClose ?? (() => navigate({ to: '/inventory' }))} />
           </>
         )}
 

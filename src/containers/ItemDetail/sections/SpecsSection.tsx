@@ -33,58 +33,58 @@ export const SpecsSection: FC<Props> = ({ form }) => {
     <section>
       <h2 className="text-base font-semibold text-foreground mb-4">Specs</h2>
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="flex items-end gap-1">
-            <FormField
-              control={form.control}
-              name="weight"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Weight</FormLabel>
-                  <Input
-                    {...field}
-                    type="number"
-                    step=".01"
-                    placeholder="0.00"
-                    onFocus={() => { if (!field.value) field.onChange('') }}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="unit"
-              render={({ field }) => (
-                <Select
-                  onValueChange={v => {
-                    const weight = convertWeight(
-                      form.getValues('weight'),
-                      field.value as Unit,
-                      v as Unit
-                    )
-                    form.setValue('weight', Math.round(weight.weight * 100) / 100)
-                    field.onChange(v)
-                  }}
-                  defaultValue={field.value}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-[72px]">
-                      <SelectValue placeholder="Unit" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="g">g</SelectItem>
-                    <SelectItem value="kg">kg</SelectItem>
-                    <SelectItem value="oz">oz</SelectItem>
-                    <SelectItem value="lb">lb</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
+        <div className="flex items-end gap-1">
+          <FormField
+            control={form.control}
+            name="weight"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Weight</FormLabel>
+                <Input
+                  {...field}
+                  type="number"
+                  step=".01"
+                  placeholder="0.00"
+                  onFocus={() => { if (!field.value) field.onChange('') }}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="unit"
+            render={({ field }) => (
+              <Select
+                onValueChange={v => {
+                  const weight = convertWeight(
+                    form.getValues('weight'),
+                    field.value as Unit,
+                    v as Unit
+                  )
+                  form.setValue('weight', Math.round(weight.weight * 100) / 100)
+                  field.onChange(v)
+                }}
+                defaultValue={field.value}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger className="w-[72px]">
+                    <SelectValue placeholder="Unit" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="g">g</SelectItem>
+                  <SelectItem value="kg">kg</SelectItem>
+                  <SelectItem value="oz">oz</SelectItem>
+                  <SelectItem value="lb">lb</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
 
+        <div className="grid grid-cols-2 gap-3">
           <FormField
             control={form.control}
             name="price"

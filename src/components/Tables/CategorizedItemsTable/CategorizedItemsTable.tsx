@@ -51,8 +51,10 @@ interface DataTableProps<TData, TValue> {
   onSearchFilterChange?: (value: string) => void
   category: string
   selectedIds?: Set<number>
+  activeItemId?: number | null
   onToggleItem?: (id: number) => void
   onToggleCategory?: (ids: number[]) => void
+  onSelectItem?: (id: number) => void
 }
 
 export function CategorizedItemsTable<TData extends { id: number }, TValue>({
@@ -62,8 +64,10 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   onSearchFilterChange,
   category,
   selectedIds,
+  activeItemId,
   onToggleItem,
   onToggleCategory,
+  onSelectItem,
 }: DataTableProps<TData, TValue>) {
   const updateItemSort = useUpdateItemSort()
   const [categoryItems, setCategoryItems] = useState(data)
@@ -121,9 +125,9 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   if (!visibleRows.length) return null
 
   return (
-    <div className="mb-6" id={`category-${category}`}>
-      <div className="flex items-center justify-between rounded-t-md px-3 py-2 bg-muted">
-        <h3 className="font-bold text-foreground text-xs md:text-sm">
+    <div id={`category-${category}`}>
+      <div className="flex items-center justify-between px-3 py-2 bg-muted">
+        <h3 className="font-semibold text-primary tracking-wide text-sm md:text-base">
           {category}
         </h3>
         <span className="text-[11px] text-muted-foreground tabular-nums">
@@ -131,55 +135,56 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
           {groupSummary.value > 0 && ` · $${groupSummary.value.toFixed(0)}`}
         </span>
       </div>
-      <div className="rounded-b-md border border-border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                <TableHead className="w-10 px-2">
-                  <div className="flex items-center justify-end">
-                    <Checkbox
-                      checked={allSelected ? true : someSelected ? 'indeterminate' : false}
-                      onClick={() => onToggleCategory?.(visibleIds)}
-                      className="opacity-40 hover:opacity-100 transition-opacity"
-                    />
-                  </div>
-                </TableHead>
-                {headerGroup.headers.map(header => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={(header.column.columnDef.meta as any)?.style}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {visibleRows.map((row, idx) => (
-              <ItemRow
-                row={row}
-                moveItem={moveItem}
-                onDropItem={onDropItem}
-                key={row.id}
-                idx={idx}
-                id={category}
-                disabled={!!searchFilter}
-                isSelected={selectedIds?.has((row.original as TData).id)}
-                onToggleSelect={() => onToggleItem?.((row.original as TData).id)}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map(headerGroup => (
+            <TableRow key={headerGroup.id}>
+              <TableHead className="w-10 px-2">
+                <div className="flex items-center gap-1">
+                  <div className="shrink-0 w-4" />
+                  <Checkbox
+                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                    onClick={() => onToggleCategory?.(visibleIds)}
+                    className="opacity-40 hover:opacity-100 transition-opacity"
+                  />
+                </div>
+              </TableHead>
+              {headerGroup.headers.map(header => {
+                return (
+                  <TableHead
+                    key={header.id}
+                    style={(header.column.columnDef.meta as any)?.style}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                  </TableHead>
+                )
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {visibleRows.map((row, idx) => (
+            <ItemRow
+              row={row}
+              moveItem={moveItem}
+              onDropItem={onDropItem}
+              key={row.id}
+              idx={idx}
+              id={category}
+              disabled={!!searchFilter}
+              isSelected={selectedIds?.has((row.original as TData).id)}
+              isActive={activeItemId === (row.original as TData).id}
+              onToggleSelect={() => onToggleItem?.((row.original as TData).id)}
+              onRowClick={onSelectItem ? () => onSelectItem((row.original as TData).id) : undefined}
+            />
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }

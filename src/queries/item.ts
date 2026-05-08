@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/useToast'
 import {
   archiveItem,
   bulkArchiveItems,
+  bulkDeleteItems,
   bulkRestoreItems,
   createItem,
   deleteItem,
@@ -144,6 +145,21 @@ export const useBulkRestoreItems = () => {
     },
     onSuccess: () => {
       toast({ title: 'Items restored' })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+    },
+  })
+}
+
+export const useBulkDeleteItems = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (ids: number[]) => {
+      await bulkDeleteItems(ids)
+    },
+    onSuccess: () => {
+      toast({ title: 'Items permanently deleted' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },

@@ -170,6 +170,9 @@ export const bulkArchiveItems = (ids: number[]) =>
 export const bulkRestoreItems = (ids: number[]) =>
   http.put('/item/bulk-restore', ids)
 
+export const bulkDeleteItems = (ids: number[]) =>
+  http.post('/item/bulk-delete', ids)
+
 export const updateItem = (data: EditItem) => http.put<Item>('/item', data)
 
 export const updateItemSortOrder = (data: UpdateItemSortOrder) =>

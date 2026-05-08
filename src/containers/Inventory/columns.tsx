@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { Cell, ColumnDef } from '@tanstack/react-table'
 
 import { Currency, formatCurrency } from '@/lib/currencies'
 import { Item } from '@/types/item'
@@ -9,20 +9,20 @@ import {
   EmptyDash,
   NameCell,
   NotesCell,
-  ViewAction,
   WeightCell,
 } from './cells'
 
 export const columns = (
   currency: Currency,
-  scores: ItemScores
+  scores: ItemScores,
+  isSubscribed: boolean,
 ): ColumnDef<Item>[] => [
   {
     header: 'Name',
     accessorKey: 'name',
     cell: ({ cell }) => <NameCell cell={cell} />,
     meta: {
-      style: { width: '22%' },
+      style: { width: '25%' },
     },
   },
   {
@@ -30,7 +30,7 @@ export const columns = (
     accessorKey: 'brand.name',
     cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
-      style: { width: '14%' },
+      style: { width: '15%' },
     },
   },
   {
@@ -42,22 +42,22 @@ export const columns = (
     },
     cell: ({ getValue }) => getValue() || <EmptyDash />,
     meta: {
-      style: { width: '18%' },
+      style: { width: '20%' },
     },
   },
-  {
+  ...(isSubscribed ? [{
     header: 'Condition',
     accessorKey: 'condition',
-    cell: ({ cell }) => (
+    cell: ({ cell }: { cell: Cell<Item, unknown> }) => (
       <ConditionCell
         cell={cell}
         score={scores.get(cell.row.original.id)}
       />
     ),
     meta: {
-      style: { width: '5%' },
+      style: { width: '8%' },
     },
-  },
+  } satisfies ColumnDef<Item>] : []),
   {
     header: 'Value',
     accessorFn: item => {
@@ -97,15 +97,7 @@ export const columns = (
     cell: ({ cell }) => <NotesCell cell={cell} />,
     meta: {
       align: 'center',
-      style: { textAlign: 'center', width: '5%' },
-    },
-  },
-  {
-    id: 'actions',
-    cell: ({ cell }) => <ViewAction cell={cell} />,
-    meta: {
-      align: 'right',
-      style: { width: '7%' },
+      style: { textAlign: 'center', width: '6%' },
     },
   },
 ]

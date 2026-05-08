@@ -6,6 +6,7 @@ import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable
 import { Loading } from '@/components/ui/Loading'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
 import { ItemScores } from '@/hooks/useReplacementScores'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
 import { ItemCondition, ItemStatus } from '@/types/item'
 
@@ -16,8 +17,10 @@ interface Props {
   isLoading: boolean
   showRemoved: boolean
   selectedIds: Set<number>
+  activeItemId?: number | null
   onToggleItem: (id: number) => void
   onToggleCategory: (ids: number[]) => void
+  onSelectItem?: (id: number) => void
   scores: ItemScores
   statusFilter?: ItemStatus | null
   conditionFilter?: ItemCondition | null
@@ -29,14 +32,17 @@ export const InventoryTable = ({
   isLoading,
   showRemoved,
   selectedIds,
+  activeItemId,
   onToggleItem,
   onToggleCategory,
+  onSelectItem,
   scores,
   statusFilter,
   conditionFilter,
   categoryFilter,
 }: Props) => {
   const user = useUser()
+  const { isSubscribed } = useSubscription()
   const data = useCategorizedItems({ showRemoved })
 
   const filteredData = useMemo(() => {
@@ -66,8 +72,8 @@ export const InventoryTable = ({
   }, [data, statusFilter, conditionFilter, categoryFilter])
 
   const tableCols = useMemo(
-    () => columns(user.currency, scores),
-    [user.currency, scores]
+    () => columns(user.currency, scores, isSubscribed),
+    [user.currency, scores, isSubscribed]
   )
 
   if (isLoading) {
@@ -112,8 +118,10 @@ export const InventoryTable = ({
             searchFilter={searchFilter}
             onSearchFilterChange={() => {}}
             selectedIds={selectedIds}
+            activeItemId={activeItemId}
             onToggleItem={onToggleItem}
             onToggleCategory={onToggleCategory}
+            onSelectItem={onSelectItem}
           />
         )
       })}

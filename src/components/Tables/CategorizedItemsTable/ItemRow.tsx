@@ -6,6 +6,7 @@ import { flexRender, Row } from '@tanstack/react-table'
 
 import { Checkbox } from '@/components/ui/Checkbox'
 import { TableCell, TableRow } from '@/components/ui/Table'
+import { cn } from '@/lib/utils'
 
 interface ItemRowProps<TData> {
   id: string
@@ -13,7 +14,9 @@ interface ItemRowProps<TData> {
   row: Row<TData>
   disabled?: boolean
   isSelected?: boolean
+  isActive?: boolean
   onToggleSelect?: () => void
+  onRowClick?: () => void
   moveItem: (dragIndex: number, hoverIndex: number) => void
   onDropItem: () => void
 }
@@ -30,7 +33,9 @@ export function ItemRow<TData>({
   row,
   disabled,
   isSelected,
+  isActive,
   onToggleSelect,
+  onRowClick,
   moveItem,
   onDropItem,
 }: ItemRowProps<TData>) {
@@ -120,6 +125,11 @@ export function ItemRow<TData>({
       key={row.id}
       ref={dropRef}
       data-state={(isSelected || row.getIsSelected()) && 'selected'}
+      onClick={onRowClick}
+      className={cn(
+        onRowClick && 'cursor-pointer',
+        isActive && 'bg-accent',
+      )}
     >
       <TableCell className="w-10 px-2">
         <div className="flex items-center gap-1">

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { ItemDetailPage } from '@/pages/ItemDetail'
+import { InventoryPage } from '@/pages/Inventory'
 
 export const Route = createFileRoute('/_app/inventory/new')({
-  component: () => <ItemDetailPage mode="create" />,
+  component: () => <InventoryPage initialShowNew />,
 })

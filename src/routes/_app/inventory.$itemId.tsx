@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { ItemDetailPage } from '@/pages/ItemDetail'
+import { InventoryPage } from '@/pages/Inventory'
 import { inventoryQueryOptions } from '@/queries/item'
 
 export const Route = createFileRoute('/_app/inventory/$itemId')({
@@ -8,6 +8,6 @@ export const Route = createFileRoute('/_app/inventory/$itemId')({
     queryClient.ensureQueryData(inventoryQueryOptions),
   component: () => {
     const { itemId } = Route.useParams()
-    return <ItemDetailPage mode="edit" itemId={Number(itemId)} />
+    return <InventoryPage initialItemId={Number(itemId)} />
   },
 })

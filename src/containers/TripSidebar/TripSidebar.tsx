@@ -2,7 +2,6 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import { Loader2, Pencil, Scale } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
-import { UpgradePrompt } from '@/components/UpgradePrompt'
 import { ScrollArea } from '@/components/ui/ScrollArea'
 import {
   Sidebar,
@@ -20,6 +19,7 @@ import {
 } from '@/components/ui/Tooltip'
 import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { CalorieEstimate } from '@/containers/CalorieEstimate/CalorieEstimate'
+import { CalorieUpgradePreview } from '@/containers/CalorieEstimate/CalorieUpgradePreview'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUnits } from '@/hooks/useUnits'
@@ -59,7 +59,7 @@ function categorizePackItems(items: PackItem[], toUnit: string) {
 export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
   const user = useUser()
   const units = useUnits()
-  const { isSubscribed } = useSubscription()
+  const { isSubscribed, openUpgrade } = useSubscription()
   const { packs, displayUnitSystem } = useTripPacks(
     useShallow(store => ({ packs: store.packs, displayUnitSystem: store.displayUnitSystem }))
   )
@@ -162,15 +162,6 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          {!isSubscribed && (
-            <div className="px-2 pb-3">
-              <UpgradePrompt
-                compact
-                title="Unlock AI-enhanced trip details"
-                description="Auto-fill trail data, elevation, temperature, and conditions."
-              />
-            </div>
-          )}
         </ScrollArea>
       </SidebarContent>
 
@@ -209,7 +200,11 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
           </div>
         </div>
 
-        <CalorieEstimate trip={trip} />
+        {isSubscribed ? (
+          <CalorieEstimate trip={trip} />
+        ) : (
+          <CalorieUpgradePreview onUpgrade={openUpgrade} />
+        )}
       </SidebarFooter>
     </Sidebar>
   )
