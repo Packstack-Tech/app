@@ -41,15 +41,17 @@ export const GearSnapshot: FC = () => {
   if (isLoading || !stats || stats.count === 0) return null
 
   return (
-    <div className="rounded-lg border bg-card p-5">
+    <div className="p-4 border-b border-border">
       <div className="flex items-center gap-2 mb-3">
-        <PackageOpen size={16} className="text-muted-foreground" />
-        <h3 className="text-sm font-semibold">Gear Snapshot</h3>
+        <PackageOpen size={14} className="text-muted-foreground" />
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Gear Snapshot
+        </h3>
       </div>
 
       <Link
         to="/inventory"
-        className="flex flex-wrap items-center gap-4 hover:opacity-80 transition-opacity"
+        className="flex flex-wrap items-center gap-3 hover:opacity-80 transition-opacity"
       >
         <div className="flex items-center gap-1.5 text-sm">
           <span className="font-semibold tabular-nums">{stats.count}</span>

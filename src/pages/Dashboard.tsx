@@ -1,10 +1,12 @@
 import { FC, useMemo } from 'react'
 import { isAfter, isSameDay, startOfDay } from 'date-fns'
 
+import { ScrollArea } from '@/components/ui/ScrollArea'
 import { GearSnapshot } from '@/containers/Dashboard/GearSnapshot'
 import { HikerProfiles } from '@/containers/Dashboard/HikerProfiles'
 import { NeedsAttention } from '@/containers/Dashboard/NeedsAttention'
 import { PastTrips } from '@/containers/Dashboard/PastTrips'
+import { Preferences } from '@/containers/Dashboard/Preferences'
 import { ProUpsell } from '@/containers/Dashboard/ProUpsell'
 import { SetupChecklist } from '@/containers/Dashboard/SetupChecklist'
 import { UpcomingTrips } from '@/containers/Dashboard/UpcomingTrips'
@@ -49,20 +51,23 @@ export const Dashboard: FC = () => {
   }, [trips])
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8 items-start">
-        <div className="flex flex-col gap-8">
+    <div className="flex flex-1 min-h-0">
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="flex flex-col gap-0 p-6">
           <UpcomingTrips trips={upcoming} totalTrips={trips.length} />
           <PastTrips trips={past} />
         </div>
-        <div className="flex flex-col gap-6">
+      </ScrollArea>
+      <ScrollArea className="w-80 shrink-0 border-l border-border min-h-0 bg-card">
+        <div className="flex flex-col">
           <SetupChecklist />
           <NeedsAttention />
           <HikerProfiles />
+          <Preferences />
           <ProUpsell />
           <GearSnapshot />
         </div>
-      </div>
+      </ScrollArea>
     </div>
   )
 }

@@ -12,35 +12,17 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/Form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
-import { DISTANCE, distances, temps, weightUnits } from '@/lib/consts'
-import { SYSTEM_UNIT } from '@/lib/consts'
-import { currencies } from '@/lib/currencies'
 import { Mixpanel } from '@/lib/mixpanel'
 import { useUpdateUser } from '@/queries/user'
 
 type SettingsForm = {
   email: string
-  currency: string
-  unit_distance: DISTANCE
-  unit_weight: SYSTEM_UNIT
-  unit_temperature: string
 }
 
 const schema = z.object({
   email: z.string().email(),
-  currency: z.string(),
-  unit_distance: z.string(),
-  unit_weight: z.enum(['IMPERIAL', 'METRIC']),
-  unit_temperature: z.enum(['F', 'C']),
 })
 
 export const Settings = () => {
@@ -52,10 +34,6 @@ export const Settings = () => {
     resolver: zodResolver(schema),
     defaultValues: {
       email: user.email || '',
-      currency: user.currency.code || '',
-      unit_distance: user.unit_distance || DISTANCE.Kilometers,
-      unit_weight: user.unit_weight || 'METRIC',
-      unit_temperature: user.unit_temperature || 'F',
     },
   })
 
@@ -90,131 +68,6 @@ export const Settings = () => {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-          </section>
-
-          <hr className="border-border" />
-
-          <section className="flex flex-col gap-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Preferences
-            </h3>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-1">
-              <FormField
-                control={form.control}
-                name="unit_weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Weight Unit</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder="Select weight unit..."
-                            defaultValue={field.value}
-                          />
-                          <SelectContent>
-                            {weightUnits.map(({ label, value }) => (
-                              <SelectItem key={value} value={value}>
-                                {label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </SelectTrigger>
-                      </FormControl>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="unit_distance"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Distance Unit</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder="Select distance unit..."
-                            defaultValue={field.value}
-                          />
-                          <SelectContent>
-                            {distances.map(({ label, value }) => (
-                              <SelectItem key={value} value={value}>
-                                {label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </SelectTrigger>
-                      </FormControl>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="unit_temperature"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Temperature Unit</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder="Select temperature unit..."
-                            defaultValue={field.value}
-                          />
-                          <SelectContent>
-                            {temps.map(({ label, value }) => (
-                              <SelectItem key={value} value={value}>
-                                °{label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </SelectTrigger>
-                      </FormControl>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="currency"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Currency</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select currency..." />
-                        <SelectContent>
-                            {currencies.map(({ code, name }) => (
-                              <SelectItem key={code} value={code}>
-                                ({code}) {name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </SelectTrigger>
-                    </FormControl>
-                  </Select>
                 </FormItem>
               )}
             />

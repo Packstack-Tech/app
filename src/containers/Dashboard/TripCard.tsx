@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useCallback, useState } from 'react'
 import { format, formatDistanceToNowStrict } from 'date-fns'
 import { Calendar, CopyPlus, Loader2, RotateCw, Trash2Icon } from 'lucide-react'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -20,6 +20,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
+import { useUnits } from '@/hooks/useUnits'
+import { labelFor, TERRAIN_OPTIONS } from '@/lib/tripDetails'
 import { useCloneTrip, useDeleteTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
 
@@ -34,6 +36,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
   const navigate = useNavigate()
   const deleteTrip = useDeleteTrip()
   const cloneTrip = useCloneTrip()
+  const units = useUnits()
 
   const { created_at, start_date, end_date, id, location, removed, enrich_status } = trip
 
@@ -55,8 +58,33 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
       },
     })
 
+  const badges: { label: string }[] = []
+
+  if (trip.distance) {
+    const d = Math.round(units.formatDistance(trip.distance) * 100) / 100
+    badges.push({ label: `${d} ${units.distanceLabel}` })
+  }
+  if (trip.daily_elevation_gain) {
+    const e = Math.round(units.formatElevation(trip.daily_elevation_gain))
+    badges.push({ label: `${e} ${units.elevationLabel}/day` })
+  }
+  if (trip.temp_min != null || trip.temp_max != null) {
+    const fmt = (v: number) => Math.round(units.formatTemperature(v))
+    const min = trip.temp_min != null ? fmt(trip.temp_min) : '—'
+    const max = trip.temp_max != null ? fmt(trip.temp_max) : '—'
+    badges.push({ label: `${min}–${max}${units.temperatureLabel}` })
+  }
+  if (trip.terrain) {
+    const label = labelFor(trip.terrain, TERRAIN_OPTIONS)
+    if (label) badges.push({ label })
+  }
+  if (trip.pace) {
+    const label = labelFor(trip.pace, units.paceOptions)
+    if (label) badges.push({ label })
+  }
+
   return (
-    <div className="group rounded-md border bg-card p-5 transition-colors hover:border-primary/30">
+    <div className="group px-5 py-4 transition-colors hover:bg-muted/30">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -81,7 +109,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
           </div>
 
           {start && (
-            <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
               <Calendar size={13} className="shrink-0" />
               <span>{dayTrip ? start : `${start} - ${end}`}</span>
               {countdown && (
@@ -91,6 +119,21 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
               )}
             </div>
           )}
+
+          {badges.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {badges.map(({ label }) => (
+                <span
+                  key={label}
+                  className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {trip.notes && <NotesField text={trip.notes} />}
         </div>
 
         {!removed && (
@@ -99,7 +142,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <AlertDialogTrigger asChild>
-                    <button className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                    <button className="cursor-pointer rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
                       <CopyPlus size={15} />
                     </button>
                   </AlertDialogTrigger>
@@ -124,7 +167,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <AlertDialogTrigger asChild>
-                    <button className="rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+                    <button className="cursor-pointer rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
                       <Trash2Icon size={15} />
                     </button>
                   </AlertDialogTrigger>
@@ -150,7 +193,38 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
         )}
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">Created {created}</p>
+      <p className="mt-2 text-xs text-muted-foreground">Created {created}</p>
+    </div>
+  )
+}
+
+function NotesField({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const [clamped, setClamped] = useState(false)
+
+  const measuredRef = useCallback((node: HTMLParagraphElement | null) => {
+    if (node) {
+      setClamped(node.scrollHeight > node.clientHeight)
+    }
+  }, [])
+
+  return (
+    <div className="mt-2">
+      <p
+        ref={measuredRef}
+        className={`text-xs text-muted-foreground ${expanded ? '' : 'line-clamp-2'}`}
+      >
+        {text}
+      </p>
+      {(clamped || expanded) && (
+        <button
+          type="button"
+          onClick={() => setExpanded(v => !v)}
+          className="text-xs text-primary hover:underline mt-0.5"
+        >
+          {expanded ? 'read less...' : 'read more...'}
+        </button>
+      )}
     </div>
   )
 }

@@ -74,11 +74,13 @@ export const SetupChecklist: FC = () => {
   }
 
   return (
-    <div className="rounded-lg border bg-card p-5">
-      <div className="flex items-center justify-between mb-4">
+    <div className="p-4 border-b border-border">
+      <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold">Get Started</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Get Started
+          </h3>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             {completedCount}/{items.length} complete
           </p>
         </div>
@@ -86,36 +88,36 @@ export const SetupChecklist: FC = () => {
           onClick={handleDismiss}
           className="rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         >
-          <X size={16} />
+          <X size={14} />
         </button>
       </div>
 
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-2">
         {items.map(item => (
           <div
             key={item.id}
             className="flex items-center justify-between gap-3"
           >
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               {item.complete ? (
                 <CheckCircle2
-                  size={16}
+                  size={14}
                   className="shrink-0 text-green-500"
                 />
               ) : (
                 <item.icon
-                  size={16}
+                  size={14}
                   className="shrink-0 text-muted-foreground"
                 />
               )}
               <span
-                className={`text-sm ${item.complete ? 'text-muted-foreground line-through' : 'text-foreground'}`}
+                className={`text-xs ${item.complete ? 'text-muted-foreground line-through' : 'text-foreground'}`}
               >
                 {item.label}
               </span>
             </div>
             {!item.complete && (
-              <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
+              <Button variant="ghost" size="sm" className="h-6 text-[10px]" asChild>
                 <Link to={item.href}>{item.cta}</Link>
               </Button>
             )}

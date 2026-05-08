@@ -47,9 +47,11 @@ export const HikerProfiles: FC = () => {
 
   return (
     <>
-      <div className="rounded-lg border bg-card p-5">
+      <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold">Hiker Profiles</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Hiker Profiles
+          </h3>
           <Button variant="outline" size="sm" onClick={openCreateDialog}>
             <PlusIcon className="size-3.5 mr-1" />
             Add
@@ -62,11 +64,11 @@ export const HikerProfiles: FC = () => {
             your trips.
           </p>
         ) : (
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col divide-y divide-border">
             {hikerProfiles.map(profile => (
               <div
                 key={profile.id}
-                className="flex items-center justify-between rounded-md border px-3 py-2"
+                className="flex items-center justify-between py-2"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-sm font-medium truncate">{profile.name}</span>

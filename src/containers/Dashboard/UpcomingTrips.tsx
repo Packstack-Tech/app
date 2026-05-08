@@ -20,10 +20,12 @@ export const UpcomingTrips: FC<Props> = ({ trips, totalTrips }) => {
 
   return (
     <div>
-      <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="text-lg font-semibold">Upcoming</h2>
+      <div className="px-5 py-3 bg-muted flex items-baseline justify-between">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-primary">
+          Upcoming
+        </h2>
         {trips.length > 0 && (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {trips.length} {trips.length === 1 ? 'trip' : 'trips'}
           </span>
         )}
@@ -55,12 +57,12 @@ export const UpcomingTrips: FC<Props> = ({ trips, totalTrips }) => {
       <NewTripModal open={showNewTrip} onOpenChange={setShowNewTrip} />
 
       {trips.length === 0 && totalTrips > 0 && (
-        <p className="text-sm text-muted-foreground py-4">
+        <p className="text-sm text-muted-foreground px-5 py-4">
           No upcoming trips scheduled.
         </p>
       )}
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col divide-y divide-border">
         {trips.map(trip => (
           <TripCard key={trip.id} trip={trip} showCountdown />
         ))}

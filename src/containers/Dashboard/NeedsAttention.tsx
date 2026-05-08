@@ -59,32 +59,29 @@ export const NeedsAttention: FC = () => {
   if (!isSubscribed || isLoading || attentionItems.length === 0) return null
 
   return (
-    <div className="rounded-lg border bg-card p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <AlertTriangle size={16} className="text-amber-500" />
-        <h3 className="text-sm font-semibold">Gear Needing Attention</h3>
-        <span className="ml-auto text-xs text-muted-foreground">
+    <div className="p-4 border-b border-border">
+      <div className="flex items-center gap-2 mb-3">
+        <AlertTriangle size={14} className="text-amber-500" />
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Needs Attention
+        </h3>
+        <span className="ml-auto text-[10px] text-muted-foreground">
           {attentionItems.length} item{attentionItems.length !== 1 && 's'}
         </span>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col divide-y divide-border">
         {attentionItems.map(({ item, score }) => (
           <Link
             key={item.id}
             to="/inventory/$itemId"
             params={{ itemId: `${item.id}` }}
-            className="flex items-center justify-between gap-3 rounded-md px-3 py-2 -mx-1 hover:bg-accent transition-colors"
+            className="flex items-center justify-between gap-3 py-2 hover:bg-muted/30 transition-colors"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-sm font-medium truncate">
+              <span className="text-xs font-medium truncate">
                 {item.name}
               </span>
-              {item.category?.category?.name && (
-                <span className="hidden sm:inline text-xs text-muted-foreground">
-                  {item.category.category.name}
-                </span>
-              )}
               {item.condition && <ConditionBadge condition={item.condition} />}
             </div>
             <ScoreBadge score={score} />
@@ -93,7 +90,7 @@ export const NeedsAttention: FC = () => {
       </div>
 
       {scores.size > 0 && (
-        <div className="mt-3 pt-3 border-t">
+        <div className="mt-2 pt-2 border-t border-border">
           <Link
             to="/inventory"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
