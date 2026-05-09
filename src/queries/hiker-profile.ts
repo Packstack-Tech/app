@@ -12,6 +12,7 @@ import {
   getHikerProfiles,
   updateHikerProfile,
 } from '@/lib/api'
+import { Mixpanel } from '@/lib/mixpanel'
 import { HikerProfilePayload } from '@/types/hiker-profile'
 
 export const HIKER_PROFILES_QUERY = 'hiker-profiles'
@@ -34,6 +35,7 @@ export const useCreateHikerProfile = () => {
   return useMutation({
     mutationFn: async (params: HikerProfilePayload) => {
       const res = await createHikerProfile(params)
+      Mixpanel.track('HikerProfile:Create')
       return res.data
     },
     onSuccess: () => {
@@ -55,6 +57,7 @@ export const useUpdateHikerProfile = () => {
       data: Partial<HikerProfilePayload>
     }) => {
       const res = await updateHikerProfile(id, data)
+      Mixpanel.track('HikerProfile:Update')
       return res.data
     },
     onSuccess: () => {
@@ -70,6 +73,7 @@ export const useDeleteHikerProfile = () => {
   return useMutation({
     mutationFn: async (id: number) => {
       await deleteHikerProfile(id)
+      Mixpanel.track('HikerProfile:Delete')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [HIKER_PROFILES_QUERY] })

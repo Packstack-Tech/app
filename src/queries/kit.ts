@@ -7,6 +7,7 @@ import {
 
 import { useToast } from '@/hooks/useToast'
 import { createKit, deleteKit, getKits, updateKit } from '@/lib/api'
+import { Mixpanel } from '@/lib/mixpanel'
 import { KitPayload } from '@/types/kit'
 
 export const KITS_QUERY = ['kits-query']
@@ -35,6 +36,7 @@ export const useCreateKit = () => {
   return useMutation({
     mutationFn: async (data: KitPayload) => {
       const res = await createKit(data)
+      Mixpanel.track('Kit:Create')
       return res.data
     },
     onSuccess: () => {
@@ -53,6 +55,7 @@ export const useUpdateKit = () => {
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: KitPayload }) => {
       const res = await updateKit(id, data)
+      Mixpanel.track('Kit:Update')
       return res.data
     },
     onSuccess: () => {
@@ -71,6 +74,7 @@ export const useDeleteKit = () => {
   return useMutation({
     mutationFn: async (id: number) => {
       await deleteKit(id)
+      Mixpanel.track('Kit:Delete')
     },
     onSuccess: () => {
       toast({ title: 'Kit deleted' })

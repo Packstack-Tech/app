@@ -89,6 +89,7 @@ export const useDeleteItem = () => {
   return useMutation({
     mutationFn: async (itemId: number) => {
       const res = await archiveItem(itemId)
+      Mixpanel.track('Item:Archive')
       return res.data
     },
     onSuccess: () => {
@@ -107,6 +108,7 @@ export const usePermanentlyDeleteItem = () => {
   return useMutation({
     mutationFn: async (itemId: number) => {
       const res = await deleteItem(itemId)
+      Mixpanel.track('Item:Delete')
       return res.data
     },
     onSuccess: () => {
@@ -125,6 +127,7 @@ export const useBulkArchiveItems = () => {
   return useMutation({
     mutationFn: async (ids: number[]) => {
       const res = await bulkArchiveItems(ids)
+      Mixpanel.track('Item:BulkArchive', { count: ids.length })
       return res.data
     },
     onSuccess: () => {
@@ -141,6 +144,7 @@ export const useBulkRestoreItems = () => {
   return useMutation({
     mutationFn: async (ids: number[]) => {
       const res = await bulkRestoreItems(ids)
+      Mixpanel.track('Item:BulkRestore', { count: ids.length })
       return res.data
     },
     onSuccess: () => {
@@ -157,6 +161,7 @@ export const useBulkDeleteItems = () => {
   return useMutation({
     mutationFn: async (ids: number[]) => {
       await bulkDeleteItems(ids)
+      Mixpanel.track('Item:BulkDelete', { count: ids.length })
     },
     onSuccess: () => {
       toast({ title: 'Items permanently deleted' })
@@ -192,6 +197,7 @@ export const useUpdateItemSort = () => {
   return useMutation({
     mutationFn: async (sortOrder: UpdateItemSortOrder) => {
       const res = await updateItemSortOrder(sortOrder)
+      Mixpanel.track('Item:Sort')
       return res.data
     },
     onSuccess: () => {
@@ -259,6 +265,7 @@ export const useSaveCategoryChanges = () => {
         ...renamePromises,
         updateCategorySortOrder(sortOrder),
       ])
+      Mixpanel.track('Category:Save')
     },
     onSuccess: () => {
       toast({ title: 'Categories updated' })

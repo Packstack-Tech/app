@@ -96,6 +96,7 @@ export const useResendVerification = () => {
   return useMutation({
     mutationFn: async () => {
       const res = await resendVerificationEmail()
+      Mixpanel.track('User:ResendVerification')
       return res.data
     },
     onSuccess: () => {

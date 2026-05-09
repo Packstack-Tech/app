@@ -6,6 +6,7 @@ import {
 
 import { useToast } from '@/hooks/useToast'
 import { getBenchmarks, resetBenchmark, updateBenchmark } from '@/lib/api'
+import { Mixpanel } from '@/lib/mixpanel'
 import { CategoryBenchmarks } from '@/types/item'
 
 const BENCHMARK_QUERY = ['benchmarks']
@@ -32,6 +33,7 @@ export const useUpdateBenchmark = () => {
       data: Partial<CategoryBenchmarks>
     }) => {
       const res = await updateBenchmark(categoryName, data)
+      Mixpanel.track('Benchmark:Update', { category: categoryName })
       return res.data
     },
     onSuccess: () => {
@@ -47,6 +49,7 @@ export const useResetBenchmark = () => {
   return useMutation({
     mutationFn: async (categoryName: string) => {
       await resetBenchmark(categoryName)
+      Mixpanel.track('Benchmark:Reset', { category: categoryName })
     },
     onSuccess: () => {
       toast({ title: 'Benchmark reset to default' })

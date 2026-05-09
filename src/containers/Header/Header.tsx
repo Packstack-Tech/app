@@ -35,6 +35,7 @@ export const Header = () => {
       await logout()
     } finally {
       Sentry.setUser(null)
+      Mixpanel.track('User:Logout')
       Mixpanel.reset()
       queryClient.clear()
       navigate({ to: '/auth/login' })

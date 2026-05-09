@@ -12,6 +12,7 @@ import {
   updateItemLifecycle,
   updateItemLog,
 } from '@/lib/api'
+import { Mixpanel } from '@/lib/mixpanel'
 import { CreateItemLog } from '@/types/item'
 
 const INVENTORY_QUERY = ['inventory-query']
@@ -34,6 +35,7 @@ export const useCreateItemLog = (itemId: number) => {
   return useMutation({
     mutationFn: async (data: CreateItemLog) => {
       const res = await createItemLog(itemId, data)
+      Mixpanel.track('ItemLog:Create', { event_type: data.event_type })
       return res.data
     },
     onSuccess: () => {
@@ -49,6 +51,7 @@ export const useUpdateItemLog = (itemId: number) => {
   return useMutation({
     mutationFn: async ({ logId, data }: { logId: number; data: CreateItemLog }) => {
       const res = await updateItemLog(itemId, logId, data)
+      Mixpanel.track('ItemLog:Update', { event_type: data.event_type })
       return res.data
     },
     onSuccess: () => {
@@ -64,6 +67,7 @@ export const useUpdateLifecycle = (itemId: number) => {
   return useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
       const res = await updateItemLifecycle(itemId, data)
+      Mixpanel.track('Item:LifecycleUpdate')
       return res.data
     },
     onSuccess: () => {

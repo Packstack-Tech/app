@@ -86,6 +86,7 @@ export const useUpdatePack = () => {
   return useMutation({
     mutationFn: async ({ id, data }: UpdatePack) => {
       const res = await updatePack(id, data)
+      Mixpanel.track('Pack:Update')
       return res.data
     },
     onSuccess: () => {
