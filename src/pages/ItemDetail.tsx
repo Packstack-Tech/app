@@ -16,11 +16,9 @@ import { CatalogSection } from '@/containers/ItemDetail/sections/CatalogSection'
 import { DangerZoneSection } from '@/containers/ItemDetail/sections/DangerZoneSection'
 import { LifecycleSection } from '@/containers/ItemDetail/sections/LifecycleSection'
 import { NotesSection } from '@/containers/ItemDetail/sections/NotesSection'
-import { GearHealthPreview } from '@/containers/ItemDetail/sections/GearHealthPreview'
 import { ReplacementSection } from '@/containers/ItemDetail/sections/ReplacementSection'
 import { RetirementSection } from '@/containers/ItemDetail/sections/RetirementSection'
 import { SpecsSection } from '@/containers/ItemDetail/sections/SpecsSection'
-import { useSubscription } from '@/hooks/useSubscription'
 import { useCreateItem, useInventory, useUpdateItem } from '@/queries/item'
 import { Item, ItemForm as ItemFormValues } from '@/types/item'
 
@@ -103,7 +101,6 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
   const { data: inventory } = useInventory()
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
-  const { isSubscribed, openUpgrade } = useSubscription()
   const [another, setAnother] = useState(false)
 
   const item = mode === 'edit' && inventory
@@ -271,23 +268,19 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
             <SpecsSection form={form} />
             <Separator className="my-8" />
             <NotesSection form={form} />
-            {isSubscribed && (
+            <Separator className="my-8" />
+            <LifecycleSection form={form} />
+            {isRetired && (
               <>
                 <Separator className="my-8" />
-                <LifecycleSection form={form} />
-                {isRetired && (
-                  <>
-                    <Separator className="my-8" />
-                    <RetirementSection form={form} />
-                  </>
-                )}
+                <RetirementSection form={form} />
               </>
             )}
           </form>
         </Form>
 
         {/* Read-only sections (edit mode only) */}
-        {isEdit && item && isSubscribed && (
+        {isEdit && item && (
           <>
             <Separator className="my-8" />
             <ReplacementSection itemId={item.id} />
@@ -300,13 +293,6 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
           <>
             <Separator className="my-8" />
             <CatalogSection item={item} />
-          </>
-        )}
-
-        {!isSubscribed && (
-          <>
-            <Separator className="my-8" />
-            <GearHealthPreview onUpgrade={openUpgrade} />
           </>
         )}
 

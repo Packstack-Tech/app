@@ -6,7 +6,6 @@ import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable
 import { Loading } from '@/components/ui/Loading'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
 import { ItemScores } from '@/hooks/useReplacementScores'
-import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
 import { ItemCondition, ItemStatus } from '@/types/item'
 
@@ -42,7 +41,6 @@ export const InventoryTable = ({
   categoryFilter,
 }: Props) => {
   const user = useUser()
-  const { isSubscribed } = useSubscription()
   const data = useCategorizedItems({ showRemoved })
 
   const filteredData = useMemo(() => {
@@ -72,8 +70,8 @@ export const InventoryTable = ({
   }, [data, statusFilter, conditionFilter, categoryFilter])
 
   const tableCols = useMemo(
-    () => columns(user.currency, scores, isSubscribed),
-    [user.currency, scores, isSubscribed]
+    () => columns(user.currency, scores),
+    [user.currency, scores]
   )
 
   if (isLoading) {

@@ -7,7 +7,6 @@ import { HikerProfiles } from '@/containers/Dashboard/HikerProfiles'
 import { NeedsAttention } from '@/containers/Dashboard/NeedsAttention'
 import { PastTrips } from '@/containers/Dashboard/PastTrips'
 import { Preferences } from '@/containers/Dashboard/Preferences'
-import { ProUpsell } from '@/containers/Dashboard/ProUpsell'
 import { SetupChecklist } from '@/containers/Dashboard/SetupChecklist'
 import { UpcomingTrips } from '@/containers/Dashboard/UpcomingTrips'
 import { useUser } from '@/hooks/useUser'
@@ -64,7 +63,6 @@ export const Dashboard: FC = () => {
           <NeedsAttention />
           <HikerProfiles />
           <Preferences />
-          <ProUpsell />
           <GearSnapshot />
         </div>
       </ScrollArea>

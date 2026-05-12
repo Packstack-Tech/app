@@ -38,7 +38,6 @@ import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
 import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { useReplacementScores } from '@/hooks/useReplacementScores'
-import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
 import { downloadInventory } from '@/lib/download'
 import { formatCurrency } from '@/lib/currencies'
@@ -69,9 +68,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   const [selectedItemId, setSelectedItemId] = useState<number | null>(initialItemId ?? null)
   const [showNewItemModal, setShowNewItemModal] = useState(initialShowNew ?? false)
 
-  const { isSubscribed } = useSubscription()
-  const allScores = useReplacementScores(inventory)
-  const scores = isSubscribed ? allScores : new Map<number, number>()
+  const scores = useReplacementScores(inventory)
   const { data: groups } = useGroupedInventory()
 
   const categoryNames = useMemo(() => {

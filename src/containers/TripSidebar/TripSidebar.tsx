@@ -19,8 +19,6 @@ import {
 } from '@/components/ui/Tooltip'
 import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { CalorieEstimate } from '@/containers/CalorieEstimate/CalorieEstimate'
-import { CalorieUpgradePreview } from '@/containers/CalorieEstimate/CalorieUpgradePreview'
-import { useSubscription } from '@/hooks/useSubscription'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUnits } from '@/hooks/useUnits'
 import { useUser } from '@/hooks/useUser'
@@ -59,13 +57,12 @@ function categorizePackItems(items: PackItem[], toUnit: string) {
 export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
   const user = useUser()
   const units = useUnits()
-  const { isSubscribed, openUpgrade } = useSubscription()
   const { packs, displayUnitSystem } = useTripPacks(
     useShallow(store => ({ packs: store.packs, displayUnitSystem: store.displayUnitSystem }))
   )
 
   const isEnriching =
-    isSubscribed && (trip.enrich_status === 'pending' || trip.enrich_status === 'processing')
+    trip.enrich_status === 'pending' || trip.enrich_status === 'processing'
 
   const fmtTemp = (v: number) => Math.round(units.formatTemperature(v))
   const tempValue =
@@ -200,11 +197,7 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
           </div>
         </div>
 
-        {isSubscribed ? (
-          <CalorieEstimate trip={trip} />
-        ) : (
-          <CalorieUpgradePreview onUpgrade={openUpgrade} />
-        )}
+        <CalorieEstimate trip={trip} />
       </SidebarFooter>
     </Sidebar>
   )

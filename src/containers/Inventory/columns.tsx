@@ -15,7 +15,6 @@ import {
 export const columns = (
   currency: Currency,
   scores: ItemScores,
-  isSubscribed: boolean,
 ): ColumnDef<Item>[] => [
   {
     header: 'Name',
@@ -45,7 +44,7 @@ export const columns = (
       style: { width: '20%' },
     },
   },
-  ...(isSubscribed ? [{
+  {
     header: 'Condition',
     accessorKey: 'condition',
     cell: ({ cell }: { cell: Cell<Item, unknown> }) => (
@@ -57,7 +56,7 @@ export const columns = (
     meta: {
       style: { width: '8%' },
     },
-  } satisfies ColumnDef<Item>] : []),
+  },
   {
     header: 'Value',
     accessorFn: item => {
