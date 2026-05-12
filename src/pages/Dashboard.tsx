@@ -51,19 +51,19 @@ export const Dashboard: FC = () => {
 
   return (
     <div className="flex flex-1 min-h-0">
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="flex flex-col gap-0 p-6">
-          <UpcomingTrips trips={upcoming} totalTrips={trips.length} />
-          <PastTrips trips={past} />
-        </div>
-      </ScrollArea>
-      <ScrollArea className="w-80 shrink-0 border-l border-border min-h-0 bg-card">
+      <ScrollArea className="w-80 shrink-0 border-r border-border min-h-0 bg-card">
         <div className="flex flex-col">
           <SetupChecklist />
           <NeedsAttention />
           <HikerProfiles />
           <Preferences />
           <GearSnapshot />
+        </div>
+      </ScrollArea>
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="max-w-5xl mx-auto flex flex-col gap-0 p-6">
+          <UpcomingTrips trips={upcoming} totalTrips={trips.length} />
+          <PastTrips trips={past} />
         </div>
       </ScrollArea>
     </div>
