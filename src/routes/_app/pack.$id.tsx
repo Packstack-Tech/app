@@ -7,8 +7,8 @@ import { tripQueryOptions } from '@/queries/trip'
 export const Route = createFileRoute('/_app/pack/$id')({
   loader: async ({ context: { queryClient }, params: { id } }) => {
     const [trip, packs] = await Promise.all([
-      queryClient.ensureQueryData(tripQueryOptions(id)),
-      queryClient.ensureQueryData(tripPacksQueryOptions(id)),
+      queryClient.fetchQuery(tripQueryOptions(id)),
+      queryClient.fetchQuery(tripPacksQueryOptions(id)),
     ])
     return { trip, packs }
   },
