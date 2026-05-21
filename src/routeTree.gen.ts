@@ -17,7 +17,10 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppKitsRouteImport } from './routes/_app/kits'
 import { Route as AppInventoryRouteImport } from './routes/_app/inventory'
+import { Route as AppInventoryIndexRouteImport } from './routes/_app/inventory.index'
 import { Route as AppPackIdRouteImport } from './routes/_app/pack.$id'
+import { Route as AppInventoryNewRouteImport } from './routes/_app/inventory.new'
+import { Route as AppInventoryItemIdRouteImport } from './routes/_app/inventory.$itemId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -58,43 +61,66 @@ const AppInventoryRoute = AppInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInventoryIndexRoute = AppInventoryIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppInventoryRoute,
+} as any)
 const AppPackIdRoute = AppPackIdRouteImport.update({
   id: '/pack/$id',
   path: '/pack/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInventoryNewRoute = AppInventoryNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppInventoryRoute,
+} as any)
+const AppInventoryItemIdRoute = AppInventoryItemIdRouteImport.update({
+  id: '/$itemId',
+  path: '/$itemId',
+  getParentRoute: () => AppInventoryRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/auth': typeof AuthRouteWithChildren
-  '/inventory': typeof AppInventoryRoute
+  '/inventory': typeof AppInventoryRouteWithChildren
   '/kits': typeof AppKitsRoute
   '/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/inventory/$itemId': typeof AppInventoryItemIdRoute
+  '/inventory/new': typeof AppInventoryNewRoute
   '/pack/$id': typeof AppPackIdRoute
+  '/inventory/': typeof AppInventoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
-  '/inventory': typeof AppInventoryRoute
   '/kits': typeof AppKitsRoute
   '/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/': typeof AppIndexRoute
+  '/inventory/$itemId': typeof AppInventoryItemIdRoute
+  '/inventory/new': typeof AppInventoryNewRoute
   '/pack/$id': typeof AppPackIdRoute
+  '/inventory': typeof AppInventoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
-  '/_app/inventory': typeof AppInventoryRoute
+  '/_app/inventory': typeof AppInventoryRouteWithChildren
   '/_app/kits': typeof AppKitsRoute
   '/_app/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/inventory/$itemId': typeof AppInventoryItemIdRoute
+  '/_app/inventory/new': typeof AppInventoryNewRoute
   '/_app/pack/$id': typeof AppPackIdRoute
+  '/_app/inventory/': typeof AppInventoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,17 +132,22 @@ export interface FileRouteTypes {
     | '/settings'
     | '/auth/login'
     | '/auth/register'
+    | '/inventory/$itemId'
+    | '/inventory/new'
     | '/pack/$id'
+    | '/inventory/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
-    | '/inventory'
     | '/kits'
     | '/settings'
     | '/auth/login'
     | '/auth/register'
     | '/'
+    | '/inventory/$itemId'
+    | '/inventory/new'
     | '/pack/$id'
+    | '/inventory'
   id:
     | '__root__'
     | '/_app'
@@ -127,7 +158,10 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/_app/'
+    | '/_app/inventory/$itemId'
+    | '/_app/inventory/new'
     | '/_app/pack/$id'
+    | '/_app/inventory/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -193,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/inventory/': {
+      id: '/_app/inventory/'
+      path: '/'
+      fullPath: '/inventory/'
+      preLoaderRoute: typeof AppInventoryIndexRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
     '/_app/pack/$id': {
       id: '/_app/pack/$id'
       path: '/pack/$id'
@@ -200,11 +241,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPackIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/inventory/new': {
+      id: '/_app/inventory/new'
+      path: '/new'
+      fullPath: '/inventory/new'
+      preLoaderRoute: typeof AppInventoryNewRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
+    '/_app/inventory/$itemId': {
+      id: '/_app/inventory/$itemId'
+      path: '/$itemId'
+      fullPath: '/inventory/$itemId'
+      preLoaderRoute: typeof AppInventoryItemIdRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
   }
 }
 
+interface AppInventoryRouteChildren {
+  AppInventoryItemIdRoute: typeof AppInventoryItemIdRoute
+  AppInventoryNewRoute: typeof AppInventoryNewRoute
+  AppInventoryIndexRoute: typeof AppInventoryIndexRoute
+}
+
+const AppInventoryRouteChildren: AppInventoryRouteChildren = {
+  AppInventoryItemIdRoute: AppInventoryItemIdRoute,
+  AppInventoryNewRoute: AppInventoryNewRoute,
+  AppInventoryIndexRoute: AppInventoryIndexRoute,
+}
+
+const AppInventoryRouteWithChildren = AppInventoryRoute._addFileChildren(
+  AppInventoryRouteChildren,
+)
+
 interface AppRouteChildren {
-  AppInventoryRoute: typeof AppInventoryRoute
+  AppInventoryRoute: typeof AppInventoryRouteWithChildren
   AppKitsRoute: typeof AppKitsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -212,7 +283,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppInventoryRoute: AppInventoryRoute,
+  AppInventoryRoute: AppInventoryRouteWithChildren,
   AppKitsRoute: AppKitsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,

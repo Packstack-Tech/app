@@ -19,8 +19,8 @@ import { logout } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
 
 const navLinks = [
-  { name: 'Packing Lists', path: '/' as const },
-  { name: 'Inventory', path: '/inventory' as const },
+  { name: 'Dashboard', path: '/' as const },
+  { name: 'Gear Closet', path: '/inventory' as const },
   { name: 'Kits', path: '/kits' as const },
 ]
 
@@ -35,6 +35,7 @@ export const Header = () => {
       await logout()
     } finally {
       Sentry.setUser(null)
+      Mixpanel.track('User:Logout')
       Mixpanel.reset()
       queryClient.clear()
       navigate({ to: '/auth/login' })
@@ -70,7 +71,7 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowNewTrip(true)}>
+          <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => setShowNewTrip(true)}>
             <Plus size={16} strokeWidth={2.5} />
             Create Pack
           </Button>

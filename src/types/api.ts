@@ -36,6 +36,7 @@ export type UpdateUser = {
   display_name?: string
   username?: string
   email?: string
+  unit_weight?: string
   unit_temperature?: string
   unit_distance?: string
   bio?: string | null

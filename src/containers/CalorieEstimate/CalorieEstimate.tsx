@@ -74,7 +74,7 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
       activeProfile,
       trip,
       totalPackWeight,
-      { unit_weight: user.unit_weight, unit_distance: user.unit_distance },
+      user.unit_weight,
       safetyMargin,
     )
     return calculateDailyCalories(inputs)

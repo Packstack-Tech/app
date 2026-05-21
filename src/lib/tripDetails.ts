@@ -11,15 +11,15 @@ export const TERRAIN_OPTIONS = [
 ]
 
 export const PACE_OPTIONS = [
-  { value: 'easy', label: 'Easy (~2 mph)' },
-  { value: 'moderate', label: 'Moderate (~3 mph)' },
-  { value: 'fast', label: 'Fast (~4 mph)' },
+  { value: 'easy', label: 'Easy' },
+  { value: 'moderate', label: 'Moderate' },
+  { value: 'fast', label: 'Fast' },
 ]
 
 export const TEMP_CATEGORY_OPTIONS = [
-  { value: 'cold', label: 'Cold (< 32°F / 0°C)' },
-  { value: 'moderate', label: 'Moderate (32–85°F / 0–29°C)' },
-  { value: 'hot', label: 'Hot (> 85°F / 29°C)' },
+  { value: 'cold', label: 'Cold' },
+  { value: 'moderate', label: 'Moderate' },
+  { value: 'hot', label: 'Hot' },
 ]
 
 export function formatDateRange(start?: string, end?: string) {

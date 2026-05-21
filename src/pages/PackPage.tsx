@@ -4,6 +4,7 @@ import { useMatch } from '@tanstack/react-router'
 
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useTripQuery } from '@/queries/trip'
+
 import { Pack } from './Pack'
 
 export const PackPage = () => {

@@ -57,17 +57,13 @@ const WATER_TEMP_MODIFIER: Record<TempCategory, number> = {
   hot: 1.5,
 }
 
-// ── Unit conversions ──
+// Re-export from unitConversions for backwards compatibility
+export {
+  lbToKg, kgToLb, inToCm, cmToIn,
+  miToKm, kmToMi, ftToM, mToFt, mphToMs,
+} from './unitConversions'
 
-export const lbToKg = (lb: number) => lb * 0.453592
-export const kgToLb = (kg: number) => kg / 0.453592
-export const inToCm = (inches: number) => inches * 2.54
-export const cmToIn = (cm: number) => cm / 2.54
-export const miToKm = (mi: number) => mi * 1.60934
-export const kmToMi = (km: number) => km / 1.60934
-export const ftToM = (ft: number) => ft * 0.3048
-export const mToFt = (m: number) => m / 0.3048
-export const mphToMs = (mph: number) => mph * 0.44704
+import { kmToMi, mToFt, mphToMs } from './unitConversions'
 
 // ── Step A: Mifflin-St Jeor BMR ──
 

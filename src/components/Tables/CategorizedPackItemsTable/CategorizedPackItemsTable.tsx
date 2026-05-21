@@ -1,6 +1,7 @@
+import { type ReactNode } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import {
   ColumnDef,
-  flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
@@ -9,12 +10,7 @@ import { fuzzyFilter } from '@/components/Tables/lib/fuzzyFilter'
 import {
   Table,
   TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
 } from '@/components/ui/Table'
-import { useShallow } from 'zustand/react/shallow'
-
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
 import { getConversionUnit, sumPackItemWeights } from '@/lib/weight'
@@ -26,12 +22,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   category: string
+  colgroup?: ReactNode
 }
 
 export function CategorizedPackItemsTable<TData, TValue>({
   columns,
   data,
   category,
+  colgroup,
 }: DataTableProps<TData, TValue>) {
   const user = useUser()
   const { setCategoryItems, displayUnitSystem } = useTripPacks(
@@ -73,51 +71,27 @@ export function CategorizedPackItemsTable<TData, TValue>({
   const categoryWeight = sumPackItemWeights(packItems, unit)
 
   return (
-    <div className="mb-6">
-      <div className="rounded-t-md px-3 py-2 bg-muted flex justify-between items-center">
-        <h3 className="font-bold text-primary text-xs md:text-sm">{category}</h3>
-        <span className="text-xs text-primary">
+    <div>
+      <div className="px-3 py-2 bg-muted flex justify-between items-center">
+        <h3 className="font-semibold text-primary tracking-wide text-sm md:text-base">{category}</h3>
+        <span className="text-xs text-foreground">
           {categoryWeight.toFixed(2)} {unit}
         </span>
       </div>
-      <div className="rounded-b-md border border-border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                <TableHead className="w-6" />
-                {headerGroup.headers.map(header => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={(header.column.columnDef.meta as any)?.style}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-
-          <TableBody>
-            {table.getRowModel().rows.map((row, idx) => (
-              <ItemRow
-                row={row}
-                moveItem={moveItem}
-                key={row.id}
-                idx={idx}
-                id={category}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <Table>
+        {colgroup}
+        <TableBody>
+          {table.getRowModel().rows.map((row, idx) => (
+            <ItemRow
+              row={row}
+              moveItem={moveItem}
+              key={row.id}
+              idx={idx}
+              id={category}
+            />
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }

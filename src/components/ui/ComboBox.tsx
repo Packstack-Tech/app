@@ -123,6 +123,7 @@ export const Combobox: FC<Props> = ({
               ref={inputRef}
               value={displayValue}
               onValueChange={val => {
+                if (disabled) return
                 if (selectedOption || createdLabel) {
                   onRemove()
                   setCreatedLabel(null)
@@ -130,7 +131,7 @@ export const Combobox: FC<Props> = ({
                 setSearchText(val)
                 if (!open) setOpen(true)
               }}
-              onFocus={() => setOpen(true)}
+              onFocus={() => { if (!disabled) setOpen(true) }}
               placeholder={placeholder || 'Search...'}
               disabled={disabled}
               tabIndex={tabIndex}

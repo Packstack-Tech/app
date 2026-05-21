@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react'
-import { FlameIcon, ShirtIcon, StickyNoteIcon, XCircleIcon } from 'lucide-react'
+import { FlameIcon, StickyNoteIcon, XCircleIcon } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { Cell } from '@tanstack/react-table'
 
@@ -109,22 +109,29 @@ export const WornCell: FC<Props> = ({
     useShallow(store => ({ updateItem: store.updateItem }))
   )
 
+  if (original.item.consumable) {
+    return (
+      <div className="flex justify-center">
+        <FlameIcon className="stroke-muted-foreground" size={14} strokeWidth={1.5} />
+      </div>
+    )
+  }
+
   const onClick = () => updateItem(original.item_id, 'worn', !original.worn)
 
-  if (original.item.consumable) return null
-
   return (
-    <button onClick={onClick} className="cursor-pointer">
-      <ShirtIcon
-        className={
+    <div className="flex justify-center">
+      <button
+        onClick={onClick}
+        className={`cursor-pointer text-[10px] capitalize leading-none px-1.5 py-0.5 rounded-full transition-colors ${
           original.worn
-            ? 'fill-primary stroke-primary'
-            : 'stroke-muted-foreground'
-        }
-        size={20}
-        strokeWidth={1.5}
-      />
-    </button>
+            ? 'bg-primary text-primary-foreground'
+            : 'border border-border text-muted-foreground'
+        }`}
+      >
+        worn
+      </button>
+    </div>
   )
 }
 
@@ -172,14 +179,7 @@ export const WeightCell: FC<Props> = ({
   const formatted = formatItemWeight(item.weight, item.unit, targetUnit)
 
   return (
-    <div className="flex pl-1">
-      {item.consumable && (
-        <FlameIcon
-          className="stroke-black dark:stroke-white mr-auto"
-          size={16}
-          strokeWidth={1}
-        />
-      )}
+    <div className="flex pl-1 whitespace-nowrap">
       <span className="ml-auto">{formatted}</span>
     </div>
   )
@@ -197,7 +197,7 @@ export const RemoveItemCell: FC<Props> = ({
   return (
     <button
       onClick={() => removeItem(original.item_id)}
-      className="text-muted-foreground mt-1.5 hover:text-foreground"
+      className="text-muted-foreground mt-1.5 hover:text-foreground cursor-pointer"
     >
       <XCircleIcon size={16} strokeWidth={1} />
     </button>

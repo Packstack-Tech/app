@@ -11,7 +11,16 @@ import {
 } from '@/types/api'
 import { HikerProfile, HikerProfilePayload } from '@/types/hiker-profile'
 import { Category, CategoryItems } from '@/types/category'
-import { CreateItem, EditItem, Item } from '@/types/item'
+import {
+  AllBenchmarks,
+  CategoryBenchmarks,
+  CreateItem,
+  CreateItemLog,
+  EditItem,
+  Item,
+  ItemLogEntry,
+  ReplacementScoreResponse,
+} from '@/types/item'
 import { Kit, KitPayload } from '@/types/kit'
 import { Pack } from '@/types/pack'
 import {
@@ -150,13 +159,19 @@ export const getGroupedInventory = () =>
 
 export const createItem = (data: CreateItem) => http.post<Item>('/item', data)
 
-export const deleteItem = (itemId: number) => http.delete(`/item/${itemId}`)
+export const archiveItem = (itemId: number) => http.delete(`/item/${itemId}`)
+
+export const deleteItem = (itemId: number) =>
+  http.post(`/item/${itemId}/delete`)
 
 export const bulkArchiveItems = (ids: number[]) =>
   http.put('/item/bulk-archive', ids)
 
 export const bulkRestoreItems = (ids: number[]) =>
   http.put('/item/bulk-restore', ids)
+
+export const bulkDeleteItems = (ids: number[]) =>
+  http.post('/item/bulk-delete', ids)
 
 export const updateItem = (data: EditItem) => http.put<Item>('/item', data)
 
@@ -176,6 +191,30 @@ export const importInventory = (data: UploadInventory) => {
     },
   })
 }
+
+export const getItemLogs = (itemId: number) =>
+  http.get<ItemLogEntry[]>(`/item/${itemId}/log`)
+
+export const createItemLog = (itemId: number, data: CreateItemLog) =>
+  http.post<ItemLogEntry>(`/item/${itemId}/log`, data)
+
+export const updateItemLog = (itemId: number, logId: number, data: CreateItemLog) =>
+  http.put<ItemLogEntry>(`/item/${itemId}/log/${logId}`, data)
+
+export const updateItemLifecycle = (itemId: number, data: Record<string, unknown>) =>
+  http.put<Item>(`/item/${itemId}/lifecycle`, data)
+
+export const getReplacementScore = (itemId: number) =>
+  http.get<ReplacementScoreResponse>(`/item/${itemId}/replacement-score`)
+
+export const getBenchmarks = () =>
+  http.get<AllBenchmarks>('/benchmark')
+
+export const updateBenchmark = (categoryName: string, data: Partial<CategoryBenchmarks>) =>
+  http.put<AllBenchmarks>(`/benchmark/${categoryName}`, data)
+
+export const resetBenchmark = (categoryName: string) =>
+  http.delete(`/benchmark/${categoryName}`)
 
 export const importLighterpack = (data: UploadInventory) => {
   const formData = new FormData()

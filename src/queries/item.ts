@@ -7,7 +7,9 @@ import {
 
 import { useToast } from '@/hooks/useToast'
 import {
+  archiveItem,
   bulkArchiveItems,
+  bulkDeleteItems,
   bulkRestoreItems,
   createItem,
   deleteItem,
@@ -21,6 +23,8 @@ import {
   updateItemSortOrder,
 } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
+import { CATEGORY_QUERY } from '@/queries/category'
+import { CATALOG_BRANDS_QUERY, CATALOG_PRODUCTS_QUERY } from '@/queries/resources'
 import { UpdateItemSortOrder, UploadInventory } from '@/types/api'
 import { CategoryItems } from '@/types/category'
 import { CreateItem, EditItem } from '@/types/item'
@@ -72,6 +76,9 @@ export const useCreateItem = () => {
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: [CATALOG_BRANDS_QUERY] })
+      queryClient.invalidateQueries({ queryKey: [CATALOG_PRODUCTS_QUERY] })
+      queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
     },
   })
 }
@@ -81,12 +88,32 @@ export const useDeleteItem = () => {
   const { toast } = useToast()
   return useMutation({
     mutationFn: async (itemId: number) => {
-      const res = await deleteItem(itemId)
+      const res = await archiveItem(itemId)
+      Mixpanel.track('Item:Archive')
       return res.data
     },
     onSuccess: () => {
       toast({
-        title: '✅ Item deleted',
+        title: '✅ Item archived',
+      })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+    },
+  })
+}
+
+export const usePermanentlyDeleteItem = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (itemId: number) => {
+      const res = await deleteItem(itemId)
+      Mixpanel.track('Item:Delete')
+      return res.data
+    },
+    onSuccess: () => {
+      toast({
+        title: '✅ Item permanently deleted',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
@@ -100,6 +127,7 @@ export const useBulkArchiveItems = () => {
   return useMutation({
     mutationFn: async (ids: number[]) => {
       const res = await bulkArchiveItems(ids)
+      Mixpanel.track('Item:BulkArchive', { count: ids.length })
       return res.data
     },
     onSuccess: () => {
@@ -116,10 +144,27 @@ export const useBulkRestoreItems = () => {
   return useMutation({
     mutationFn: async (ids: number[]) => {
       const res = await bulkRestoreItems(ids)
+      Mixpanel.track('Item:BulkRestore', { count: ids.length })
       return res.data
     },
     onSuccess: () => {
       toast({ title: 'Items restored' })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+    },
+  })
+}
+
+export const useBulkDeleteItems = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (ids: number[]) => {
+      await bulkDeleteItems(ids)
+      Mixpanel.track('Item:BulkDelete', { count: ids.length })
+    },
+    onSuccess: () => {
+      toast({ title: 'Items permanently deleted' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
     },
@@ -135,9 +180,10 @@ export const useUpdateItem = () => {
       Mixpanel.track('Item:Update')
       return res.data
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: ['item-logs', variables.id] })
       toast({
         title: '✅ Item updated',
       })
@@ -151,6 +197,7 @@ export const useUpdateItemSort = () => {
   return useMutation({
     mutationFn: async (sortOrder: UpdateItemSortOrder) => {
       const res = await updateItemSortOrder(sortOrder)
+      Mixpanel.track('Item:Sort')
       return res.data
     },
     onSuccess: () => {
@@ -218,6 +265,7 @@ export const useSaveCategoryChanges = () => {
         ...renamePromises,
         updateCategorySortOrder(sortOrder),
       ])
+      Mixpanel.track('Category:Save')
     },
     onSuccess: () => {
       toast({ title: 'Categories updated' })

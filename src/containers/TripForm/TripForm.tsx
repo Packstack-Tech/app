@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/Popover'
-import { useUser } from '@/hooks/useUser'
+import { useUnits } from '@/hooks/useUnits'
 import { cn, dateToUtc } from '@/lib/utils'
 import { useUpdateTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
@@ -33,23 +33,23 @@ interface Props {
   trip: Trip
 }
 
-const formDefaults = (trip: Trip): TripFormValues => ({
-  location: trip.location || '',
-  dates: trip.start_date
-    ? {
-      from: dateToUtc(new Date(trip.start_date)),
-      to: trip.end_date ? dateToUtc(new Date(trip.end_date)) : undefined,
-    }
-    : undefined,
-  distance: trip.distance || 0,
-})
-
 export const TripForm: FC<Props> = ({ trip }) => {
-  const user = useUser()
+  const units = useUnits()
   const updateTrip = useUpdateTrip()
 
   const isEnriching =
     trip.enrich_status === 'pending' || trip.enrich_status === 'processing'
+
+  const formDefaults = (t: Trip): TripFormValues => ({
+    location: t.location || '',
+    dates: t.start_date
+      ? {
+        from: dateToUtc(new Date(t.start_date)),
+        to: t.end_date ? dateToUtc(new Date(t.end_date)) : undefined,
+      }
+      : undefined,
+    distance: t.distance ? Math.round(units.formatDistance(t.distance) * 100) / 100 : 0,
+  })
 
   const form = useForm<TripFormValues>({
     defaultValues: formDefaults(trip),
@@ -64,7 +64,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
     location,
     start_date: dates?.from ? format(dates.from, 'yyyy-MM-dd') : undefined,
     end_date: dates?.to ? format(dates.to, 'yyyy-MM-dd') : undefined,
-    distance,
+    distance: distance ? units.toCanonicalDistance(distance) : undefined,
   })
 
   const onFieldUpdate = () => {
@@ -161,7 +161,7 @@ export const TripForm: FC<Props> = ({ trip }) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel htmlFor={field.name}>
-                  Distance ({user.unit_distance})
+                  Distance ({units.distanceLabel})
                 </FormLabel>
                 <FormControl>
                   <Input

@@ -20,6 +20,30 @@ import { useUpdateItemSort } from '@/queries/item'
 
 import { ItemRow } from './ItemRow'
 
+function formatGroupWeight(totalGrams: number): string {
+  if (totalGrams >= 1000) return `${(totalGrams / 1000).toFixed(1)} kg`
+  return `${Math.round(totalGrams)} g`
+}
+
+function computeGroupSummary(data: any[]): { count: number; weightDisplay: string; value: number } {
+  const CONVERSION: Record<string, number> = { g: 1, kg: 1000, oz: 28.3495, lb: 453.592 }
+  let totalGrams = 0
+  let totalValue = 0
+
+  for (const item of data) {
+    if (item.weight && item.unit) {
+      totalGrams += item.weight * (CONVERSION[item.unit] || 1)
+    }
+    if (item.price) totalValue += item.price
+  }
+
+  return {
+    count: data.length,
+    weightDisplay: formatGroupWeight(totalGrams),
+    value: totalValue,
+  }
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -27,8 +51,10 @@ interface DataTableProps<TData, TValue> {
   onSearchFilterChange?: (value: string) => void
   category: string
   selectedIds?: Set<number>
+  activeItemId?: number | null
   onToggleItem?: (id: number) => void
   onToggleCategory?: (ids: number[]) => void
+  onSelectItem?: (id: number) => void
 }
 
 export function CategorizedItemsTable<TData extends { id: number }, TValue>({
@@ -38,8 +64,10 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   onSearchFilterChange,
   category,
   selectedIds,
+  activeItemId,
   onToggleItem,
   onToggleCategory,
+  onSelectItem,
 }: DataTableProps<TData, TValue>) {
   const updateItemSort = useUpdateItemSort()
   const [categoryItems, setCategoryItems] = useState(data)
@@ -92,62 +120,71 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   const allSelected = selectedCount > 0 && selectedCount === visibleIds.length
   const someSelected = selectedCount > 0 && !allSelected
 
+  const groupSummary = useMemo(() => computeGroupSummary(data), [data])
+
   if (!visibleRows.length) return null
 
   return (
-    <div className="mb-6" id={`category-${category}`}>
-      <h3 className="font-bold text-foreground rounded-t-md px-3 py-2 bg-muted text-xs md:text-sm">
-        {category}
-      </h3>
-      <div className="rounded-b-md border border-border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                <TableHead className="w-10 px-2">
-                  <div className="flex items-center justify-end">
-                    <Checkbox
-                      checked={allSelected ? true : someSelected ? 'indeterminate' : false}
-                      onClick={() => onToggleCategory?.(visibleIds)}
-                      className="opacity-40 hover:opacity-100 transition-opacity"
-                    />
-                  </div>
-                </TableHead>
-                {headerGroup.headers.map(header => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={(header.column.columnDef.meta as any)?.style}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {visibleRows.map((row, idx) => (
-              <ItemRow
-                row={row}
-                moveItem={moveItem}
-                onDropItem={onDropItem}
-                key={row.id}
-                idx={idx}
-                id={category}
-                disabled={!!searchFilter}
-                isSelected={selectedIds?.has((row.original as TData).id)}
-                onToggleSelect={() => onToggleItem?.((row.original as TData).id)}
-              />
-            ))}
-          </TableBody>
-        </Table>
+    <div id={`category-${category}`}>
+      <div className="flex items-center justify-between px-3 py-2 bg-muted">
+        <h3 className="font-semibold text-primary tracking-wide text-sm md:text-base">
+          {category}
+        </h3>
+        <span className="text-[11px] text-muted-foreground tabular-nums">
+          {groupSummary.count} {groupSummary.count === 1 ? 'item' : 'items'} · {groupSummary.weightDisplay}
+          {groupSummary.value > 0 && ` · $${groupSummary.value.toFixed(0)}`}
+        </span>
       </div>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map(headerGroup => (
+            <TableRow key={headerGroup.id}>
+              <TableHead className="w-10 px-2">
+                <div className="flex items-center gap-1">
+                  <div className="shrink-0 w-4" />
+                  <Checkbox
+                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                    onClick={() => onToggleCategory?.(visibleIds)}
+                    className="opacity-40 hover:opacity-100 transition-opacity"
+                  />
+                </div>
+              </TableHead>
+              {headerGroup.headers.map(header => {
+                return (
+                  <TableHead
+                    key={header.id}
+                    style={(header.column.columnDef.meta as any)?.style}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                  </TableHead>
+                )
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {visibleRows.map((row, idx) => (
+            <ItemRow
+              row={row}
+              moveItem={moveItem}
+              onDropItem={onDropItem}
+              key={row.id}
+              idx={idx}
+              id={category}
+              disabled={!!searchFilter}
+              isSelected={selectedIds?.has((row.original as TData).id)}
+              isActive={activeItemId === (row.original as TData).id}
+              onToggleSelect={() => onToggleItem?.((row.original as TData).id)}
+              onRowClick={onSelectItem ? () => onSelectItem((row.original as TData).id) : undefined}
+            />
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }

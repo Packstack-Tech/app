@@ -69,6 +69,7 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
     },
   },
   {
+    id: 'kcal',
     header: 'kcal',
     accessorFn: ({ item, quantity }) => {
       if (!item.calories) return null

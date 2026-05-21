@@ -97,7 +97,7 @@ export const InventorySidebar = () => {
     <Tabs defaultValue="inventory" className="flex flex-col h-full">
       <TabsList className="w-full shrink-0">
         <TabsTrigger value="inventory" className="flex-1">
-          Inventory
+          Gear
         </TabsTrigger>
         <TabsTrigger value="kits" className="flex-1">
           Kits
@@ -135,7 +135,7 @@ export const InventorySidebar = () => {
           )}
           {items.map(category => (
             <div key={category.category?.category_id || 'undefined'}>
-              <Label className="text-muted-foreground text-xs rounded-sm bg-muted mb-1 p-1 block">
+              <Label className="text-muted-foreground text-xs rounded-sm bg-accent mb-1 p-1 block">
                 {category.category?.category.name || 'Uncategorized'}
               </Label>
               <ul>

@@ -71,6 +71,7 @@ export const useUpdateTrip = () => {
   return useMutation({
     mutationFn: async (params: EditTrip) => {
       const res = await editTrip(params)
+      Mixpanel.track('Trip:Update')
       return res.data
     },
     onSuccess: data => {
@@ -185,6 +186,7 @@ export const useCloneTrip = () => {
   return useMutation({
     mutationFn: async (tripId: number) => {
       const res = await cloneTrip(tripId)
+      Mixpanel.track('Trip:Clone')
       return res.data
     },
     onSuccess: () => {
@@ -202,6 +204,7 @@ export const useDeleteTrip = () => {
   return useMutation({
     mutationFn: async (params: number) => {
       const res = await deleteTrip(params)
+      Mixpanel.track('Trip:Delete')
       return res.data
     },
     onSuccess: () => {

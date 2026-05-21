@@ -1,5 +1,5 @@
 import { FC, useMemo } from 'react'
-import { CheckSquare, Download, Link, PackageOpen, Scale, Settings } from 'lucide-react'
+import { CheckSquare, Download, Flame, Link, PackageOpen, Scale, Settings } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { EmptyState } from '@/components/EmptyState'
@@ -55,6 +55,8 @@ export const PackingList: FC<Props> = ({ trip }) => {
     selectedIndex,
     checklistMode,
     toggleChecklistMode,
+    showCalories,
+    toggleShowCalories,
     displayUnitSystem,
     setDisplayUnitSystem,
   } = useTripPacks(
@@ -63,6 +65,8 @@ export const PackingList: FC<Props> = ({ trip }) => {
       selectedIndex: state.selectedIndex,
       checklistMode: state.checklistMode,
       toggleChecklistMode: state.toggleChecklistMode,
+      showCalories: state.showCalories,
+      toggleShowCalories: state.toggleShowCalories,
       displayUnitSystem: state.displayUnitSystem,
       setDisplayUnitSystem: state.setDisplayUnitSystem,
     }))
@@ -97,9 +101,25 @@ export const PackingList: FC<Props> = ({ trip }) => {
     [packs]
   )
 
-  const tableCols = useMemo(() => columns(user.currency), [user.currency])
+  const tableCols = useMemo(() => {
+    const cols = columns(user.currency)
+    if (!showCalories) return cols.filter(c => c.id !== 'kcal')
+    return cols
+  }, [user.currency, showCalories])
 
   const categorizedItems = useCategorizedPackItems(currentItems)
+
+  const colgroup = useMemo(
+    () => (
+      <colgroup>
+        <col style={{ width: 30 }} />
+        {tableCols.map((col, i) => (
+          <col key={i} style={{ width: (col.meta as any)?.style?.width }} />
+        ))}
+      </colgroup>
+    ),
+    [tableCols]
+  )
 
   return (
     <div>
@@ -126,11 +146,11 @@ export const PackingList: FC<Props> = ({ trip }) => {
                   <span
                     role="switch"
                     aria-checked={checklistMode}
-                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors bg-input data-[state=checked]:bg-primary"
+                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-muted-foreground/40 transition-colors bg-input data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     data-state={checklistMode ? 'checked' : 'unchecked'}
                   >
                     <span
-                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-background shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
+                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-muted-foreground/40 data-[state=checked]:bg-primary-foreground shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
                       data-state={checklistMode ? 'checked' : 'unchecked'}
                     />
                   </span>
@@ -146,12 +166,32 @@ export const PackingList: FC<Props> = ({ trip }) => {
                   <span
                     role="switch"
                     aria-checked={isMetric}
-                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors bg-input data-[state=checked]:bg-primary"
+                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-muted-foreground/40 transition-colors bg-input data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     data-state={isMetric ? 'checked' : 'unchecked'}
                   >
                     <span
-                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-background shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
+                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-muted-foreground/40 data-[state=checked]:bg-primary-foreground shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
                       data-state={isMetric ? 'checked' : 'unchecked'}
+                    />
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={e => {
+                    e.preventDefault()
+                    toggleShowCalories()
+                  }}
+                >
+                  <Flame size={14} />
+                  Show calories
+                  <span
+                    role="switch"
+                    aria-checked={showCalories}
+                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-muted-foreground/40 transition-colors bg-input data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    data-state={showCalories ? 'checked' : 'unchecked'}
+                  >
+                    <span
+                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-muted-foreground/40 data-[state=checked]:bg-primary-foreground shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
+                      data-state={showCalories ? 'checked' : 'unchecked'}
                     />
                   </span>
                 </DropdownMenuItem>
@@ -242,6 +282,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
             key={categoryName}
             category={categoryName}
             data={items}
+            colgroup={colgroup}
           />
         )
       })}

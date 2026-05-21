@@ -1,7 +1,7 @@
 import type { HikerProfile } from '@/types/hiker-profile'
 import type { Trip } from '@/types/trip'
 import type { CalcInputs, BodyType, Sex, TerrainType, PaceLevel, TempCategory } from './calorieCalculator'
-import { lbToKg, inToCm, miToKm, ftToM } from './calorieCalculator'
+import { lbToKg } from './unitConversions'
 
 export type MissingField = {
   field: string
@@ -55,22 +55,16 @@ export function assembleCalcInputs(
   profile: HikerProfile,
   trip: Trip,
   packWeightInUserUnit: number,
-  unitPrefs: { unit_weight: string; unit_distance: string },
+  unitWeight: string,
   safetyMargin: boolean,
 ): CalcInputs {
-  const isImperial = unitPrefs.unit_weight === 'IMPERIAL'
-  const isImperialDist = unitPrefs.unit_distance === 'MI'
-
   const totalDays = computeTotalDays(trip)
 
-  const weightKg = isImperial ? lbToKg(profile.weight!) : profile.weight!
-  const heightCm = isImperial ? inToCm(profile.height!) : profile.height!
-  const packWeightKg = isImperial ? lbToKg(packWeightInUserUnit) : packWeightInUserUnit
-  const totalDistanceKm = isImperialDist ? miToKm(trip.distance!) : trip.distance!
-  const dailyDistanceKm = totalDistanceKm / totalDays
-  const dailyElevationGainM = trip.daily_elevation_gain
-    ? (isImperialDist ? ftToM(trip.daily_elevation_gain) : trip.daily_elevation_gain)
-    : 0
+  const isImperialWeight = unitWeight === 'IMPERIAL'
+  const packWeightKg = isImperialWeight ? lbToKg(packWeightInUserUnit) : packWeightInUserUnit
+
+  const dailyDistanceKm = trip.distance! / totalDays
+  const dailyElevationGainM = trip.daily_elevation_gain ?? 0
 
   const age = new Date().getFullYear() - profile.year_of_birth!
   const bodyType: BodyType = BODY_TYPE_MAP[profile.body_type ?? 'average'] ?? 'average'
@@ -78,8 +72,8 @@ export function assembleCalcInputs(
   return {
     sex: profile.sex as Sex,
     age,
-    weightKg,
-    heightCm,
+    weightKg: profile.weight!,
+    heightCm: profile.height!,
     packWeightKg,
     dailyDistanceKm,
     dailyElevationGainM,
