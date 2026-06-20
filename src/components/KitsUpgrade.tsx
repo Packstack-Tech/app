@@ -69,9 +69,9 @@ export const KitsUpgrade: FC<Props> = ({ onUpgrade, compact = false }) => {
         {FEATURES.map(({ icon: Icon, title, description }) => (
           <div
             key={title}
-            className="flex gap-3 rounded-lg border border-border bg-card p-4"
+            className="flex items-center gap-3 rounded-lg border border-border bg-card p-4"
           >
-            <div className="mt-0.5 shrink-0 rounded-md bg-primary/10 p-2">
+            <div className="shrink-0 rounded-md bg-primary/10 p-2">
               <Icon size={18} className="text-primary" />
             </div>
             <div>
