@@ -11,6 +11,7 @@ import { RouterProvider } from '@tanstack/react-router'
 
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/Tooltip'
+import { RevenueCatProvider } from '@/providers/RevenueCatProvider'
 
 import { queryClient } from './lib/queryClient'
 import { router } from './router'
@@ -39,17 +40,19 @@ Sentry.init({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <DndProvider backend={HTML5Backend}>
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-          <TooltipProvider delayDuration={0}>
-            <RouterProvider
-              router={router}
-              context={{ queryClient }}
-            />
-          </TooltipProvider>
-        </GoogleOAuthProvider>
-      </DndProvider>
-      <Toaster />
+      <RevenueCatProvider>
+        <DndProvider backend={HTML5Backend}>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <TooltipProvider delayDuration={0}>
+              <RouterProvider
+                router={router}
+                context={{ queryClient }}
+              />
+            </TooltipProvider>
+          </GoogleOAuthProvider>
+        </DndProvider>
+        <Toaster />
+      </RevenueCatProvider>
     </QueryClientProvider>
   </React.StrictMode>
 )

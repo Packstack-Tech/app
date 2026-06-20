@@ -54,6 +54,7 @@ export const useTripQuery = (id?: string | number) => {
 
 export const useCreateTrip = () => {
   const queryClient = useQueryClient()
+  const { toast } = useToast()
   return useMutation({
     mutationFn: async (params: CreateTrip) => {
       const res = await createTrip(params)
@@ -62,6 +63,14 @@ export const useCreateTrip = () => {
     },
     onSuccess: ({ id }) =>
       queryClient.invalidateQueries({ queryKey: [TRIP_QUERY, id] }),
+    onError: (error: { response?: { status?: number } }) => {
+      if (error?.response?.status === 402) {
+        toast({
+          title: 'Upgrade required',
+          description: 'Subscribe to create more than one trip.',
+        })
+      }
+    },
   })
 }
 
@@ -194,6 +203,14 @@ export const useCloneTrip = () => {
         title: 'Trip cloned',
       })
       queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
+    },
+    onError: (error: { response?: { status?: number } }) => {
+      if (error?.response?.status === 402) {
+        toast({
+          title: 'Upgrade required',
+          description: 'Subscribe to create more than one trip.',
+        })
+      }
     },
   })
 }

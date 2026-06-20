@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { ChevronDown, ChevronRight, Package, Pencil } from 'lucide-react'
 
 import { Button, Input } from '@/components/ui'
+import { KitsUpgrade } from '@/components/KitsUpgrade'
 import { KitEditor } from '@/containers/KitForm'
+import { useKitsAccess } from '@/hooks/useKitsAccess'
 import { useKits } from '@/queries/kit'
 import { Kit } from '@/types/kit'
 
@@ -10,9 +12,18 @@ type View = { mode: 'list' } | { mode: 'editor'; kit?: Kit }
 
 export const KitsPage = () => {
   const { data: kits, isLoading } = useKits()
+  const { kitsUnlocked, openUpgrade } = useKitsAccess()
   const [view, setView] = useState<View>({ mode: 'list' })
   const [search, setSearch] = useState('')
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
+
+  if (!isLoading && !kitsUnlocked) {
+    return (
+      <div className="px-4 md:px-6 py-4">
+        <KitsUpgrade onUpgrade={openUpgrade} />
+      </div>
+    )
+  }
 
   const filteredKits = useMemo(() => {
     if (!kits) return []

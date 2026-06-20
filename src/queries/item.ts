@@ -184,6 +184,7 @@ export const useUpdateItem = () => {
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: ['item-logs', variables.id] })
+      queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
       toast({
         title: '✅ Item updated',
       })
@@ -271,6 +272,7 @@ export const useSaveCategoryChanges = () => {
       toast({ title: 'Categories updated' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
     },
     onError: () => {
       toast({ title: 'Failed to update categories' })

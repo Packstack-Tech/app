@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/DropdownMenu'
 import { NewTripModal } from '@/containers/NewTripModal'
 import { useDarkMode } from '@/hooks/useDarkMode'
+import { useTripLimit } from '@/hooks/useTripLimit'
 import { logout } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
 
@@ -28,7 +29,16 @@ export const Header = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
+  const { canCreateTrip, openUpgrade } = useTripLimit()
   const [showNewTrip, setShowNewTrip] = useState(false)
+
+  const onCreatePack = () => {
+    if (canCreateTrip) {
+      setShowNewTrip(true)
+    } else {
+      openUpgrade()
+    }
+  }
 
   const onLogout = async () => {
     try {
@@ -71,7 +81,7 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => setShowNewTrip(true)}>
+          <Button variant="outline" size="sm" className="cursor-pointer" onClick={onCreatePack}>
             <Plus size={16} strokeWidth={2.5} />
             Create Pack
           </Button>

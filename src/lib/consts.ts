@@ -60,3 +60,11 @@ export const weightUnits = [
 export const DraggableTypes = {
   PHOTO: 'photo',
 }
+
+// RevenueCat entitlement that unlocks premium access. This is the shared
+// entitlement identifier across every platform product (Apple/Google/Web),
+// not a per-store product ID.
+export const ENTITLEMENT_ID = 'Full Access'
+
+// Number of active (non-removed) trips a non-subscribed user may have.
+export const FREE_TRIP_LIMIT = 1

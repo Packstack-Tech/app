@@ -20,6 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
+import { useTripLimit } from '@/hooks/useTripLimit'
 import { useUnits } from '@/hooks/useUnits'
 import { labelFor, TERRAIN_OPTIONS } from '@/lib/tripDetails'
 import { useCloneTrip, useDeleteTrip } from '@/queries/trip'
@@ -37,6 +38,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
   const deleteTrip = useDeleteTrip()
   const cloneTrip = useCloneTrip()
   const units = useUnits()
+  const { canCreateTrip, openUpgrade } = useTripLimit()
 
   const { created_at, start_date, end_date, id, location, removed, enrich_status } = trip
 
@@ -51,12 +53,17 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
       : null
 
   const onDelete = () => deleteTrip.mutate(id)
-  const onClone = () =>
+  const onClone = () => {
+    if (!canCreateTrip) {
+      openUpgrade()
+      return
+    }
     cloneTrip.mutate(id, {
       onSuccess: data => {
         navigate({ to: '/pack/$id', params: { id: `${data.id}` } })
       },
     })
+  }
 
   const badges: { label: string }[] = []
 

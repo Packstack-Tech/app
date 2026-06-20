@@ -5,6 +5,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui'
 import { NewTripModal } from '@/containers/NewTripModal'
+import { useTripLimit } from '@/hooks/useTripLimit'
 import { Trip } from '@/types/trip'
 
 import { TripCard } from './TripCard'
@@ -16,7 +17,16 @@ type Props = {
 
 export const UpcomingTrips: FC<Props> = ({ trips, totalTrips }) => {
   const navigate = useNavigate()
+  const { canCreateTrip, openUpgrade } = useTripLimit()
   const [showNewTrip, setShowNewTrip] = useState(false)
+
+  const onCreatePack = () => {
+    if (canCreateTrip) {
+      setShowNewTrip(true)
+    } else {
+      openUpgrade()
+    }
+  }
 
   return (
     <div>
@@ -47,7 +57,7 @@ export const UpcomingTrips: FC<Props> = ({ trips, totalTrips }) => {
             <Button
               size="sm"
               className="gap-1"
-              onClick={() => setShowNewTrip(true)}
+              onClick={onCreatePack}
             >
               <PlusIcon size={14} /> Create Pack
             </Button>
