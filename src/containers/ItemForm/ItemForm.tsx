@@ -38,8 +38,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
+import { useUser } from '@/hooks/useUser'
 import { toSelectOptions } from '@/lib/utils'
-import { convertWeight } from '@/lib/weight'
+import { convertWeight, getItemDisplayUnit } from '@/lib/weight'
 import { useCategories } from '@/queries/category'
 import { useCreateItem, useDeleteItem, useUpdateItem } from '@/queries/item'
 import {
@@ -80,14 +81,14 @@ type Props = {
   children?: React.ReactNode
 }
 
-const formDefaults = (item?: Item) => ({
+const formDefaults = (item?: Item, defaultUnit: Unit = 'g') => ({
   itemname: item?.name || '',
   brand_id: item?.brand_id || undefined,
   product_id: item?.product_id || undefined,
   product_variant_id: item?.product_variant_id || undefined,
   category_id: item?.category?.category_id || undefined,
   weight: item?.weight || 0,
-  unit: item?.unit || 'g',
+  unit: item?.unit || defaultUnit,
   price: item?.price || 0,
   calories: item?.calories || 0,
   consumable: item?.consumable || false,
@@ -114,6 +115,9 @@ export const ItemForm: FC<Props> = ({
   const [pendingAutoFill, setPendingAutoFill] = useState(false)
   const [another, setAnother] = useState(false)
 
+  const user = useUser()
+  const defaultUnit = getItemDisplayUnit(user.unit_weight)
+
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
   const deleteItem = useDeleteItem()
@@ -131,15 +135,15 @@ export const ItemForm: FC<Props> = ({
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: formDefaults(item),
+    defaultValues: formDefaults(item, defaultUnit),
   })
 
   useEffect(() => {
-    form.reset(formDefaults(item))
+    form.reset(formDefaults(item, defaultUnit))
     setBrandSearch(item?.brand?.name || '')
     setSelectedBrandName(item?.brand?.name)
     setSelectedProductName(item?.product?.name)
-  }, [item])
+  }, [item, defaultUnit])
 
   const brandId = form.watch('brand_id')
   const productId = form.watch('product_id')
@@ -190,8 +194,10 @@ export const ItemForm: FC<Props> = ({
 
   const applyAutoFill = (entry: CatalogEntry) => {
     if (entry.weight != null) {
-      form.setValue('weight', entry.weight)
-      form.setValue('unit', (entry.weight_unit || 'g') as Unit)
+      const fromUnit = (entry.weight_unit || 'g') as Unit
+      const converted = convertWeight(entry.weight, fromUnit, defaultUnit)
+      form.setValue('weight', Math.round(converted.weight * 100) / 100)
+      form.setValue('unit', defaultUnit)
     }
     if (entry.product_url) {
       form.setValue('product_url', entry.product_url)
@@ -230,7 +236,7 @@ export const ItemForm: FC<Props> = ({
         { ...payload, name: itemname },
         {
           onSuccess: () => {
-            form.reset(formDefaults())
+            form.reset(formDefaults(undefined, defaultUnit))
             if (!another) {
               onClose()
             }

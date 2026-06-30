@@ -16,7 +16,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
+import { useUser } from '@/hooks/useUser'
 import { toSelectOptions } from '@/lib/utils'
+import { convertWeight, getItemDisplayUnit } from '@/lib/weight'
 import { useCategories } from '@/queries/category'
 import {
   useCatalogBrands,
@@ -40,6 +42,9 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
     item?.product?.name
   )
   const [pendingAutoFill, setPendingAutoFill] = useState(false)
+
+  const user = useUser()
+  const defaultUnit = getItemDisplayUnit(user.unit_weight)
 
   const catalogBrands = useCatalogBrands({ query: brandSearch, enabled: true })
   const catalogProducts = useCatalogProducts({
@@ -125,8 +130,10 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
 
   const applyAutoFill = (entry: CatalogEntry) => {
     if (entry.weight != null) {
-      form.setValue('weight', entry.weight)
-      form.setValue('unit', (entry.weight_unit || 'g') as Unit)
+      const fromUnit = (entry.weight_unit || 'g') as Unit
+      const converted = convertWeight(entry.weight, fromUnit, defaultUnit)
+      form.setValue('weight', Math.round(converted.weight * 100) / 100)
+      form.setValue('unit', defaultUnit)
     }
     if (entry.product_url) {
       form.setValue('product_url', entry.product_url)

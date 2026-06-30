@@ -19,8 +19,10 @@ import { NotesSection } from '@/containers/ItemDetail/sections/NotesSection'
 import { ReplacementSection } from '@/containers/ItemDetail/sections/ReplacementSection'
 import { RetirementSection } from '@/containers/ItemDetail/sections/RetirementSection'
 import { SpecsSection } from '@/containers/ItemDetail/sections/SpecsSection'
+import { useUser } from '@/hooks/useUser'
+import { getItemDisplayUnit } from '@/lib/weight'
 import { useCreateItem, useInventory, useUpdateItem } from '@/queries/item'
-import { Item, ItemForm as ItemFormValues } from '@/types/item'
+import { Item, ItemForm as ItemFormValues, Unit } from '@/types/item'
 
 const schema = z.object({
   itemname: z.string().min(1, 'Name is required'),
@@ -49,14 +51,14 @@ const schema = z.object({
   replaced_by_id: z.number().optional(),
 })
 
-const formDefaults = (item?: Item): ItemFormValues => ({
+const formDefaults = (item?: Item, defaultUnit: Unit = 'g'): ItemFormValues => ({
   itemname: item?.name || '',
   brand_id: item?.brand_id || undefined,
   product_id: item?.product_id || undefined,
   product_variant_id: item?.product_variant_id || undefined,
   category_id: item?.category?.category_id || undefined,
   weight: item?.weight || 0,
-  unit: item?.unit || 'g',
+  unit: item?.unit || defaultUnit,
   price: item?.price || 0,
   calories: item?.calories || 0,
   consumable: item?.consumable || false,
@@ -101,6 +103,8 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
   const { data: inventory } = useInventory()
   const createItem = useCreateItem()
   const updateItem = useUpdateItem()
+  const user = useUser()
+  const defaultUnit = getItemDisplayUnit(user.unit_weight)
   const [another, setAnother] = useState(false)
 
   const item = mode === 'edit' && inventory
@@ -109,8 +113,8 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: formDefaults(item),
-    values: item ? formDefaults(item) : undefined,
+    defaultValues: formDefaults(item, defaultUnit),
+    values: item ? formDefaults(item, defaultUnit) : undefined,
   })
 
   const watchedStatus = form.watch('status') || 'active'
@@ -127,7 +131,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
         {
           onSuccess: (newItem) => {
             if (another) {
-              form.reset(formDefaults())
+              form.reset(formDefaults(undefined, defaultUnit))
             } else if (onCreated) {
               onCreated(newItem.id)
             } else {
