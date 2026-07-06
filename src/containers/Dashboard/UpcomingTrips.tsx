@@ -30,16 +30,18 @@ export const UpcomingTrips: FC<Props> = ({ trips, totalTrips }) => {
 
   return (
     <div>
-      <div className="px-5 py-3 bg-muted flex items-baseline justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-primary">
-          Upcoming
-        </h2>
-        {trips.length > 0 && (
-          <span className="text-xs text-muted-foreground">
-            {trips.length} {trips.length === 1 ? 'trip' : 'trips'}
-          </span>
-        )}
-      </div>
+      {totalTrips > 0 && (
+        <div className="px-5 py-3 bg-muted flex items-baseline justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-primary">
+            Upcoming
+          </h2>
+          {trips.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {trips.length} {trips.length === 1 ? 'trip' : 'trips'}
+            </span>
+          )}
+        </div>
+      )}
 
       {trips.length === 0 && totalTrips === 0 && (
         <EmptyState icon={Map} heading="No packing lists yet">

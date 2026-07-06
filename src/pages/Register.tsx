@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { ArrowLeft } from 'lucide-react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { GoogleLogin } from '@react-oauth/google'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft } from 'lucide-react'
 
+import { GoogleAuthButton } from '@/components/GoogleAuthButton'
 import { Button, Input } from '@/components/ui'
 import {
   InputOTP,
@@ -242,32 +242,29 @@ export const Register = () => {
         <div className="flex-1 h-px bg-border" />
       </div>
 
-      <div className="flex justify-center">
-        <GoogleLogin
-          onSuccess={credentialResponse => {
-            if (!credentialResponse.credential) return
-            setError(undefined)
-            googleAuthMutation.mutate(credentialResponse.credential, {
-              onSuccess: ({ user }) => {
-                Mixpanel.identify(`${user.id}`)
-                Mixpanel.track('User:Register:Google')
-                Mixpanel.people.set({
-                  $name: user.username,
-                  $email: user.email,
-                })
-                navigate({ to: '/' })
-              },
-              onError: error => {
-                handleException(error, {
-                  onHttpError: ({ response }) =>
-                    setError(response?.data.detail),
-                })
-              },
-            })
-          }}
-          onError={() => setError('Google sign-in failed. Please try again.')}
-        />
-      </div>
+      <GoogleAuthButton
+        label="Sign up with Google"
+        onCredential={credential => {
+          setError(undefined)
+          googleAuthMutation.mutate(credential, {
+            onSuccess: ({ user }) => {
+              Mixpanel.identify(`${user.id}`)
+              Mixpanel.track('User:Register:Google')
+              Mixpanel.people.set({
+                $name: user.username,
+                $email: user.email,
+              })
+              navigate({ to: '/' })
+            },
+            onError: error => {
+              handleException(error, {
+                onHttpError: ({ response }) => setError(response?.data.detail),
+              })
+            },
+          })
+        }}
+        onError={() => setError('Google sign-in failed. Please try again.')}
+      />
 
       <p className="text-xs text-center text-muted-foreground mt-4">
         Already have an account?{' '}

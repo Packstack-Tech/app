@@ -1,8 +1,8 @@
 import { FC } from 'react'
 import { useForm } from 'react-hook-form'
+import { Settings2 } from 'lucide-react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Settings2 } from 'lucide-react'
 
 import { Button } from '@/components/ui'
 import {
@@ -24,6 +24,7 @@ import { DISTANCE, distances, temps, weightUnits } from '@/lib/consts'
 import { SYSTEM_UNIT } from '@/lib/consts'
 import { currencies } from '@/lib/currencies'
 import { Mixpanel } from '@/lib/mixpanel'
+import { cn } from '@/lib/utils'
 import { useUpdateUser } from '@/queries/user'
 
 type PreferencesForm = {
@@ -40,7 +41,19 @@ const schema = z.object({
   unit_temperature: z.enum(['F', 'C']),
 })
 
-export const Preferences: FC = () => {
+type Props = {
+  bare?: boolean
+  submitLabel?: string
+  fullWidthSubmit?: boolean
+  onSaved?: () => void
+}
+
+export const Preferences: FC<Props> = ({
+  bare = false,
+  submitLabel = 'Save',
+  fullWidthSubmit = false,
+  onSaved,
+}) => {
   const user = useUser()
   const updateUser = useUpdateUser()
 
@@ -58,8 +71,123 @@ export const Preferences: FC = () => {
     updateUser.mutate(data, {
       onSuccess: () => {
         Mixpanel.track('Settings:Updated', { ...data })
+        onSaved?.()
       },
     })
+  }
+
+  const formEl = (
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2.5">
+      <Form {...form}>
+        <FormField
+          control={form.control}
+          name="unit_weight"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel className="text-xs">Weight</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                    <SelectContent>
+                      {weightUnits.map(({ label, value }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </SelectTrigger>
+                </FormControl>
+              </Select>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="unit_distance"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel className="text-xs">Distance</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                    <SelectContent>
+                      {distances.map(({ label, value }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </SelectTrigger>
+                </FormControl>
+              </Select>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="unit_temperature"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel className="text-xs">Temperature</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                    <SelectContent>
+                      {temps.map(({ label, value }) => (
+                        <SelectItem key={value} value={value}>
+                          °{label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </SelectTrigger>
+                </FormControl>
+              </Select>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="currency"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel className="text-xs">Currency</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                    <SelectContent>
+                      {currencies.map(({ code, name }) => (
+                        <SelectItem key={code} value={code}>
+                          ({code}) {name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </SelectTrigger>
+                </FormControl>
+              </Select>
+            </FormItem>
+          )}
+        />
+      </Form>
+
+      <Button
+        size="sm"
+        className={cn('mt-1', fullWidthSubmit ? 'w-full' : 'self-start')}
+        disabled={updateUser.isPending}
+      >
+        {submitLabel}
+      </Button>
+    </form>
+  )
+
+  if (bare) {
+    return formEl
   }
 
   return (
@@ -70,110 +198,7 @@ export const Preferences: FC = () => {
           Preferences
         </h3>
       </div>
-
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-2.5">
-        <Form {...form}>
-          <FormField
-            control={form.control}
-            name="unit_weight"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel className="text-xs">Weight</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                      <SelectContent>
-                        {weightUnits.map(({ label, value }) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </SelectTrigger>
-                  </FormControl>
-                </Select>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="unit_distance"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel className="text-xs">Distance</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                      <SelectContent>
-                        {distances.map(({ label, value }) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </SelectTrigger>
-                  </FormControl>
-                </Select>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="unit_temperature"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel className="text-xs">Temperature</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                      <SelectContent>
-                        {temps.map(({ label, value }) => (
-                          <SelectItem key={value} value={value}>
-                            °{label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </SelectTrigger>
-                  </FormControl>
-                </Select>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="currency"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel className="text-xs">Currency</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                      <SelectContent>
-                        {currencies.map(({ code, name }) => (
-                          <SelectItem key={code} value={code}>
-                            ({code}) {name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </SelectTrigger>
-                  </FormControl>
-                </Select>
-              </FormItem>
-            )}
-          />
-        </Form>
-
-        <Button size="sm" className="w-full mt-1" disabled={updateUser.isPending}>
-          Save
-        </Button>
-      </form>
+      {formEl}
     </div>
   )
 }

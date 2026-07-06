@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+
 import { Button, Input } from '@/components/ui'
 import {
   Form,
@@ -10,6 +11,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/Form'
+import { HikerProfiles } from '@/containers/Dashboard/HikerProfiles'
+import { Preferences } from '@/containers/Dashboard/Preferences'
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
 import { useUpdateUser } from '@/queries/user'
@@ -42,13 +45,13 @@ export const Settings = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto my-8 flex flex-col gap-6">
+    <div className="max-w-lg mx-auto my-8 flex flex-col gap-8">
       <div>
         <h2>Settings</h2>
         <p className="text-sm">Manage your account and preferences.</p>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Form {...form}>
           <section className="flex flex-col gap-4">
             <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -76,6 +79,21 @@ export const Settings = () => {
           </Button>
         </div>
       </form>
+
+      <hr className="border-border" />
+
+      <section className="flex flex-col gap-4">
+        <HikerProfiles bare />
+      </section>
+
+      <hr className="border-border" />
+
+      <section className="flex flex-col gap-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Preferences
+        </h3>
+        <Preferences bare />
+      </section>
 
       <hr className="border-border" />
 

@@ -2,6 +2,7 @@ import { FC, useMemo, useState } from 'react'
 import { DropletIcon, FlameIcon, InfoIcon } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
+import { CalorieUpgrade } from '@/components/CalorieUpgrade'
 import {
   Select,
   SelectContent,
@@ -9,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
 import {
@@ -26,6 +28,7 @@ interface Props {
 
 export const CalorieEstimate: FC<Props> = ({ trip }) => {
   const user = useUser()
+  const { isSubscribed, openUpgrade } = useSubscription()
   const { packs } = useTripPacks(useShallow(store => ({ packs: store.packs })))
   const { data: profiles } = useHikerProfilesQuery()
 
@@ -88,6 +91,18 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
     const diffMs = new Date(trip.end_date).getTime() - new Date(trip.start_date).getTime()
     return Math.max(Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1, 1)
   }, [trip.start_date, trip.end_date])
+
+  if (!isSubscribed) {
+    return (
+      <div>
+        <div className="text-sm font-semibold mb-2 inline-flex items-center gap-1.5">
+          <FlameIcon size={14} className="text-orange-400" />
+          Calorie Estimate
+        </div>
+        <CalorieUpgrade compact onUpgrade={openUpgrade} />
+      </div>
+    )
+  }
 
   return (
     <div>

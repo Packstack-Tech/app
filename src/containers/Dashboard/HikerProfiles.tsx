@@ -14,12 +14,16 @@ import {
 } from '@/components/ui/AlertDialog'
 import { HikerProfileForm } from '@/containers/HikerProfileForm/HikerProfileForm'
 import {
-  useHikerProfilesQuery,
   useDeleteHikerProfile,
+  useHikerProfilesQuery,
 } from '@/queries/hiker-profile'
 import type { HikerProfile } from '@/types/hiker-profile'
 
-export const HikerProfiles: FC = () => {
+type Props = {
+  bare?: boolean
+}
+
+export const HikerProfiles: FC<Props> = ({ bare = false }) => {
   const { data: hikerProfiles = [] } = useHikerProfilesQuery()
   const deleteProfile = useDeleteHikerProfile()
 
@@ -47,7 +51,7 @@ export const HikerProfiles: FC = () => {
 
   return (
     <>
-      <div className="p-4 border-b border-border">
+      <div className={bare ? '' : 'p-4 border-b border-border'}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Hiker Profiles
