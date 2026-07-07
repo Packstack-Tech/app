@@ -8,6 +8,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import * as Sentry from '@sentry/react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from '@tanstack/react-router'
+import { HelmetProvider } from 'react-helmet-async'
 
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/Tooltip'
@@ -39,20 +40,22 @@ Sentry.init({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RevenueCatProvider>
-        <DndProvider backend={HTML5Backend}>
-          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-            <TooltipProvider delayDuration={0}>
-              <RouterProvider
-                router={router}
-                context={{ queryClient }}
-              />
-            </TooltipProvider>
-          </GoogleOAuthProvider>
-        </DndProvider>
-        <Toaster />
-      </RevenueCatProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <RevenueCatProvider>
+          <DndProvider backend={HTML5Backend}>
+            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+              <TooltipProvider delayDuration={0}>
+                <RouterProvider
+                  router={router}
+                  context={{ queryClient }}
+                />
+              </TooltipProvider>
+            </GoogleOAuthProvider>
+          </DndProvider>
+          <Toaster />
+        </RevenueCatProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   </React.StrictMode>
 )
