@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/Form'
 import { HikerProfiles } from '@/containers/Dashboard/HikerProfiles'
 import { Preferences } from '@/containers/Dashboard/Preferences'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
 import { useUpdateUser } from '@/queries/user'
@@ -28,6 +29,7 @@ const schema = z.object({
 export const Settings = () => {
   const user = useUser()
   const updateUser = useUpdateUser()
+  const { isSubscribed, openUpgrade, managementUrl } = useSubscription()
 
   const form = useForm<SettingsForm>({
     resolver: zodResolver(schema),
@@ -93,6 +95,39 @@ export const Settings = () => {
           Preferences
         </h3>
         <Preferences bare />
+      </section>
+
+      <hr className="border-border" />
+
+      <section className="flex flex-col gap-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Subscription
+        </h3>
+        {isSubscribed ? (
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm">You have full access to Packstack.</p>
+            {managementUrl ? (
+              <Button asChild variant="outline">
+                <a href={managementUrl} target="_blank" rel="noreferrer">
+                  Manage subscription
+                </a>
+              </Button>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Manage your subscription in the app store where you subscribed.
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm">
+              Upgrade for unlimited trips, kits and more.
+            </p>
+            <Button type="button" onClick={openUpgrade}>
+              Upgrade
+            </Button>
+          </div>
+        )}
       </section>
 
       <hr className="border-border" />

@@ -66,5 +66,9 @@ export const DraggableTypes = {
 // not a per-store product ID.
 export const ENTITLEMENT_ID = 'Full Access'
 
+// RevenueCat offering whose paywall is presented for upgrades. Pinned
+// explicitly rather than relying on the dashboard's "current" pointer.
+export const OFFERING_ID = 'web_full_access'
+
 // Number of active (non-removed) trips a non-subscribed user may have.
 export const FREE_TRIP_LIMIT = 1
