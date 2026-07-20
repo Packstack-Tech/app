@@ -41,6 +41,7 @@ import { useReplacementScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
 import { downloadInventory } from '@/lib/download'
 import { formatCurrency } from '@/lib/currencies'
+import { formatTotalWeight } from '@/lib/weight'
 import { ItemDetailPage } from '@/pages/ItemDetail'
 import { useGroupedInventory } from '@/queries/item'
 import { useBulkArchiveItems, useBulkDeleteItems, useBulkRestoreItems, useInventory } from '@/queries/item'
@@ -144,7 +145,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   }
 
   const stats = useMemo(() => {
-    if (!inventory) return { count: 0, value: 0, weightDisplay: '0 g', attentionCount: 0 }
+    if (!inventory) return { count: 0, value: 0, weightDisplay: formatTotalWeight(0, user.unit_weight), attentionCount: 0 }
     const active = inventory.filter(i => !i.removed)
     const value = active.reduce((sum, i) => sum + (i.price || 0), 0)
     let totalGrams = 0
@@ -153,9 +154,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
         totalGrams += item.weight * (CONVERSION[item.unit] || 1)
       }
     }
-    const weightDisplay = totalGrams >= 1000
-      ? `${(totalGrams / 1000).toFixed(1)} kg`
-      : `${Math.round(totalGrams)} g`
+    const weightDisplay = formatTotalWeight(totalGrams, user.unit_weight)
 
     let attentionCount = 0
     for (const item of active) {
@@ -165,7 +164,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
     }
 
     return { count: active.length, value, weightDisplay, attentionCount }
-  }, [inventory, scores])
+  }, [inventory, scores, user.unit_weight])
 
   const selectionCount = selectedIds.size
   const allSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedIds.has(id))

@@ -18,7 +18,7 @@ const FEATURES: Feature[] = [
   { label: 'Hiker profiles and shareable packing lists' },
   { label: 'Unlimited trip planning', pro: true },
   { label: 'Dynamic calorie requirement estimates', pro: true },
-  { label: 'Reusable gear kits for faster planning', pro: true },
+  { label: 'Reusable gear kits for faster planning' },
 ]
 
 export const Onboarding: FC = () => {

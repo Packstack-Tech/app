@@ -3,7 +3,6 @@ import { PackagePlus, Plus } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { Button, Input } from '@/components/ui'
-import { KitsUpgrade } from '@/components/KitsUpgrade'
 import { Label } from '@/components/ui/Label'
 import { ScrollArea } from '@/components/ui/ScrollArea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
@@ -14,7 +13,6 @@ import {
 } from '@/components/ui/Tooltip'
 import { ItemForm } from '@/containers/ItemForm'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
-import { useKitsAccess } from '@/hooks/useKitsAccess'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -39,7 +37,6 @@ export const InventorySidebar = () => {
   const items = useCategorizedItems({ filter: search })
   const selectedItems = packs[selectedIndex]?.items ?? []
   const { data: kits } = useKits()
-  const { kitsUnlocked, openUpgrade } = useKitsAccess()
   const { toast } = useToast()
 
   const filteredKits = useMemo(() => {
@@ -168,12 +165,6 @@ export const InventorySidebar = () => {
       </TabsContent>
 
       <TabsContent value="kits" className="flex flex-col min-h-0 flex-1">
-        {!kitsUnlocked ? (
-          <div className="pt-2">
-            <KitsUpgrade compact onUpgrade={openUpgrade} />
-          </div>
-        ) : (
-        <>
         <div className="mb-2">
           <Input
             placeholder="search kits..."
@@ -239,8 +230,6 @@ export const InventorySidebar = () => {
             </div>
           ))}
         </ScrollArea>
-        </>
-        )}
       </TabsContent>
     </Tabs>
   )

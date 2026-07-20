@@ -71,4 +71,4 @@ export const ENTITLEMENT_ID = 'Full Access'
 export const OFFERING_ID = 'web_full_access'
 
 // Number of active (non-removed) trips a non-subscribed user may have.
-export const FREE_TRIP_LIMIT = 1
+export const FREE_TRIP_LIMIT = 3

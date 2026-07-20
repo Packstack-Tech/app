@@ -18,7 +18,7 @@ import {
   getMissingCalorieInputs,
 } from '@/lib/calorieAssembler'
 import { calculateDailyCalories } from '@/lib/calorieCalculator'
-import { calculateWeightBreakdown } from '@/lib/weight'
+import { calculateWeightBreakdown, sumPackItemCalories } from '@/lib/weight'
 import { useHikerProfilesQuery } from '@/queries/hiker-profile'
 import { Trip } from '@/types/trip'
 
@@ -65,6 +65,11 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
     const allItems = packsForProfile.flatMap(p => p.items)
     return calculateWeightBreakdown(allItems, user.conversion_unit).total
   }, [packsForProfile, user.conversion_unit])
+
+  const packedCalories = useMemo(
+    () => sumPackItemCalories(packsForProfile.flatMap(p => p.items)),
+    [packsForProfile],
+  )
 
   const missing = useMemo(
     () => getMissingCalorieInputs(activeProfile, trip),
@@ -174,6 +179,26 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
                   {results.totalDailyKcal.toLocaleString()} kcal
                 </p>
               </div>
+
+              {/* Calories packed progress */}
+              {packedCalories > 0 && (
+                <div className="py-1.5 space-y-1">
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-xs text-muted-foreground">Calories packed</p>
+                    <p className="text-xs tabular-nums">
+                      {Math.round(packedCalories).toLocaleString()} / {results.totalTripKcal.toLocaleString()} kcal
+                    </p>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        packedCalories >= results.totalTripKcal ? 'bg-emerald-500' : 'bg-orange-400'
+                      }`}
+                      style={{ width: `${Math.min(100, (packedCalories / results.totalTripKcal) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-between py-0.5">
                 <p className="text-muted-foreground">Food / day</p>

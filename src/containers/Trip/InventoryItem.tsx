@@ -1,6 +1,10 @@
 import { FC } from 'react'
 import { CircleIcon, Plus } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 
+import { useTripPacks } from '@/hooks/useTripPacks'
+import { useUser } from '@/hooks/useUser'
+import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
 import { Item } from '@/types/item'
 
 interface Props {
@@ -10,12 +14,19 @@ interface Props {
 }
 
 export const InventoryItem: FC<Props> = ({ item, selected, onClick }) => {
+  const user = useUser()
+  const { displayUnitSystem } = useTripPacks(
+    useShallow(store => ({ displayUnitSystem: store.displayUnitSystem }))
+  )
   const brandParts = [
     item.brand?.name,
     item.product?.name,
     item.product_variant?.name,
   ].filter(Boolean)
-  const weightStr = item.weight ? `${item.weight} ${item.unit}` : null
+  const targetUnit = getItemDisplayUnit(displayUnitSystem ?? user.unit_weight)
+  const weightStr = item.weight
+    ? formatItemWeight(item.weight, item.unit, targetUnit)
+    : null
   const subtitle = [brandParts.join(' '), weightStr].filter(Boolean).join(' \u2014 ')
 
   return (

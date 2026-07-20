@@ -45,6 +45,25 @@ export const getItemDisplayUnit = (unit_system: SYSTEM_UNIT): Unit => {
   return unit_system === 'METRIC' ? 'g' : 'oz'
 }
 
+/**
+ * Formats a summed weight (in grams) for display, using the unit system
+ * from the user's preferences: g/kg for metric, oz/lb for imperial.
+ */
+export function formatTotalWeight(
+  totalGrams: number,
+  unitSystem: SYSTEM_UNIT
+): string {
+  if (unitSystem === 'METRIC') {
+    return totalGrams >= 1000
+      ? `${(totalGrams / 1000).toFixed(1)} kg`
+      : `${Math.round(totalGrams)} g`
+  }
+  const totalOz = totalGrams / CONVERSION_FACTORS.oz
+  return totalOz >= 16
+    ? `${(totalOz / 16).toFixed(1)} lb`
+    : `${Math.round(totalOz)} oz`
+}
+
 const PROMOTE_THRESHOLDS: Partial<
   Record<Unit, { threshold: number; to: Unit }>
 > = {

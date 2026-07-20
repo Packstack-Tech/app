@@ -16,16 +16,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table'
+import { useUser } from '@/hooks/useUser'
+import { SYSTEM_UNIT } from '@/lib/consts'
+import { formatTotalWeight } from '@/lib/weight'
 import { useUpdateItemSort } from '@/queries/item'
 
 import { ItemRow } from './ItemRow'
 
-function formatGroupWeight(totalGrams: number): string {
-  if (totalGrams >= 1000) return `${(totalGrams / 1000).toFixed(1)} kg`
-  return `${Math.round(totalGrams)} g`
-}
-
-function computeGroupSummary(data: any[]): { count: number; weightDisplay: string; value: number } {
+function computeGroupSummary(
+  data: any[],
+  unitSystem: SYSTEM_UNIT
+): { count: number; weightDisplay: string; value: number } {
   const CONVERSION: Record<string, number> = { g: 1, kg: 1000, oz: 28.3495, lb: 453.592 }
   let totalGrams = 0
   let totalValue = 0
@@ -39,7 +40,7 @@ function computeGroupSummary(data: any[]): { count: number; weightDisplay: strin
 
   return {
     count: data.length,
-    weightDisplay: formatGroupWeight(totalGrams),
+    weightDisplay: formatTotalWeight(totalGrams, unitSystem),
     value: totalValue,
   }
 }
@@ -69,6 +70,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   onToggleCategory,
   onSelectItem,
 }: DataTableProps<TData, TValue>) {
+  const user = useUser()
   const updateItemSort = useUpdateItemSort()
   const [categoryItems, setCategoryItems] = useState(data)
 
@@ -120,7 +122,10 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   const allSelected = selectedCount > 0 && selectedCount === visibleIds.length
   const someSelected = selectedCount > 0 && !allSelected
 
-  const groupSummary = useMemo(() => computeGroupSummary(data), [data])
+  const groupSummary = useMemo(
+    () => computeGroupSummary(data, user.unit_weight),
+    [data, user.unit_weight]
+  )
 
   if (!visibleRows.length) return null
 

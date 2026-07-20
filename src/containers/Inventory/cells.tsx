@@ -14,6 +14,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
+import { useUser } from '@/hooks/useUser'
+import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
 import { Item, ItemCondition, ItemStatus } from '@/types/item'
 
 export const EmptyDash = () => (
@@ -158,15 +160,14 @@ export const WeightCell: FC<Props> = ({
     row: { original },
   },
 }) => {
+  const user = useUser()
   const { weight, unit, consumable } = original
   if (!weight) return <EmptyDash />
-  const displayWeight = ['g', 'oz'].includes(unit) ? weight : weight.toFixed(2)
+  const targetUnit = getItemDisplayUnit(user.unit_weight)
   return (
     <div className="inline-flex items-center gap-1">
       {consumable && <FlameIcon color="white" size={16} strokeWidth={1} />}
-      <span>
-        {displayWeight} {unit}
-      </span>
+      <span>{formatItemWeight(weight, unit, targetUnit)}</span>
     </div>
   )
 }
