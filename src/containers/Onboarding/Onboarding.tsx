@@ -1,5 +1,5 @@
 import { FC, useState } from 'react'
-import { Check, Sparkles } from 'lucide-react'
+import { Check, Smartphone, Sparkles } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 
 import { Button } from '@/components/ui'
@@ -13,12 +13,12 @@ type Feature = {
 }
 
 const FEATURES: Feature[] = [
-  { label: 'Packing lists with weight breakdowns' },
-  { label: 'Extensive gear management system' },
-  { label: 'Hiker profiles and shareable packing lists' },
-  { label: 'Unlimited trip planning', pro: true },
-  { label: 'Dynamic calorie requirement estimates', pro: true },
-  { label: 'Reusable gear kits for faster planning' },
+  { label: 'Gear closet with weight tracking' },
+  { label: 'Packing lists with full weight breakdowns' },
+  { label: 'Gear research across thousands of products' },
+  { label: 'Hiker profiles and shareable lists' },
+  { label: 'Your first reusable gear kit' },
+  { label: 'Unlimited packing lists & kits, plus calorie planning', pro: true },
 ]
 
 export const Onboarding: FC = () => {
@@ -85,6 +85,11 @@ export const Onboarding: FC = () => {
         <Button className="mt-4 w-full gap-1.5" onClick={finish}>
           <Sparkles size={16} /> Get Started
         </Button>
+
+        <p className="mt-1 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+          <Smartphone size={13} />
+          Packstack is also available on iOS and Android
+        </p>
       </div>
     </OnboardingScaffold>
   )

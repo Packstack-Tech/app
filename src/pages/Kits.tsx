@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, Package, Pencil } from 'lucide-react'
 
 import { Button, Input } from '@/components/ui'
 import { KitEditor } from '@/containers/KitForm'
+import { useKitLimit } from '@/hooks/useKitLimit'
 import { useKits } from '@/queries/kit'
 import { Kit } from '@/types/kit'
 
@@ -10,9 +11,18 @@ type View = { mode: 'list' } | { mode: 'editor'; kit?: Kit }
 
 export const KitsPage = () => {
   const { data: kits, isLoading } = useKits()
+  const { canCreateKit, openUpgrade } = useKitLimit()
   const [view, setView] = useState<View>({ mode: 'list' })
   const [search, setSearch] = useState('')
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
+
+  const handleCreate = () => {
+    if (canCreateKit) {
+      setView({ mode: 'editor' })
+    } else {
+      openUpgrade()
+    }
+  }
 
   const filteredKits = useMemo(() => {
     if (!kits) return []
@@ -43,7 +53,7 @@ export const KitsPage = () => {
     <div className="px-4 md:px-6 py-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="page-heading">Kits</h1>
-        <Button size="sm" onClick={() => setView({ mode: 'editor' })}>
+        <Button size="sm" onClick={handleCreate}>
           Create Kit
         </Button>
       </div>
@@ -65,7 +75,7 @@ export const KitsPage = () => {
           </p>
           <Button
             variant="outline"
-            onClick={() => setView({ mode: 'editor' })}
+            onClick={handleCreate}
           >
             Create your first kit
           </Button>

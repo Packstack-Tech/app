@@ -146,7 +146,10 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
 
   const stats = useMemo(() => {
     if (!inventory) return { count: 0, value: 0, weightDisplay: formatTotalWeight(0, user.unit_weight), attentionCount: 0 }
-    const active = inventory.filter(i => !i.removed)
+    // Only gear you actually own: exclude removed items and items that are
+    // wishlisted, sold, or lost so totals reflect the real closet.
+    const NOT_OWNED = new Set(['wishlist', 'sold', 'lost'])
+    const active = inventory.filter(i => !i.removed && !NOT_OWNED.has(i.status || 'active'))
     const value = active.reduce((sum, i) => sum + (i.price || 0), 0)
     let totalGrams = 0
     for (const item of active) {

@@ -38,7 +38,16 @@ export const useCreateHikerProfile = () => {
       Mixpanel.track('HikerProfile:Create')
       return res.data
     },
-    onSuccess: () => {
+    onSuccess: created => {
+      // Write into the cache directly: route guards read this query via
+      // ensureQueryData (cached, no refetch), and during onboarding there is
+      // no mounted observer for invalidateQueries to refetch — leaving a
+      // stale empty array that bounces users back to /onboarding.
+      queryClient.setQueryData(
+        hikerProfilesQueryOptions.queryKey,
+        (old: typeof created[] | undefined) =>
+          old ? [...old, created] : [created]
+      )
       queryClient.invalidateQueries({ queryKey: [HIKER_PROFILES_QUERY] })
       toast({ title: 'Hiker profile created' })
     },
