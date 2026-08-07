@@ -66,9 +66,11 @@ export const DraggableTypes = {
 // not a per-store product ID.
 export const ENTITLEMENT_ID = 'Full Access'
 
-// RevenueCat offering whose paywall is presented for upgrades. Pinned
-// explicitly rather than relying on the dashboard's "current" pointer.
-export const OFFERING_ID = 'web_full_access'
+// Fallback RevenueCat offering, used only if the dashboard's "current"
+// pointer is unset. Which paywall is presented is dashboard-driven: change
+// the default offering in RevenueCat and every platform follows without a
+// deploy.
+export const FALLBACK_OFFERING_ID = 'web_full_access'
 
 // Number of active (non-removed) trips a non-subscribed user may have.
 export const FREE_TRIP_LIMIT = 3

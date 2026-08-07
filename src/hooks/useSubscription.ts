@@ -3,7 +3,7 @@ import { ErrorCode, Purchases, PurchasesError } from '@revenuecat/purchases-js'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { useUser } from '@/hooks/useUser'
-import { ENTITLEMENT_ID, OFFERING_ID } from '@/lib/consts'
+import { ENTITLEMENT_ID, FALLBACK_OFFERING_ID } from '@/lib/consts'
 import { useRevenueCat } from '@/providers/RevenueCatProvider'
 import { USER_QUERY } from '@/queries/user'
 
@@ -24,8 +24,11 @@ export function useSubscription() {
     try {
       const purchases = Purchases.getSharedInstance()
       const offerings = await purchases.getOfferings()
+      // Dashboard-driven: the current (default) offering wins, so swapping
+      // offerings in RevenueCat takes effect without a deploy.
       await purchases.presentPaywall({
-        offering: offerings.all[OFFERING_ID] ?? offerings.current ?? undefined,
+        offering:
+          offerings.current ?? offerings.all[FALLBACK_OFFERING_ID] ?? undefined,
       })
       await refresh()
       await queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
