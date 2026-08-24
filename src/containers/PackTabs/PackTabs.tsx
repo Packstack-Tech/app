@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { PackSelector } from '@/containers/PackSelector'
+import { usePackLimit } from '@/hooks/usePackLimit'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useHikerProfilesQuery } from '@/queries/hiker-profile'
 import { TripPackRecord } from '@/types/pack'
@@ -21,6 +22,17 @@ export const PackTabs: FC<Props> = ({ packs }) => {
     }))
   )
   const { data: profiles } = useHikerProfilesQuery()
+  const { canAddPack, openUpgrade } = usePackLimit()
+
+  // Gate before the dialog opens: an ungated add would reach the server on the
+  // next sync and come back 402, failing after the pack already appeared.
+  const handleAddPack = () => {
+    if (canAddPack) {
+      setDialogOpen(true)
+    } else {
+      openUpgrade()
+    }
+  }
 
   return (
     <div className="flex flex-row flex-wrap gap-2">
@@ -29,7 +41,7 @@ export const PackTabs: FC<Props> = ({ packs }) => {
       ))}
       <button
         className={`border rounded-sm text-sm semibold px-2 py-1 h-[30px] w-[30px] flex items-center justify-center cursor-pointer hover:shadow-[0_0_8px] hover:shadow-ring/35 transition-shadow`}
-        onClick={() => setDialogOpen(true)}
+        onClick={handleAddPack}
       >
         <Plus size={16} />
       </button>

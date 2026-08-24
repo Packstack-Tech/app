@@ -61,7 +61,11 @@ export const useGroupedInventory = () => {
   })
 }
 
-export const useCreateItem = () => {
+/**
+ * `notify: false` suppresses the generic "Item created" toast for callers that
+ * show their own, more specific confirmation (e.g. quick add naming the item).
+ */
+export const useCreateItem = ({ notify = true }: { notify?: boolean } = {}) => {
   const queryClient = useQueryClient()
   const { toast } = useToast()
   return useMutation({
@@ -71,9 +75,10 @@ export const useCreateItem = () => {
       return res.data
     },
     onSuccess: () => {
-      toast({
-        title: '✅ Item created',
-      })
+      if (notify)
+        toast({
+          title: '✅ Item created',
+        })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: [CATALOG_BRANDS_QUERY] })

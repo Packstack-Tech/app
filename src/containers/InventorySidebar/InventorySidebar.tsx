@@ -11,7 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
-import { ItemForm } from '@/containers/ItemForm'
+import { QuickAddGear } from '@/containers/QuickAddGear'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
@@ -60,6 +60,20 @@ export const InventorySidebar = () => {
         checked: false,
       })
     }
+  }
+
+  // Gear created from inside a trip belongs in the pack the user is building,
+  // not just in the closet.
+  const onGearAdded = (item: Item) => {
+    if (selectedItems.some(i => i.item_id === item.id)) return
+    addItem({
+      item: { ...item },
+      item_id: item.id,
+      sort_order: selectedItems.length,
+      quantity: 1,
+      worn: false,
+      checked: false,
+    })
   }
 
   const onLoadKit = (kit: Kit) => {
@@ -156,11 +170,10 @@ export const InventorySidebar = () => {
             </div>
           ))}
         </ScrollArea>
-        <ItemForm
-          title="Add Gear"
+        <QuickAddGear
           open={addItemOpen}
           onOpenChange={setAddItemOpen}
-          onClose={() => setAddItemOpen(false)}
+          onAdded={onGearAdded}
         />
       </TabsContent>
 

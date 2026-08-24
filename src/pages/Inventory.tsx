@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Archive, ArchiveRestore, MoreHorizontal, Trash2, Weight } from 'lucide-react'
 
+import { Button, Input } from '@/components/ui'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,7 +13,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/AlertDialog'
-import { Button, Input } from '@/components/ui'
 import { Checkbox } from '@/components/ui/Checkbox'
 import {
   Dialog,
@@ -24,6 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import { ScrollArea, ScrollBar } from '@/components/ui/ScrollArea'
 import {
   Select,
   SelectContent,
@@ -31,16 +32,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
-import { ScrollArea, ScrollBar } from '@/components/ui/ScrollArea'
-import { cn } from '@/lib/utils'
 import { CategoryManagementModal } from '@/containers/CategoryManagementModal'
 import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
 import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { useReplacementScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
-import { downloadInventory } from '@/lib/download'
 import { formatCurrency } from '@/lib/currencies'
+import { downloadInventory } from '@/lib/download'
+import { cn } from '@/lib/utils'
 import { formatTotalWeight } from '@/lib/weight'
 import { ItemDetailPage } from '@/pages/ItemDetail'
 import { useGroupedInventory } from '@/queries/item'

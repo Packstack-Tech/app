@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/AlertDialog'
 import { HikerProfileForm } from '@/containers/HikerProfileForm/HikerProfileForm'
+import { useHikerProfileLimit } from '@/hooks/useHikerProfileLimit'
 import {
   useDeleteHikerProfile,
   useHikerProfilesQuery,
@@ -30,8 +31,13 @@ export const HikerProfiles: FC<Props> = ({ bare = false }) => {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false)
   const [editingProfile, setEditingProfile] = useState<HikerProfile | null>(null)
   const [deletingProfile, setDeletingProfile] = useState<HikerProfile | null>(null)
+  const { canCreateProfile, openUpgrade } = useHikerProfileLimit()
 
   const openCreateDialog = () => {
+    if (!canCreateProfile) {
+      openUpgrade()
+      return
+    }
     setEditingProfile(null)
     setProfileDialogOpen(true)
   }

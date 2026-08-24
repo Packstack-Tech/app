@@ -9,8 +9,8 @@ import {
   UploadInventory,
   VerifyOtpRequest,
 } from '@/types/api'
-import { HikerProfile, HikerProfilePayload } from '@/types/hiker-profile'
 import { Category, CategoryItems } from '@/types/category'
+import { HikerProfile, HikerProfilePayload } from '@/types/hiker-profile'
 import {
   AllBenchmarks,
   CategoryBenchmarks,
@@ -26,6 +26,7 @@ import { Pack } from '@/types/pack'
 import {
   CatalogBrand,
   CatalogEntry,
+  CatalogGearProduct,
   CatalogProductOption,
 } from '@/types/resources'
 import { CreateTrip, EditTrip, Trip } from '@/types/trip'
@@ -126,6 +127,15 @@ export const searchCatalogBrands = (q: string) =>
 export const searchCatalogProducts = (brand: string, q?: string) =>
   http.get<CatalogProductOption[]>('/resources/catalog/search', {
     params: { brand, ...(q ? { q } : {}) },
+  })
+
+/**
+ * Freeform gear search across brand, product and subcategory names.
+ * `compact` requests the trimmed payload used by the quick-add typeahead.
+ */
+export const searchCatalogGear = (q: string, compact = false) =>
+  http.get<CatalogGearProduct[]>('/resources/catalog/products/search', {
+    params: compact ? { q, compact: 1 } : { q },
   })
 
 export const getCatalogEntries = (brand: string, product: string) =>

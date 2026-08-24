@@ -8,6 +8,20 @@ import { TripPack } from '@/types/pack'
 interface TripPacksState {
   selectedIndex: number
   packs: TripPack[]
+  /**
+   * Which trip `packs` currently belongs to. This store is a module
+   * singleton, so a screen can hold one trip's packs while a component still
+   * mounted for another trip reads them; consumers must check this before
+   * acting on `packs`.
+   */
+  loadedTripId: number | null
+  /**
+   * Bumped by every user edit. The save is asynchronous, so edits can arrive
+   * while one is in flight; comparing revisions is how the completion handler
+   * tells whether what it sent is still what we hold. assignPackId
+   * deliberately does NOT bump it — a server id is not an edit.
+   */
+  revision: number
   checklistMode: boolean
   displayUnitSystem: SYSTEM_UNIT | null
   synced: boolean
@@ -16,10 +30,15 @@ interface TripPacksState {
   removePack: (index: number) => void
   updatePack: (index: number, key: TripPackKeys, value: string | number | null) => void
   selectPack: (index: number) => void
-  setPacks: (packs: TripPack[]) => void
+  setPacks: (packs: TripPack[], tripId: number) => void
   setDragging: (dragging: boolean) => void
-  markSynced: () => void
-  assignPackId: (index: number, id: number) => void
+  /**
+   * Returns false when the save this completes no longer describes what we
+   * hold — a different trip has loaded, or edits landed while it was in
+   * flight. The caller must not treat those as saved.
+   */
+  markSynced: (tripId: number, revision: number) => boolean
+  assignPackId: (index: number, id: number, tripId: number) => void
 
   updateItem: (
     id: number,
@@ -68,11 +87,14 @@ function updateCurrentPackItems(
       items: updater(pack.items),
     }),
     synced: false,
+    revision: state.revision + 1,
   }
 }
 
-export const useTripPacks = create<TripPacksState>(set => ({
+export const useTripPacks = create<TripPacksState>((set, get) => ({
   selectedIndex: 0,
+  loadedTripId: null,
+  revision: 0,
   checklistMode: false,
   showCalories: true,
   displayUnitSystem: null,
@@ -87,6 +109,7 @@ export const useTripPacks = create<TripPacksState>(set => ({
         selectedIndex: count,
         packs: [...state.packs, { title, hiker_profile_id: hikerProfileId ?? null, items: [] }],
         synced: false,
+        revision: state.revision + 1,
       }
     }),
 
@@ -100,7 +123,9 @@ export const useTripPacks = create<TripPacksState>(set => ({
       } else if (index < selectedIndex) {
         selectedIndex = selectedIndex - 1
       }
-      return { selectedIndex, packs }
+      // An in-flight save described the old array; bumping invalidates it so
+      // its completion cannot mark this delete as saved.
+      return { selectedIndex, packs, revision: state.revision + 1 }
     }),
 
   updatePack: (index, key, value) =>
@@ -110,26 +135,53 @@ export const useTripPacks = create<TripPacksState>(set => ({
       return {
         packs: replacePack(state.packs, index, { ...pack, [key]: value }),
         synced: false,
+        revision: state.revision + 1,
       }
     }),
 
   selectPack: index => set({ selectedIndex: index }),
 
   setDragging: dragging =>
-    set({ isDragging: dragging, ...(!dragging && { synced: false }) }),
+    set(state => ({
+      isDragging: dragging,
+      ...(!dragging && { synced: false, revision: state.revision + 1 }),
+    })),
 
-  setPacks: packs =>
+  setPacks: (packs, tripId) =>
     set({
       packs: [...packs].sort((a, b) => (a.id ?? Infinity) - (b.id ?? Infinity)),
       synced: true,
+      loadedTripId: tripId,
+      revision: 0,
+      // Loading a trip with fewer packs than the last one must not leave the
+      // index pointing past the end — packs[selectedIndex] would be undefined
+      // and every selected-pack action would silently no-op.
+      selectedIndex: 0,
     }),
 
-  markSynced: () => set({ synced: true }),
+  markSynced: (tripId, revision) => {
+    const state = get()
+    // A save started on one trip can resolve after another has loaded.
+    if (state.loadedTripId !== tripId) return false
+    // Edits made during the save are not covered by it. Marking them synced
+    // here would strand them: nothing would ever retry them.
+    if (state.revision !== revision) return false
+    set({ synced: true })
+    return true
+  },
 
-  assignPackId: (index, id) =>
+  assignPackId: (index, id, tripId) =>
     set(state => {
+      // A create resolving after the user opened another trip would otherwise
+      // stamp this id onto whichever pack now sits at that position.
+      if (state.loadedTripId !== tripId) return state
       const pack = state.packs[index]
       if (!pack) return state
+      // Positional addressing survives here only because the slot is checked
+      // to still be the id-less pack we created. A delete landing mid-flight
+      // shifts the array, and without this the id would be stamped onto a
+      // pack that already has one — orphaning this one server-side.
+      if (pack.id) return state
       return { packs: replacePack(state.packs, index, { ...pack, id }) }
     }),
 
@@ -167,6 +219,9 @@ export const useTripPacks = create<TripPacksState>(set => ({
       return {
         packs: replacePack(state.packs, state.selectedIndex, updatedPack),
         synced: state.isDragging ? state.synced : false,
+        // Bumped even mid-drag: the array changed, so an in-flight save no
+        // longer describes what we hold regardless of the synced flag.
+        revision: state.revision + 1,
       }
     }),
 

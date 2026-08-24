@@ -20,10 +20,10 @@ export const PackPage = () => {
   const { data: trip } = useTripQuery(tripId)
 
   useEffect(() => {
-    if (packs) {
-      setPacks(packs)
+    if (packs && tripId) {
+      setPacks(packs, tripId)
     }
-  }, [setPacks, packs])
+  }, [setPacks, packs, tripId])
 
   if (!trip) return null
 

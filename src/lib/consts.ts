@@ -75,3 +75,9 @@ export const FALLBACK_OFFERING_ID = 'web_full_access'
 // Number of active (non-removed) trips a non-subscribed user may have.
 export const FREE_TRIP_LIMIT = 3
 export const FREE_KIT_LIMIT = 1
+
+// Number of packs a non-subscribed user may have within a single trip. Note
+// this is separate from FREE_TRIP_LIMIT: that one caps the trips listed on the
+// Packs tab, this one caps the pack variants inside one trip.
+export const FREE_PACKS_PER_TRIP = 1
+export const FREE_HIKER_PROFILE_LIMIT = 1
