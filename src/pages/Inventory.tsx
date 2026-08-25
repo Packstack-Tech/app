@@ -36,6 +36,7 @@ import { CategoryManagementModal } from '@/containers/CategoryManagementModal'
 import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
 import { InventoryTable } from '@/containers/Inventory/InventoryTable'
+import { QuickAddGear } from '@/containers/QuickAddGear'
 import { useReplacementScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
 import { formatCurrency } from '@/lib/currencies'
@@ -68,6 +69,9 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
   const [selectedItemId, setSelectedItemId] = useState<number | null>(initialItemId ?? null)
   const [showNewItemModal, setShowNewItemModal] = useState(initialShowNew ?? false)
+  // Adding gear now starts at the catalog search; the manual form is the
+  // fallback offered inside it, matching mobile.
+  const [showQuickAdd, setShowQuickAdd] = useState(false)
 
   const scores = useReplacementScores(inventory)
   const { data: groups } = useGroupedInventory()
@@ -122,10 +126,12 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
 
   const handleBulkArchive = () => {
     const ids = Array.from(selectedIds)
-    bulkArchive.mutate(ids, { onSuccess: () => {
-      setSelectedIds(new Set())
-      setConfirmAction(null)
-    }})
+    bulkArchive.mutate(ids, {
+      onSuccess: () => {
+        setSelectedIds(new Set())
+        setConfirmAction(null)
+      }
+    })
   }
 
   const handleBulkRestore = () => {
@@ -135,13 +141,15 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
 
   const handleBulkDelete = () => {
     const ids = Array.from(selectedIds)
-    bulkDelete.mutate(ids, { onSuccess: () => {
-      if (selectedItemId != null && selectedIds.has(selectedItemId)) {
-        setSelectedItemId(null)
+    bulkDelete.mutate(ids, {
+      onSuccess: () => {
+        if (selectedItemId != null && selectedIds.has(selectedItemId)) {
+          setSelectedItemId(null)
+        }
+        setSelectedIds(new Set())
+        setConfirmAction(null)
       }
-      setSelectedIds(new Set())
-      setConfirmAction(null)
-    }})
+    })
   }
 
   const stats = useMemo(() => {
@@ -201,264 +209,276 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   return (
     <div className="relative flex-1 min-h-0">
       <div className="absolute inset-0 flex overflow-hidden">
-      {/* Master pane */}
-      <div className="flex-1 overflow-y-auto min-w-0">
-        <div className="px-4 md:px-6 py-4">
-          <div className="sticky top-0 z-10 bg-background pb-2 -mx-4 px-4 md:-mx-6 md:px-6 -mt-4 pt-4 border-b border-border/50">
-            {/* Title row */}
-            <div className="flex items-center justify-between mb-3">
-              <h1 className="page-heading">Gear Closet</h1>
-              <div className="flex justify-end items-end gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setOpenReorder(true)}
-                >
-                  Manage Categories
-                </Button>
-
-                <Button size="sm" onClick={() => setShowNewItemModal(true)}>
-                  Add Gear
-                </Button>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setOpenLighterpackImport(true)}>
-                      Import from LighterPack
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setOpenCsvImport(true)}>
-                      Import CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => downloadInventory(
-                      showRemoved ? inventory : inventory?.filter(i => !i.removed)
-                    )}>
-                      Export Inventory
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-
-            {/* Stat strip */}
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-              <span>
-                <span className="font-semibold text-foreground tabular-nums">{stats.count}</span> items
-              </span>
-              {stats.value > 0 && (
-                <span>
-                  <span className="font-semibold text-foreground tabular-nums">
-                    {formatCurrency(stats.value, user.currency)}
-                  </span> total value
-                </span>
-              )}
-              <span className="inline-flex items-center gap-1">
-                <Weight size={14} />
-                <span className="font-semibold text-foreground tabular-nums">{stats.weightDisplay}</span>
-              </span>
-              {stats.attentionCount > 0 && (
-                <span className="inline-flex items-center gap-1 text-orange-400">
-                  <AlertTriangle size={14} />
-                  <span className="font-semibold tabular-nums">{stats.attentionCount}</span> need attention
-                </span>
-              )}
-            </div>
-
-            {/* Toolbar row */}
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <Input
-                placeholder="Search..."
-                value={filter}
-                onChange={e => setFilter(e.target.value)}
-                className="md:w-56 w-full"
-              />
-
-              <Select
-                value={statusFilter || 'all'}
-                onValueChange={v => setStatusFilter(v === 'all' ? null : v as ItemStatus)}
-              >
-                <SelectTrigger className="w-[120px] h-9 text-xs">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="wishlist">Wishlist</SelectItem>
-                  <SelectItem value="retired">Retired</SelectItem>
-                  <SelectItem value="sold">Sold</SelectItem>
-                  <SelectItem value="lost">Lost</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={conditionFilter || 'all'}
-                onValueChange={v => setConditionFilter(v === 'all' ? null : v as ItemCondition)}
-              >
-                <SelectTrigger className="w-[130px] h-9 text-xs">
-                  <SelectValue placeholder="Condition" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All conditions</SelectItem>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="good">Good</SelectItem>
-                  <SelectItem value="fair">Fair</SelectItem>
-                  <SelectItem value="worn">Worn</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Category pill tabs */}
-            {categoryNames.length > 1 && (
-              <ScrollArea className="-mx-4 md:-mx-6 pb-2">
-                <div className="flex items-center gap-1.5 px-4 md:px-6">
-                  <button
-                    type="button"
-                    onClick={() => setCategoryFilter(null)}
-                    className={cn(
-                      'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                      categoryFilter === null
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    )}
+        {/* Master pane */}
+        <div className="flex-1 overflow-y-auto min-w-0">
+          <div className="px-4 md:px-6 py-4">
+            <div className="sticky top-0 z-10 bg-background pb-2 -mx-4 px-4 md:-mx-6 md:px-6 -mt-4 pt-4 border-b border-border/50">
+              {/* Title row */}
+              <div className="flex items-center justify-between mb-3">
+                <h1 className="page-heading">Gear Closet</h1>
+                <div className="flex justify-end items-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setOpenReorder(true)}
                   >
-                    All
-                  </button>
-                  {categoryNames.map(name => (
+                    Manage Categories
+                  </Button>
+
+                  <Button size="sm" onClick={() => setShowQuickAdd(true)}>
+                    Add Gear
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <MoreHorizontal />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => setOpenLighterpackImport(true)}>
+                        Import from LighterPack
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setOpenCsvImport(true)}>
+                        Import CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => downloadInventory(
+                        showRemoved ? inventory : inventory?.filter(i => !i.removed)
+                      )}>
+                        Export Inventory
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+
+              {/* Stat strip */}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                <span>
+                  <span className="font-semibold text-foreground tabular-nums">{stats.count}</span> items
+                </span>
+                {stats.value > 0 && (
+                  <span>
+                    <span className="font-semibold text-foreground tabular-nums">
+                      {formatCurrency(stats.value, user.currency)}
+                    </span> total value
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1">
+                  <Weight size={14} />
+                  <span className="font-semibold text-foreground tabular-nums">{stats.weightDisplay}</span>
+                </span>
+                {stats.attentionCount > 0 && (
+                  <span className="inline-flex items-center gap-1 text-orange-400">
+                    <AlertTriangle size={14} />
+                    <span className="font-semibold tabular-nums">{stats.attentionCount}</span> need attention
+                  </span>
+                )}
+              </div>
+
+              {/* Toolbar row */}
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <Input
+                  placeholder="Search..."
+                  value={filter}
+                  onChange={e => setFilter(e.target.value)}
+                  className="md:w-56 w-full"
+                />
+
+                <Select
+                  value={statusFilter || 'all'}
+                  onValueChange={v => setStatusFilter(v === 'all' ? null : v as ItemStatus)}
+                >
+                  <SelectTrigger className="w-[120px] h-9 text-xs">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="wishlist">Wishlist</SelectItem>
+                    <SelectItem value="retired">Retired</SelectItem>
+                    <SelectItem value="sold">Sold</SelectItem>
+                    <SelectItem value="lost">Lost</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={conditionFilter || 'all'}
+                  onValueChange={v => setConditionFilter(v === 'all' ? null : v as ItemCondition)}
+                >
+                  <SelectTrigger className="w-[130px] h-9 text-xs">
+                    <SelectValue placeholder="Condition" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All conditions</SelectItem>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="good">Good</SelectItem>
+                    <SelectItem value="fair">Fair</SelectItem>
+                    <SelectItem value="worn">Worn</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Category pill tabs */}
+              {categoryNames.length > 1 && (
+                <ScrollArea className="-mx-4 md:-mx-6 pb-2">
+                  <div className="flex items-center gap-1.5 px-4 md:px-6">
                     <button
-                      key={name}
                       type="button"
-                      onClick={() => setCategoryFilter(categoryFilter === name ? null : name)}
+                      onClick={() => setCategoryFilter(null)}
                       className={cn(
-                        'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap',
-                        categoryFilter === name
+                        'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                        categoryFilter === null
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted text-muted-foreground hover:bg-muted/80'
                       )}
                     >
-                      {name}
+                      All
                     </button>
-                  ))}
-                </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-            )}
+                    {categoryNames.map(name => (
+                      <button
+                        key={name}
+                        type="button"
+                        onClick={() => setCategoryFilter(categoryFilter === name ? null : name)}
+                        className={cn(
+                          'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap',
+                          categoryFilter === name
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                        )}
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+              )}
 
-            {/* Bulk selection toolbar */}
-            <div className="flex items-center gap-2 min-h-8">
-              <div className="flex items-center gap-2">
-                {allVisibleIds.length > 0 && (
+              {/* Bulk selection toolbar */}
+              <div className="flex items-center gap-2 min-h-8">
+                <div className="flex items-center gap-2">
+                  {allVisibleIds.length > 0 && (
+                    <Checkbox
+                      checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                      onClick={() => allSelected ? deselectAll() : selectAll()}
+                    />
+                  )}
+                  <span className="text-xs font-medium text-foreground">
+                    {selectionCount} selected
+                  </span>
+                  {selectionCount > 0 && (
+                    <>
+                      {hasActive && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setConfirmAction('archive')}
+                          disabled={bulkArchive.isPending || isMixedSelection}
+                          className="h-7 text-xs gap-1"
+                        >
+                          <Archive size={14} />
+                          Archive
+                        </Button>
+                      )}
+                      {hasRemoved && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleBulkRestore}
+                          disabled={bulkRestore.isPending || isMixedSelection}
+                          className="h-7 text-xs gap-1"
+                        >
+                          <ArchiveRestore size={14} />
+                          Restore
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setConfirmAction('delete')}
+                        disabled={bulkDelete.isPending}
+                        className="h-7 text-xs gap-1 text-destructive hover:text-destructive"
+                      >
+                        <Trash2 size={14} />
+                        Delete
+                      </Button>
+                    </>
+                  )}
+                </div>
+                <label className="flex items-center gap-1.5 cursor-pointer select-none ml-auto">
                   <Checkbox
-                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
-                    onClick={() => allSelected ? deselectAll() : selectAll()}
+                    checked={showRemoved}
+                    onClick={() => setShowRemoved(!showRemoved)}
                   />
-                )}
-                <span className="text-xs font-medium text-foreground">
-                  {selectionCount} selected
-                </span>
-                {selectionCount > 0 && (
-                  <>
-                    {hasActive && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setConfirmAction('archive')}
-                        disabled={bulkArchive.isPending || isMixedSelection}
-                        className="h-7 text-xs gap-1"
-                      >
-                        <Archive size={14} />
-                        Archive
-                      </Button>
-                    )}
-                    {hasRemoved && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleBulkRestore}
-                        disabled={bulkRestore.isPending || isMixedSelection}
-                        className="h-7 text-xs gap-1"
-                      >
-                        <ArchiveRestore size={14} />
-                        Restore
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setConfirmAction('delete')}
-                      disabled={bulkDelete.isPending}
-                      className="h-7 text-xs gap-1 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 size={14} />
-                      Delete
-                    </Button>
-                  </>
-                )}
+                  <span className="text-xs text-muted-foreground leading-none text-nowrap">
+                    Show removed
+                  </span>
+                </label>
               </div>
-              <label className="flex items-center gap-1.5 cursor-pointer select-none ml-auto">
-                <Checkbox
-                  checked={showRemoved}
-                  onClick={() => setShowRemoved(!showRemoved)}
-                />
-                <span className="text-xs text-muted-foreground leading-none text-nowrap">
-                  Show removed
-                </span>
-              </label>
+            </div>
+
+            <div className="pt-4">
+              <ImportLighterpackModal
+                open={openLighterpackImport}
+                onOpenChange={setOpenLighterpackImport}
+              />
+              <ImportCsvModal open={openCsvmport} onOpenChange={setOpenCsvImport} />
+              <CategoryManagementModal
+                open={openReorder}
+                onOpenChange={setOpenReorder}
+              />
+              <InventoryTable
+                searchFilter={filter}
+                isLoading={isLoading}
+                showRemoved={showRemoved}
+                selectedIds={selectedIds}
+                activeItemId={selectedItemId}
+                onToggleItem={toggleItem}
+                onToggleCategory={toggleCategory}
+                onSelectItem={setSelectedItemId}
+                scores={scores}
+                statusFilter={statusFilter}
+                conditionFilter={conditionFilter}
+                categoryFilter={categoryFilter}
+              />
             </div>
           </div>
+        </div>
 
-          <div className="pt-4">
-            <ImportLighterpackModal
-              open={openLighterpackImport}
-              onOpenChange={setOpenLighterpackImport}
+        {/* Detail sidebar */}
+        <div
+          className={cn(
+            'shrink-0 border-l border-border bg-background overflow-y-auto transition-[width,opacity] duration-300 ease-in-out',
+            selectedItemId != null
+              ? 'w-full md:w-[480px] opacity-100'
+              : 'w-0 opacity-0 overflow-hidden border-l-0',
+            selectedItemId != null && 'fixed inset-0 z-20 md:static md:z-auto',
+          )}
+        >
+          {selectedItemId != null && (
+            <ItemDetailPage
+              key={selectedItemId}
+              mode="edit"
+              itemId={selectedItemId}
+              inline
+              onClose={() => setSelectedItemId(null)}
             />
-            <ImportCsvModal open={openCsvmport} onOpenChange={setOpenCsvImport} />
-            <CategoryManagementModal
-              open={openReorder}
-              onOpenChange={setOpenReorder}
-            />
-            <InventoryTable
-              searchFilter={filter}
-              isLoading={isLoading}
-              showRemoved={showRemoved}
-              selectedIds={selectedIds}
-              activeItemId={selectedItemId}
-              onToggleItem={toggleItem}
-              onToggleCategory={toggleCategory}
-              onSelectItem={setSelectedItemId}
-              scores={scores}
-              statusFilter={statusFilter}
-              conditionFilter={conditionFilter}
-              categoryFilter={categoryFilter}
-            />
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Detail sidebar */}
-      <div
-        className={cn(
-          'shrink-0 border-l border-border bg-background overflow-y-auto transition-[width,opacity] duration-300 ease-in-out',
-          selectedItemId != null
-            ? 'w-full md:w-[480px] opacity-100'
-            : 'w-0 opacity-0 overflow-hidden border-l-0',
-          selectedItemId != null && 'fixed inset-0 z-20 md:static md:z-auto',
-        )}
-      >
-        {selectedItemId != null && (
-          <ItemDetailPage
-            key={selectedItemId}
-            mode="edit"
-            itemId={selectedItemId}
-            inline
-            onClose={() => setSelectedItemId(null)}
-          />
-        )}
-      </div>
-      </div>
+      {/* Catalog search — the primary way in. Manual entry and editing a
+          recently added row both hand off to the item detail modal below. */}
+      <QuickAddGear
+        open={showQuickAdd}
+        onOpenChange={setShowQuickAdd}
+        onManualEntry={() => {
+          setShowQuickAdd(false)
+          setShowNewItemModal(true)
+        }}
+        onEditItem={item => setSelectedItemId(item.id)}
+      />
 
       {/* New item modal */}
       <Dialog open={showNewItemModal} onOpenChange={setShowNewItemModal}>

@@ -5,7 +5,7 @@ import {
   Loader2,
   Package,
   PackageSearch,
-  PencilLine,
+  Plus,
   Search,
 } from 'lucide-react'
 
@@ -29,6 +29,8 @@ import { useCatalogGearSearch } from '@/queries/resources'
 import { Item, Unit } from '@/types/item'
 import { CatalogGearProduct, CatalogGearVariant } from '@/types/resources'
 
+import { RecentlyAddedGear } from './RecentlyAddedGear'
+
 const DEBOUNCE_MS = 400
 const MIN_QUERY_LENGTH = 2
 
@@ -48,6 +50,12 @@ type Props = {
    * quick add swaps itself for ItemForm in place.
    */
   onManualEntry?: () => void
+  /**
+   * Takes over editing a "Recently added" row for callers with their own item
+   * editor (the Gear Closet uses the item detail page). When omitted, quick add
+   * swaps itself for ItemForm on that item, the same way manual entry does.
+   */
+  onEditItem?: (item: Item) => void
 }
 
 export const QuickAddGear: FC<Props> = ({
@@ -55,8 +63,10 @@ export const QuickAddGear: FC<Props> = ({
   onOpenChange,
   onAdded,
   onManualEntry,
+  onEditItem,
 }) => {
   const [mode, setMode] = useState<'search' | 'manual'>('search')
+  const [editing, setEditing] = useState<Item | null>(null)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [expandedKey, setExpandedKey] = useState<string | null>(null)
@@ -74,6 +84,7 @@ export const QuickAddGear: FC<Props> = ({
   useEffect(() => {
     if (!open) return
     setMode('search')
+    setEditing(null)
     setSearch('')
     setDebouncedSearch('')
     setExpandedKey(null)
@@ -170,14 +181,28 @@ export const QuickAddGear: FC<Props> = ({
     else setMode('manual')
   }, [onManualEntry, typedQuery])
 
+  const handleEditRecent = useCallback(
+    (item: Item) => {
+      if (onEditItem) {
+        // The caller owns the editor; close this dialog so the two don't stack.
+        onOpenChange(false)
+        onEditItem(item)
+        return
+      }
+      setEditing(item)
+      setMode('manual')
+    },
+    [onEditItem, onOpenChange]
+  )
+
   const manualButton = useMemo(
     () => (
       <button
         type="button"
         onClick={handleManualEntry}
-        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:opacity-80 transition-opacity cursor-pointer"
       >
-        <PencilLine size={13} />
+        <Plus size={14} />
         Enter gear manually
       </button>
     ),
@@ -187,7 +212,8 @@ export const QuickAddGear: FC<Props> = ({
   if (mode === 'manual') {
     return (
       <ItemForm
-        title="Add Gear"
+        item={editing ?? undefined}
+        title={editing ? 'Edit Gear' : 'Add Gear'}
         open={open}
         onOpenChange={onOpenChange}
         onClose={() => onOpenChange(false)}
@@ -197,7 +223,7 @@ export const QuickAddGear: FC<Props> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Gear</DialogTitle>
         </DialogHeader>
@@ -276,10 +302,10 @@ export const QuickAddGear: FC<Props> = ({
                           <span className="shrink-0 inline-flex items-center gap-1 text-sm tabular-nums">
                             {product.lightest_weight_g != null
                               ? formatItemWeight(
-                                  product.lightest_weight_g,
-                                  'g',
-                                  itemUnit
-                                )
+                                product.lightest_weight_g,
+                                'g',
+                                itemUnit
+                              )
                               : '—'}
                             {multiVariant &&
                               (expanded ? (
@@ -309,10 +335,10 @@ export const QuickAddGear: FC<Props> = ({
                                   <span className="shrink-0 text-muted-foreground tabular-nums">
                                     {variant.weight != null && variant.weight_unit
                                       ? convertWeight(
-                                          variant.weight,
-                                          variant.weight_unit as Unit,
-                                          itemUnit
-                                        ).display
+                                        variant.weight,
+                                        variant.weight_unit as Unit,
+                                        itemUnit
+                                      ).display
                                       : '—'}
                                   </span>
                                 </button>
@@ -339,8 +365,7 @@ export const QuickAddGear: FC<Props> = ({
                   </>
                 ) : (
                   <p className="mt-3 text-xs text-muted-foreground">
-                    Search over 5,000 products by brand, product or type — then
-                    click to add one to your gear closet.
+                    Search gear by brand, product or type
                   </p>
                 )}
               </div>
@@ -348,9 +373,14 @@ export const QuickAddGear: FC<Props> = ({
           </div>
 
           {showManualEntry && (
-            <div className="mt-3 pt-3 border-t border-border flex justify-center">
-              {manualButton}
-            </div>
+            <>
+              <div className="mt-3 pt-3 border-t border-border flex justify-center">
+                {manualButton}
+              </div>
+              {/* Only alongside the empty state, matching mobile: while results
+                  are on screen the list would compete with them. */}
+              <RecentlyAddedGear onEdit={handleEditRecent} />
+            </>
           )}
         </div>
       </DialogContent>

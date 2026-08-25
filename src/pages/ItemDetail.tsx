@@ -10,6 +10,11 @@ import { Checkbox } from '@/components/ui/Checkbox'
 import { Form } from '@/components/ui/Form'
 import { Label } from '@/components/ui/Label'
 import { Separator } from '@/components/ui/separator'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/Tooltip'
 import { ActivityLogSection } from '@/containers/ItemDetail/sections/ActivityLogSection'
 import { BasicsSection } from '@/containers/ItemDetail/sections/BasicsSection'
 import { CatalogSection } from '@/containers/ItemDetail/sections/CatalogSection'
@@ -149,6 +154,10 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
   const brandDisplay = item?.brand?.name
   const productDisplay = item?.product?.name
   const heroTitle = itemName || (isEdit ? 'Untitled Item' : 'New Item')
+  // Names the task, not the item. The item's name is the first field in the
+  // form and, when editing, the hero line below — repeating it in the chrome
+  // said nothing and read as a duplicated heading.
+  const chromeTitle = isEdit ? 'Edit Gear' : 'Add Gear'
   const heroSubtitle = [brandDisplay, productDisplay].filter(Boolean).join(' · ')
 
   const formId = inline ? `item-detail-form-${itemId ?? 'new'}` : 'item-detail-form'
@@ -157,7 +166,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
     <div className="sticky top-0 z-10 bg-background border-b border-border/50 px-4">
       <div className="flex items-center justify-between h-12">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm font-medium text-foreground truncate">{heroTitle}</span>
+          <span className="text-sm font-medium text-foreground truncate">{chromeTitle}</span>
           {isEdit && (
             <span className={`text-[10px] font-medium rounded-full px-1.5 py-0.5 leading-none shrink-0 ${STATUS_STYLES[watchedStatus] || ''}`}>
               {STATUS_LABELS[watchedStatus] || watchedStatus}
@@ -172,9 +181,19 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
                 checked={another}
                 onCheckedChange={() => setAnother(!another)}
               />
-              <Label htmlFor={`create-another-${formId}`} className="font-normal text-xs mb-0">
-                Create another
-              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Label
+                    htmlFor={`create-another-${formId}`}
+                    className="font-normal text-xs mb-0 underline decoration-dashed decoration-muted-foreground/60 underline-offset-4 cursor-pointer"
+                  >
+                    Add multiple items
+                  </Label>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Enable to keep the form open after creating the item.
+                </TooltipContent>
+              </Tooltip>
             </div>
           )}
           <Button
@@ -203,7 +222,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
               <span className="hidden sm:inline">Back to Gear Closet</span>
             </Link>
           </Button>
-          <span className="text-sm font-medium text-foreground truncate">{heroTitle}</span>
+          <span className="text-sm font-medium text-foreground truncate">{chromeTitle}</span>
           {isEdit && (
             <span className={`text-[10px] font-medium rounded-full px-1.5 py-0.5 leading-none shrink-0 ${STATUS_STYLES[watchedStatus] || ''}`}>
               {STATUS_LABELS[watchedStatus] || watchedStatus}
@@ -218,9 +237,19 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
                 checked={another}
                 onCheckedChange={() => setAnother(!another)}
               />
-              <Label htmlFor="create-another" className="font-normal text-xs mb-0">
-                Create another
-              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Label
+                    htmlFor="create-another"
+                    className="font-normal text-xs mb-0 underline decoration-dashed decoration-muted-foreground/60 underline-offset-4 cursor-pointer"
+                  >
+                    Add multiple items
+                  </Label>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Enable to keep the form open after creating the item.
+                </TooltipContent>
+              </Tooltip>
             </div>
           )}
           <Button
@@ -240,29 +269,26 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
       {headerContent}
 
       <div className={inline ? 'px-4 py-4' : 'px-4 md:px-6 py-6'}>
-        {/* Hero card */}
-        <div className="flex items-start gap-4 mb-8">
-          {isEdit && item?.catalog_product?.image_url && (
-            <img
-              src={item.catalog_product.image_url}
-              alt={heroTitle}
-              className="w-16 h-16 object-contain rounded-lg bg-muted shrink-0"
-            />
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className={`font-bold text-foreground truncate ${inline ? 'text-lg' : 'text-xl'}`}>{heroTitle}</h1>
-              {isEdit && (
-                <span className={`text-[11px] font-medium rounded-full px-2 py-0.5 leading-none ${STATUS_STYLES[watchedStatus] || ''}`}>
-                  {STATUS_LABELS[watchedStatus] || watchedStatus}
-                </span>
-              )}
-            </div>
+        {/* Hero card. Only when editing, and only when there is something the
+            form doesn't already show: the item's name lives in the first field
+            and the status badge in the header, so on a new item this block had
+            nothing left to say and rendered an empty gap. */}
+        {isEdit && (item?.catalog_product?.image_url || heroSubtitle) && (
+          <div className="flex items-start gap-4 mb-8">
+            {item?.catalog_product?.image_url && (
+              <img
+                src={item.catalog_product.image_url}
+                alt={heroTitle}
+                className="w-16 h-16 object-contain rounded-lg bg-muted shrink-0"
+              />
+            )}
             {heroSubtitle && (
-              <p className="text-sm text-muted-foreground mt-0.5">{heroSubtitle}</p>
+              <div className="flex-1 min-w-0 self-center">
+                <p className="text-sm text-muted-foreground">{heroSubtitle}</p>
+              </div>
             )}
           </div>
-        </div>
+        )}
 
         {/* Form */}
         <Form {...form}>
