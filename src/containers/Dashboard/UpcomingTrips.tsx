@@ -54,7 +54,7 @@ export const UpcomingTrips: FC<Props> = ({ trips, totalTrips }) => {
               variant="outline"
               onClick={() => navigate({ to: '/inventory' })}
             >
-              Manage Inventory
+              Manage Gear Closet
             </Button>
             <Button
               size="sm"

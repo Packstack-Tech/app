@@ -19,19 +19,10 @@ import { handleException } from '@/lib/utils'
 import { useGoogleAuth, useSendOtp, useVerifyOtp } from '@/queries/user'
 
 type RegisterForm = {
-  username: string
   email: string
 }
 
 const schema = z.object({
-  username: z
-    .string()
-    .min(3, 'Username must be at least 3 characters long')
-    .max(20, 'Username must be at most 20 characters long')
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      'Username can only contain letters, numbers and underscores (_)'
-    ),
   email: z.string().email(),
 })
 
@@ -43,12 +34,11 @@ export const Register = () => {
   } = useForm<RegisterForm>({
     mode: 'onBlur',
     resolver: zodResolver(schema),
-    defaultValues: { username: '', email: '' },
+    defaultValues: { email: '' },
   })
   const [error, setError] = useState<string | undefined>()
   const [step, setStep] = useState<'form' | 'otp'>('form')
   const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
   const [otp, setOtp] = useState('')
   const [cooldown, setCooldown] = useState(0)
   const navigate = useNavigate()
@@ -65,14 +55,14 @@ export const Register = () => {
 
   const onSubmit = (data: RegisterForm) => {
     const trimmedEmail = data.email.trim().toLowerCase()
-    const trimmedUsername = data.username.trim()
     setError(undefined)
+    // No username sent: the server generates one. It still accepts the field
+    // so any client that has not been redeployed keeps working.
     sendOtp.mutate(
-      { email: trimmedEmail, username: trimmedUsername, is_registration: true },
+      { email: trimmedEmail, is_registration: true },
       {
         onSuccess: () => {
           setEmail(trimmedEmail)
-          setUsername(trimmedUsername)
           setStep('otp')
           setCooldown(30)
         },
@@ -88,7 +78,7 @@ export const Register = () => {
   const handleResend = useCallback(() => {
     setError(undefined)
     sendOtp.mutate(
-      { email, username, is_registration: true },
+      { email, is_registration: true },
       {
         onSuccess: () => setCooldown(30),
         onError: error => {
@@ -98,13 +88,13 @@ export const Register = () => {
         },
       }
     )
-  }, [email, username, sendOtp])
+  }, [email, sendOtp])
 
   const handleVerify = useCallback(
     (code: string) => {
       setError(undefined)
       verifyOtp.mutate(
-        { email, otp: code, is_registration: true, username },
+        { email, otp: code, is_registration: true },
         {
           onSuccess: ({ user }) => {
             Mixpanel.identify(`${user.id}`)
@@ -120,7 +110,7 @@ export const Register = () => {
         }
       )
     },
-    [email, username, verifyOtp, navigate]
+    [email, verifyOtp, navigate]
   )
 
   if (googleAuthMutation.isPending) {
@@ -208,16 +198,6 @@ export const Register = () => {
         </p>
       )}
       <div className="space-y-1">
-        <label>Username</label>
-        <Input
-          {...register('username', { required: true })}
-          placeholder="username"
-        />
-        {errors.username?.message && (
-          <p className="text-red-400 text-xs">{errors.username.message}</p>
-        )}
-      </div>
-      <div className="space-y-1 mt-3">
         <label>Email</label>
         <Input
           {...register('email', { required: true })}
