@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/Checkbox'
 import {
   Table,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -56,6 +57,12 @@ interface DataTableProps<TData, TValue> {
   onToggleItem?: (id: number) => void
   onToggleCategory?: (ids: number[]) => void
   onSelectItem?: (id: number) => void
+  /**
+   * Column headers render once, above the first section. Every section still
+   * gets a <colgroup>, so the columns line up even though only one table in
+   * the list carries a <thead>.
+   */
+  showHeader?: boolean
 }
 
 export function CategorizedItemsTable<TData extends { id: number }, TValue>({
@@ -69,6 +76,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   onToggleItem,
   onToggleCategory,
   onSelectItem,
+  showHeader = false,
 }: DataTableProps<TData, TValue>) {
   const user = useUser()
   const updateItemSort = useUpdateItemSort()
@@ -129,37 +137,26 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
 
   if (!visibleRows.length) return null
 
+  const colGroup = (
+    <colgroup>
+      <col className="w-10" />
+      {columns.map((column, i) => (
+        <col key={i} style={(column.meta as any)?.style} />
+      ))}
+    </colgroup>
+  )
+
   return (
     <div id={`category-${category}`}>
-      <div className="flex items-center justify-between px-3 py-2 bg-muted">
-        <h3 className="font-semibold text-primary tracking-wide text-sm md:text-base">
-          {category}
-        </h3>
-        <span className="text-[11px] text-muted-foreground tabular-nums">
-          {groupSummary.count} {groupSummary.count === 1 ? 'item' : 'items'} · {groupSummary.weightDisplay}
-          {groupSummary.value > 0 && ` · $${groupSummary.value.toFixed(0)}`}
-        </span>
-      </div>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id}>
-              <TableHead className="w-10 px-2">
-                <div className="flex items-center gap-1">
-                  <div className="shrink-0 w-4" />
-                  <Checkbox
-                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
-                    onClick={() => onToggleCategory?.(visibleIds)}
-                    className="opacity-40 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-              </TableHead>
-              {headerGroup.headers.map(header => {
-                return (
-                  <TableHead
-                    key={header.id}
-                    style={(header.column.columnDef.meta as any)?.style}
-                  >
+      {showHeader && (
+        <Table className="border-separate border-spacing-0">
+          {colGroup}
+          <TableHeader>
+            {table.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                <TableHead className="w-10 px-2" />
+                {headerGroup.headers.map(header => (
+                  <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -167,11 +164,46 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
                         header.getContext()
                       )}
                   </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+        </Table>
+      )}
+
+      <Table>
+        {colGroup}
+        <TableBody>
+          {/* The section bar is a row of this table rather than a div above
+              it. As a div it had its own padding and drifted out of the column
+              grid — its checkbox sat ~30px left of the checkboxes in the rows
+              it selects. Inside the grid it lines up by construction, and the
+              spacer mirrors the drag handle so the checkbox lands in the same
+              column as the ones below it. */}
+          <TableRow className="bg-muted! hover:bg-muted!">
+            <TableCell className="w-10 px-2">
+              <div className="flex items-center gap-1">
+                <div className="shrink-0 w-4" />
+                <Checkbox
+                  checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                  onClick={() => onToggleCategory?.(visibleIds)}
+                  aria-label={`Select all in ${category}`}
+                  className="opacity-40 hover:opacity-100 transition-opacity"
+                />
+              </div>
+            </TableCell>
+            <TableCell colSpan={columns.length}>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-semibold text-foreground text-sm">{category}</h3>
+                <span className="text-[11px] text-muted-foreground tabular-nums">
+                  {groupSummary.count} {groupSummary.count === 1 ? 'item' : 'items'} · {groupSummary.weightDisplay}
+                  {groupSummary.value > 0 && ` · $${groupSummary.value.toFixed(0)}`}
+                </span>
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+
         <TableBody>
           {visibleRows.map((row, idx) => (
             <ItemRow

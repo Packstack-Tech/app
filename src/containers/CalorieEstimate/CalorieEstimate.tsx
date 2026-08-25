@@ -101,7 +101,7 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
     return (
       <div>
         <div className="text-sm font-semibold mb-2 inline-flex items-center gap-1.5">
-          <FlameIcon size={14} className="text-orange-400" />
+          <FlameIcon size={14} className="text-primary" />
           Calorie Estimate
         </div>
         <CalorieUpgrade compact onUpgrade={openUpgrade} />
@@ -112,7 +112,7 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
   return (
     <div>
       <div className="text-sm font-semibold mb-2 inline-flex items-center gap-1.5">
-        <FlameIcon size={14} className="text-orange-400" />
+        <FlameIcon size={14} className="text-primary" />
         Calorie Estimate
       </div>
 
@@ -171,11 +171,11 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
             <div className="space-y-0.5">
               {/* Daily total */}
               <div className="flex justify-between py-0.5 border-b border-border mt-0.5 pb-1">
-                <p className="font-semibold text-orange-400 inline-flex items-center gap-1">
+                <p className="font-semibold text-primary inline-flex items-center gap-1">
                   <FlameIcon size={13} />
                   Daily
                 </p>
-                <p className="font-semibold text-orange-400">
+                <p className="font-semibold text-primary">
                   {results.totalDailyKcal.toLocaleString()} kcal
                 </p>
               </div>
@@ -192,7 +192,7 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
                   <div className="h-2 rounded-full bg-muted overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        packedCalories >= results.totalTripKcal ? 'bg-emerald-500' : 'bg-orange-400'
+                        packedCalories >= results.totalTripKcal ? 'bg-emerald-500' : 'bg-primary'
                       }`}
                       style={{ width: `${Math.min(100, (packedCalories / results.totalTripKcal) * 100)}%` }}
                     />
@@ -281,7 +281,7 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
               </div>
 
               {safetyMargin && (
-                <p className="text-[10px] text-orange-400/70 pb-0.5">
+                <p className="text-[10px] text-primary/70 pb-0.5">
                   Includes +10% safety margin
                 </p>
               )}

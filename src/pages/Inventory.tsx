@@ -253,7 +253,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
               </div>
 
               {/* Stat strip */}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2.5">
                 <span>
                   <span className="font-semibold text-foreground tabular-nums">{stats.count}</span> items
                 </span>
@@ -269,7 +269,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                   <span className="font-semibold text-foreground tabular-nums">{stats.weightDisplay}</span>
                 </span>
                 {stats.attentionCount > 0 && (
-                  <span className="inline-flex items-center gap-1 text-orange-400">
+                  <span className="inline-flex items-center gap-1 text-warning">
                     <AlertTriangle size={14} />
                     <span className="font-semibold tabular-nums">{stats.attentionCount}</span> need attention
                   </span>
@@ -277,7 +277,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
               </div>
 
               {/* Toolbar row */}
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <div className="flex items-center gap-2 mb-2.5 flex-wrap">
                 <Input
                   placeholder="Search..."
                   value={filter}
@@ -317,6 +317,17 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                     <SelectItem value="worn">Worn</SelectItem>
                   </SelectContent>
                 </Select>
+
+                {/* Sits with the other filters, because that is what it is. */}
+                <label className="flex items-center gap-1.5 cursor-pointer select-none ml-auto">
+                  <Checkbox
+                    checked={showRemoved}
+                    onClick={() => setShowRemoved(!showRemoved)}
+                  />
+                  <span className="text-xs text-muted-foreground leading-none text-nowrap">
+                    Show removed
+                  </span>
+                </label>
               </div>
 
               {/* Category pill tabs */}
@@ -355,8 +366,12 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                 </ScrollArea>
               )}
 
-              {/* Bulk selection toolbar */}
-              <div className="flex items-center gap-2 min-h-8">
+              {/* Only while a selection exists. It used to sit here permanently
+                  holding nothing but the "Show removed" toggle, which now lives
+                  on the filter row — a whole row of chrome back in the common
+                  case, on a screen whose users want density. */}
+              {selectionCount > 0 && (
+              <div className="flex items-center gap-2 h-8">
                 <div className="flex items-center gap-2">
                   {allVisibleIds.length > 0 && (
                     <Checkbox
@@ -406,16 +421,8 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                     </>
                   )}
                 </div>
-                <label className="flex items-center gap-1.5 cursor-pointer select-none ml-auto">
-                  <Checkbox
-                    checked={showRemoved}
-                    onClick={() => setShowRemoved(!showRemoved)}
-                  />
-                  <span className="text-xs text-muted-foreground leading-none text-nowrap">
-                    Show removed
-                  </span>
-                </label>
               </div>
+              )}
             </div>
 
             <div className="pt-4">

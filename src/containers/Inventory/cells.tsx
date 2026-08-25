@@ -37,7 +37,7 @@ const STATUS_LABELS: Record<ItemStatus, string> = {
 const STATUS_STYLES: Record<ItemStatus, string> = {
   active: '',
   wishlist: 'bg-blue-500/15 text-blue-400',
-  retired: 'bg-zinc-500/15 text-zinc-400',
+  retired: 'bg-muted text-muted-foreground',
   sold: 'bg-emerald-500/15 text-emerald-400',
   lost: 'bg-red-500/15 text-red-400',
 }
@@ -74,10 +74,12 @@ export const NameCell: FC<Props> = ({
 }
 
 const CONDITION_STYLES: Record<ItemCondition, string> = {
-  new: 'bg-zinc-500/15 text-zinc-400',
+  new: 'bg-muted text-muted-foreground',
   good: 'bg-emerald-500/15 text-emerald-400',
   fair: 'bg-yellow-500/15 text-yellow-400',
-  worn: 'bg-orange-500/15 text-orange-400',
+  // Amber, not brand orange: the primary hue has to stay unique to things
+  // you can act on, or a table full of badges outshouts the actual buttons.
+  worn: 'bg-warning/15 text-warning',
 }
 
 type ConditionCellProps = Props & {

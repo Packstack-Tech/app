@@ -55,7 +55,15 @@ function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
     <tr
       data-slot="table-row"
       className={cn(
-        'transition-colors odd:bg-muted/30 hover:bg-muted/50 data-[state=selected]:bg-muted',
+        // Zebra striping is dark-mode only. On a near-white page the stripe has
+        // to be strong enough to see, and at that strength it lands on the same
+        // value as the category bands — so the eye can no longer tell a section
+        // header from an ordinary row. Light mode tracks rows with a hairline
+        // instead, which separates without competing.
+        'transition-colors',
+        'border-b border-border/60 dark:border-b-0',
+        'dark:odd:bg-muted/30',
+        'hover:bg-muted/60 dark:hover:bg-muted/50 data-[state=selected]:bg-muted',
         className
       )}
       {...props}
@@ -68,7 +76,7 @@ function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
     <th
       data-slot="table-head"
       className={cn(
-        'h-8 px-3 text-[10px] text-left align-middle font-semibold uppercase tracking-wider text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'h-7 px-3 text-[10px] text-left align-middle font-semibold uppercase tracking-wider text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}
@@ -81,7 +89,7 @@ function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
     <td
       data-slot="table-cell"
       className={cn(
-        'px-3 py-2 align-middle [&:has([role=checkbox])]:pr-0 whitespace-pre md:whitespace-normal [&>[role=checkbox]]:translate-y-[2px]',
+        'px-3 py-1.5 align-middle [&:has([role=checkbox])]:pr-0 whitespace-pre md:whitespace-normal [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}

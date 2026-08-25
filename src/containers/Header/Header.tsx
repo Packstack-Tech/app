@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ExternalLink, LogOut, Moon, Plus, Settings, Sun } from 'lucide-react'
+import { LogOut, MessageSquare, Moon, Plus, Settings, Sun } from 'lucide-react'
 import * as Sentry from '@sentry/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -53,7 +53,7 @@ export const Header = () => {
   }
 
   return (
-    <header className="border-b border-border bg-background">
+    <header className="border-b border-border bg-card">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center px-4 h-14">
         <div className="flex items-center">
           <Link to="/" className="w-[100px] shrink-0">
@@ -122,12 +122,12 @@ export const Header = () => {
 
               <DropdownMenuItem asChild>
                 <a
-                  href="https://www.reddit.com/r/packstack/"
+                  href="https://packstack.userjot.com/"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <ExternalLink size={14} />
-                  Join the Subreddit
+                  <MessageSquare size={14} />
+                  Give Feedback
                 </a>
               </DropdownMenuItem>
 

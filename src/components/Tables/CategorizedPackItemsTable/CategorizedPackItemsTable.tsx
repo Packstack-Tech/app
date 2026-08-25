@@ -73,7 +73,7 @@ export function CategorizedPackItemsTable<TData, TValue>({
   return (
     <div>
       <div className="px-3 py-2 bg-muted flex justify-between items-center">
-        <h3 className="font-semibold text-primary tracking-wide text-sm md:text-base">{category}</h3>
+        <h3 className="font-semibold text-foreground text-sm">{category}</h3>
         <span className="text-xs text-foreground">
           {categoryWeight.toFixed(2)} {unit}
         </span>

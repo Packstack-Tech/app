@@ -57,11 +57,11 @@ export const PackWeights: FC<Props> = ({
       </div>
       {calories > 0 && (
         <div className="flex justify-between items-center py-0.5 border-t border-dashed border-border mt-1 pt-1">
-          <p className="inline-flex items-center gap-1 text-orange-400">
+          <p className="inline-flex items-center gap-1 text-primary">
             <FlameIcon size={14} />
             Calories
           </p>
-          <p className="text-orange-400 font-semibold">
+          <p className="text-primary font-semibold">
             {Math.round(calories).toLocaleString()} kcal
           </p>
         </div>

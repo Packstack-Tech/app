@@ -98,7 +98,7 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_STYLES: Record<string, string> = {
   active: 'bg-emerald-500/15 text-emerald-400',
   wishlist: 'bg-blue-500/15 text-blue-400',
-  retired: 'bg-zinc-500/15 text-zinc-400',
+  retired: 'bg-muted text-muted-foreground',
   sold: 'bg-emerald-500/15 text-emerald-400',
   lost: 'bg-red-500/15 text-red-400',
 }

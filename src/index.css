@@ -27,6 +27,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-warning: var(--warning);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -73,27 +74,53 @@
   }
 }
 
+/*
+ * Neutral surfaces share one hue (70deg) and step evenly in OKLCH lightness.
+ * The previous ramp drifted 24deg across its six steps and --accent sat at a
+ * different hue with ~3x the chroma of its neighbours, which is what made the
+ * greys read as subtly mismatched rather than as one family. Only lightness
+ * changes between surfaces now; the warm tint is carried by --primary and
+ * --primary, which is deliberately on the brand hue (42deg).
+ *
+ * --accent is a NEUTRAL raised step, not a warm tint. A dark surface carrying
+ * orange chroma is brown by definition -- there is no lightness at which a
+ * tinted #34231c reads as anything else -- and it was filling nav pills,
+ * sidebar labels and selected rows across the app. Selection and hover now
+ * read as elevation, and the orange stays where it means something.
+ *
+ * --warning is amber, ~40deg off the brand hue, for "needs attention" states.
+ * Those were reaching for the brand orange or a hardcoded tailwind shade,
+ * which made a passive warning look like a call to action.
+ *
+ * Light mode carries about half the chroma of dark mode at the same hue. Warm
+ * tint that reads as "paper" at L*20 reads as "yellowed" at L*97, and the two
+ * modes are not symmetrical that way. Its surfaces are also spread over a
+ * wider range (97.3 -> 84 rather than 98.5 -> 90): at the top of the scale a
+ * three-point gap is invisible, so borders and section bands had nothing to
+ * separate them from the page.
+ */
 :root {
   color-scheme: light dark;
-  --background: rgb(252 251 248);
-  --foreground: rgb(28 25 23);
-  --card: rgb(255 255 255);
-  --card-foreground: rgb(28 25 23);
-  --popover: rgb(255 255 255);
-  --popover-foreground: rgb(28 25 23);
-  --primary: rgb(194 75 27);
+  --background: rgb(248 246 243);
+  --foreground: rgb(20 17 14);
+  --card: rgb(255 253 252);
+  --card-foreground: rgb(20 17 14);
+  --popover: rgb(255 253 252);
+  --popover-foreground: rgb(20 17 14);
+  --primary: rgb(186 72 26);
   --primary-foreground: rgb(255 255 255);
-  --secondary: rgb(245 243 239);
-  --secondary-foreground: rgb(28 25 23);
-  --muted: rgb(245 243 239);
-  --muted-foreground: rgb(120 113 106);
-  --accent: rgb(252 235 222);
-  --accent-foreground: rgb(154 52 18);
-  --destructive: rgb(220 38 38);
+  --secondary: rgb(237 234 231);
+  --secondary-foreground: rgb(20 17 14);
+  --muted: rgb(237 234 231);
+  --muted-foreground: rgb(92 87 81);
+  --accent: rgb(227 225 222);
+  --accent-foreground: rgb(20 17 14);
+  --warning: rgb(151 88 0);
+  --destructive: rgb(198 40 40);
   --destructive-foreground: rgb(255 255 255);
-  --border: rgb(229 225 218);
-  --input: rgb(220 215 207);
-  --ring: rgb(194 75 27);
+  --border: rgb(205 202 198);
+  --input: rgb(189 186 182);
+  --ring: rgb(186 72 26);
   --radius: 0.5rem;
   --chart-1: oklch(0.6 0.18 45);
   --chart-2: oklch(0.58 0.14 165);
@@ -111,24 +138,25 @@
 }
 
 .dark {
-  --background: rgb(18 17 16);
-  --foreground: rgb(245 244 240);
-  --card: rgb(26 25 23);
-  --card-foreground: rgb(245 244 240);
-  --popover: rgb(32 31 28);
-  --popover-foreground: rgb(245 244 240);
+  --background: rgb(15 13 11);
+  --foreground: rgb(243 241 239);
+  --card: rgb(24 22 19);
+  --card-foreground: rgb(243 241 239);
+  --popover: rgb(32 30 27);
+  --popover-foreground: rgb(243 241 239);
   --primary: rgb(237 108 53);
   --primary-foreground: rgb(255 255 255);
-  --secondary: rgb(38 36 32);
-  --secondary-foreground: rgb(245 244 240);
-  --muted: rgb(38 36 32);
-  --muted-foreground: rgb(150 145 138);
-  --accent: rgb(48 38 30);
-  --accent-foreground: rgb(252 211 184);
-  --destructive: rgb(239 68 68);
+  --secondary: rgb(38 36 33);
+  --secondary-foreground: rgb(243 241 239);
+  --muted: rgb(38 36 33);
+  --muted-foreground: rgb(156 151 146);
+  --accent: rgb(48 45 42);
+  --accent-foreground: rgb(243 241 239);
+  --warning: rgb(229 173 52);
+  --destructive: rgb(239 83 80);
   --destructive-foreground: rgb(255 255 255);
-  --border: rgb(48 46 42);
-  --input: rgb(60 57 52);
+  --border: rgb(51 48 45);
+  --input: rgb(61 58 55);
   --ring: rgb(237 108 53);
   --chart-1: oklch(0.7 0.18 45);
   --chart-2: oklch(0.72 0.15 165);

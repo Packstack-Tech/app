@@ -128,7 +128,10 @@ export function ItemRow<TData>({
       onClick={onRowClick}
       className={cn(
         onRowClick && 'cursor-pointer',
-        isActive && 'bg-accent',
+        // A neutral accent reads as elevation, which is quieter than the old
+        // brown fill — so the open row also gets an orange edge. The colour
+        // marks state on a 3px rule instead of soaking a whole row in it.
+        isActive && 'bg-accent [&>td:first-child]:shadow-[inset_3px_0_0_0_var(--primary)]',
       )}
     >
       <TableCell className="w-10 px-2">

@@ -149,7 +149,7 @@ export const InventorySidebar = () => {
           )}
           {items.map(category => (
             <div key={category.category?.category_id || 'undefined'}>
-              <Label className="text-muted-foreground text-xs rounded-sm bg-accent mb-1 p-1 block">
+              <Label className="text-foreground font-semibold text-xs rounded-sm bg-accent mb-1 p-1 block">
                 {category.category?.category.name || 'Uncategorized'}
               </Label>
               <ul>

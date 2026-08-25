@@ -17,7 +17,7 @@ export const CategoryList = ({ showRemoved }: Props) => {
   return (
     <div className="w-48 shrink-0">
       <div className="sticky top-4">
-        <h3 className="font-bold text-primary text-xs md:text-sm mb-2">
+        <h3 className="font-bold text-foreground text-xs md:text-sm mb-2">
           Categories
         </h3>
         <div className="space-y-1 max-h-[calc(100vh-8rem)] overflow-y-auto">

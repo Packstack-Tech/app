@@ -105,12 +105,13 @@ export const InventoryTable = ({
           )}
         </div>
       )}
-      {filteredData.map(({ category, items }) => {
+      {filteredData.map(({ category, items }, index) => {
         const categoryName = category?.category?.name || 'Uncategorized'
         return (
           <CategorizedItemsTable
             key={categoryName}
             category={categoryName}
+            showHeader={index === 0}
             columns={tableCols}
             data={items}
             searchFilter={searchFilter}
