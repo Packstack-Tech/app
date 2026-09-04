@@ -3,6 +3,7 @@ import { FlameIcon, StickyNoteIcon, XCircleIcon } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { Cell } from '@tanstack/react-table'
 
+import { PackMembershipBadge } from '@/components/PackMembershipBadge'
 import { Input } from '@/components/ui'
 import { DialogTrigger } from '@/components/ui/Dialog'
 import {
@@ -17,6 +18,8 @@ import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
 import { ItemForm as ItemFormValues, Unit } from '@/types/item'
 import { PackItem } from '@/types/pack'
 
+import { usePackMembershipContext } from './packMembershipContext'
+
 type Props = {
   cell: Cell<PackItem, unknown>
 }
@@ -30,6 +33,8 @@ export const NameCell: FC<Props> = ({
   const { updateBaseItem } = useTripPacks(
     useShallow(store => ({ updateBaseItem: store.updateBaseItem }))
   )
+  const membership = usePackMembershipContext()
+  const otherPacks = membership.get(original.item_id)
 
   const handleSave = (data: ItemFormValues) => {
     const { itemname, ...rest } = data
@@ -57,11 +62,14 @@ export const NameCell: FC<Props> = ({
       onClose={() => setOpen(false)}
       onSave={handleSave}
     >
-      <DialogTrigger asChild>
-        <button className="text-left hover:underline cursor-pointer">
-          {original.item.name}
-        </button>
-      </DialogTrigger>
+      <div className="flex items-center gap-1.5">
+        <DialogTrigger asChild>
+          <button className="text-left hover:underline cursor-pointer">
+            {original.item.name}
+          </button>
+        </DialogTrigger>
+        <PackMembershipBadge packNames={otherPacks} />
+      </div>
     </ItemForm>
   )
 }

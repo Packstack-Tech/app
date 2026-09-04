@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/DropdownMenu'
 import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { useCategorizedPackItems } from '@/hooks/useCategorizedPackItems'
+import { usePackMembership } from '@/hooks/usePackMembership'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
@@ -29,7 +30,9 @@ import { PackItem } from '@/types/pack'
 import { Trip } from '@/types/trip'
 
 import { PackTabs } from '../PackTabs/PackTabs'
+import { AggregatedPackList } from './AggregatedPackList'
 import { columns } from './columns'
+import { PackMembershipContext } from './packMembershipContext'
 
 type Props = {
   trip?: Trip
@@ -53,6 +56,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
   const {
     packs,
     selectedIndex,
+    viewMode,
     checklistMode,
     toggleChecklistMode,
     showCalories,
@@ -63,6 +67,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
     useShallow(state => ({
       packs: state.packs,
       selectedIndex: state.selectedIndex,
+      viewMode: state.viewMode,
       checklistMode: state.checklistMode,
       toggleChecklistMode: state.toggleChecklistMode,
       showCalories: state.showCalories,
@@ -109,6 +114,13 @@ export const PackingList: FC<Props> = ({ trip }) => {
 
   const categorizedItems = useCategorizedPackItems(currentItems)
 
+  // The All overview is only reachable with more than one pack; the store keeps
+  // viewMode off 'all' below that, but guard here too for a clean render.
+  const showAll = viewMode === 'all' && packs.length > 1
+
+  // Computed once here and provided to the rows, never per cell.
+  const membership = usePackMembership()
+
   const colgroup = useMemo(
     () => (
       <colgroup>
@@ -126,7 +138,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
       <div className="mb-2 flex gap-4 justify-between items-center">
         <PackTabs packs={availablePacks} />
         <div className="flex items-center gap-2">
-          {isSavedPack && (
+          {isSavedPack && !showAll && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
@@ -241,7 +253,9 @@ export const PackingList: FC<Props> = ({ trip }) => {
         </div>
       </div>
 
-      {currentItems.length > 0 && (
+      {showAll && <AggregatedPackList />}
+
+      {!showAll && currentItems.length > 0 && (
         <div className="mb-4 flex items-center justify-between gap-4 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <span>
@@ -266,7 +280,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
         </div>
       )}
 
-      {categorizedItems.length === 0 && (
+      {!showAll && categorizedItems.length === 0 && (
         <EmptyState icon={PackageOpen} heading="Your pack is empty">
           <p>
             Browse your inventory on the right and click items to add them to
@@ -274,18 +288,22 @@ export const PackingList: FC<Props> = ({ trip }) => {
           </p>
         </EmptyState>
       )}
-      {categorizedItems.map(({ category, items }) => {
-        const categoryName = category?.category?.name || 'Uncategorized'
-        return (
-          <CategorizedPackItemsTable
-            columns={tableCols}
-            key={categoryName}
-            category={categoryName}
-            data={items}
-            colgroup={colgroup}
-          />
-        )
-      })}
+      {!showAll && (
+        <PackMembershipContext.Provider value={membership}>
+          {categorizedItems.map(({ category, items }) => {
+            const categoryName = category?.category?.name || 'Uncategorized'
+            return (
+              <CategorizedPackItemsTable
+                columns={tableCols}
+                key={categoryName}
+                category={categoryName}
+                data={items}
+                colgroup={colgroup}
+              />
+            )
+          })}
+        </PackMembershipContext.Provider>
+      )}
     </div>
   )
 }

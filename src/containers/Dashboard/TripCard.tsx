@@ -40,7 +40,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
   const units = useUnits()
   const { canCreateTrip, openUpgrade } = useTripLimit()
 
-  const { created_at, start_date, end_date, id, location, removed, enrich_status } = trip
+  const { created_at, start_date, end_date, id, title, location, removed, enrich_status } = trip
 
   const created = format(new Date(created_at), DATE_FORMAT)
   const start = start_date ? format(new Date(start_date), DATE_FORMAT) : null
@@ -100,7 +100,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
               params={{ id: `${id}` }}
               className="text-base font-semibold text-foreground hover:text-primary transition-colors"
             >
-              {location || 'Untitled'}
+              {title || location || 'Untitled'}
             </Link>
             {enrich_status === 'processing' && (
               <Loader2 size={14} className="animate-spin text-muted-foreground" />
@@ -161,7 +161,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
                   <AlertDialogTitle>Clone packing list</AlertDialogTitle>
                 </AlertDialogHeader>
                 <AlertDialogDescription>
-                  This will create a copy of {location || 'Untitled'}.
+                  This will create a copy of {title || location || 'Untitled'}.
                 </AlertDialogDescription>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -186,7 +186,7 @@ export const TripCard: FC<Props> = ({ trip, showCountdown }) => {
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 </AlertDialogHeader>
                 <AlertDialogDescription>
-                  This will permanently delete {location || 'Untitled'}.
+                  This will permanently delete {title || location || 'Untitled'}.
                 </AlertDialogDescription>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>

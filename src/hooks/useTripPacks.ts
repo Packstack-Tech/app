@@ -5,9 +5,17 @@ import { Item } from '@/types/item'
 import { PackItem, PackItemEditableKeys, TripPackKeys } from '@/types/pack'
 import { TripPack } from '@/types/pack'
 
+export type PackViewMode = 'pack' | 'all'
+
 interface TripPacksState {
   selectedIndex: number
   packs: TripPack[]
+  /**
+   * 'all' is the cross-pack overview, only reachable when packs.length > 1.
+   * Every writer that can drop the trip below two packs must leave 'all', or
+   * the view would render against a pack set that can no longer express it.
+   */
+  viewMode: PackViewMode
   /**
    * Which trip `packs` currently belongs to. This store is a module
    * singleton, so a screen can hold one trip's packs while a component still
@@ -30,6 +38,7 @@ interface TripPacksState {
   removePack: (index: number) => void
   updatePack: (index: number, key: TripPackKeys, value: string | number | null) => void
   selectPack: (index: number) => void
+  setViewMode: (mode: PackViewMode) => void
   setPacks: (packs: TripPack[], tripId: number) => void
   setDragging: (dragging: boolean) => void
   /**
@@ -48,6 +57,12 @@ interface TripPacksState {
   setItems: (items: PackItem[]) => void
   addItem: (item: PackItem) => void
   removeItem: (id: number) => void
+  /**
+   * Removes an item from a specific pack by index rather than the selected
+   * one. The All overview needs this: the same item can sit in several packs,
+   * so a removal there has to name which.
+   */
+  removeItemFromPack: (index: number, id: number) => void
   setCategoryItems: (items: PackItem[]) => void
   updateBaseItem: (itemId: number, updatedFields: Partial<Item>) => void
   showCalories: boolean
@@ -93,6 +108,7 @@ function updateCurrentPackItems(
 
 export const useTripPacks = create<TripPacksState>((set, get) => ({
   selectedIndex: 0,
+  viewMode: 'pack',
   loadedTripId: null,
   revision: 0,
   checklistMode: false,
@@ -125,7 +141,13 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
       }
       // An in-flight save described the old array; bumping invalidates it so
       // its completion cannot mark this delete as saved.
-      return { selectedIndex, packs, revision: state.revision + 1 }
+      return {
+        selectedIndex,
+        packs,
+        // The All pill disappears at one pack, so the view must not stay on it.
+        viewMode: packs.length > 1 ? state.viewMode : 'pack',
+        revision: state.revision + 1,
+      }
     }),
 
   updatePack: (index, key, value) =>
@@ -139,7 +161,9 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
       }
     }),
 
-  selectPack: index => set({ selectedIndex: index }),
+  selectPack: index => set({ selectedIndex: index, viewMode: 'pack' }),
+
+  setViewMode: mode => set({ viewMode: mode }),
 
   setDragging: dragging =>
     set(state => ({
@@ -157,6 +181,7 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
       // index pointing past the end — packs[selectedIndex] would be undefined
       // and every selected-pack action would silently no-op.
       selectedIndex: 0,
+      viewMode: 'pack',
     }),
 
   markSynced: (tripId, revision) => {
@@ -194,6 +219,20 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
         items.filter(item => item.item_id !== id)
       )
     ),
+
+  removeItemFromPack: (index, id) =>
+    set(state => {
+      const pack = state.packs[index]
+      if (!pack) return state
+      return {
+        packs: replacePack(state.packs, index, {
+          ...pack,
+          items: pack.items.filter(item => item.item_id !== id),
+        }),
+        synced: false,
+        revision: state.revision + 1,
+      }
+    }),
 
   updateItem: (id, key, value) =>
     set(state =>

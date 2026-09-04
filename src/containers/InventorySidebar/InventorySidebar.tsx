@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { PackagePlus, Plus } from 'lucide-react'
+import { PackageMinus, PackagePlus, Plus } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { Button, Input } from '@/components/ui'
@@ -35,7 +35,10 @@ export const InventorySidebar = () => {
     }))
   )
   const items = useCategorizedItems({ filter: search })
-  const selectedItems = packs[selectedIndex]?.items ?? []
+  const selectedItems = useMemo(
+    () => packs[selectedIndex]?.items ?? [],
+    [packs, selectedIndex]
+  )
   const { data: kits } = useKits()
   const { toast } = useToast()
 
@@ -105,6 +108,44 @@ export const InventorySidebar = () => {
       })
     }
     Mixpanel.track('Kit:Load', { kit_id: kit.id, items_added: added })
+  }
+
+  // Membership of the *selected* pack, so the kit buttons can reflect whether
+  // a kit is already loaded rather than firing a no-op "Load".
+  const selectedItemIds = useMemo(
+    () => new Set(selectedItems.map(i => i.item_id)),
+    [selectedItems]
+  )
+
+  // 'none' -> Load all, 'partial' -> Load the missing ones, 'all' -> Unload,
+  // 'empty' -> nothing to load. Removed items don't count either way.
+  const kitLoadState = (kit: Kit) => {
+    const ids = kit.items
+      .filter(ki => !ki.item.removed)
+      .map(ki => ki.item_id)
+    if (ids.length === 0) return { state: 'empty' as const, missing: 0 }
+    const present = ids.filter(id => selectedItemIds.has(id)).length
+    if (present === 0) return { state: 'none' as const, missing: ids.length }
+    if (present === ids.length) return { state: 'all' as const, missing: 0 }
+    return { state: 'partial' as const, missing: ids.length - present }
+  }
+
+  const onUnloadKit = (kit: Kit) => {
+    let removed = 0
+    for (const kitItem of kit.items) {
+      if (kitItem.item.removed) continue
+      if (!selectedItemIds.has(kitItem.item_id)) continue
+      removeItem(kitItem.item_id)
+      removed++
+    }
+
+    if (removed > 0) {
+      toast({
+        title: `Unloaded ${kit.name}`,
+        description: `${removed} ${removed === 1 ? 'item' : 'items'} removed from pack`,
+      })
+    }
+    Mixpanel.track('Kit:Unload', { kit_id: kit.id, items_removed: removed })
   }
 
   return (
@@ -213,15 +254,36 @@ export const InventorySidebar = () => {
                     {kit.items.length === 1 ? 'item' : 'items'}
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1 shrink-0"
-                  onClick={() => onLoadKit(kit)}
-                >
-                  <PackagePlus size={14} />
-                  <span className="text-xs">Load</span>
-                </Button>
+                {(() => {
+                  const { state } = kitLoadState(kit)
+                  if (state === 'all') {
+                    return (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 shrink-0 border-destructive/40 text-destructive hover:text-destructive"
+                        onClick={() => onUnloadKit(kit)}
+                      >
+                        <PackageMinus size={14} />
+                        <span className="text-xs">Unload</span>
+                      </Button>
+                    )
+                  }
+                  return (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1 shrink-0"
+                      disabled={state === 'empty'}
+                      onClick={() => onLoadKit(kit)}
+                    >
+                      <PackagePlus size={14} />
+                      <span className="text-xs">
+                        {state === 'partial' ? 'Load rest' : 'Load'}
+                      </span>
+                    </Button>
+                  )
+                })()}
               </div>
               {kit.items.length > 0 && (
                 <div className="border-t border-border px-3 py-1.5">

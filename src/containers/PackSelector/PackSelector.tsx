@@ -40,9 +40,10 @@ export const PackSelector: FC<Props> = ({ pack, canDelete }) => {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const deletePack = useDeletePack()
   const { data: profiles } = useHikerProfilesQuery()
-  const { selectedIndex, selectPack, updatePack, removePack } = useTripPacks(
+  const { selectedIndex, viewMode, selectPack, updatePack, removePack } = useTripPacks(
     useShallow(store => ({
       selectedIndex: store.selectedIndex,
+      viewMode: store.viewMode,
       selectPack: store.selectPack,
       updatePack: store.updatePack,
       removePack: store.removePack,
@@ -54,7 +55,7 @@ export const PackSelector: FC<Props> = ({ pack, canDelete }) => {
     [profiles, pack.hiker_profile_id],
   )
 
-  const isSelected = selectedIndex === pack.index
+  const isSelected = viewMode === 'pack' && selectedIndex === pack.index
   const selectedStyle = isSelected ? 'border-primary' : ''
 
   const handleEdit = (value: string, hikerProfileId: number | null) => {

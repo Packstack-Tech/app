@@ -16,9 +16,11 @@ interface Props {
 
 export const PackTabs: FC<Props> = ({ packs }) => {
   const [dialogOpen, setDialogOpen] = useState(false)
-  const { addPack } = useTripPacks(
+  const { addPack, viewMode, setViewMode } = useTripPacks(
     useShallow(store => ({
       addPack: store.addPack,
+      viewMode: store.viewMode,
+      setViewMode: store.setViewMode,
     }))
   )
   const { data: profiles } = useHikerProfilesQuery()
@@ -36,6 +38,16 @@ export const PackTabs: FC<Props> = ({ packs }) => {
 
   return (
     <div className="flex flex-row flex-wrap gap-2">
+      {packs.length > 1 && (
+        <button
+          className={`border rounded-sm text-sm semibold px-2 py-1 cursor-pointer hover:shadow-[0_0_8px] hover:shadow-ring/35 transition-shadow ${
+            viewMode === 'all' ? 'border-primary' : ''
+          }`}
+          onClick={() => setViewMode('all')}
+        >
+          All
+        </button>
+      )}
       {packs.map(pack => (
         <PackSelector key={pack.index} pack={pack} canDelete={packs.length > 1} />
       ))}
