@@ -33,6 +33,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-link: var(--link);
 
   --color-transparent: transparent;
   --color-current: currentColor;
@@ -121,6 +122,7 @@
   --border: rgb(205 202 198);
   --input: rgb(189 186 182);
   --ring: rgb(186 72 26);
+  --link: var(--primary);
   --radius: 0.5rem;
   --chart-1: oklch(0.6 0.18 45);
   --chart-2: oklch(0.58 0.14 165);
@@ -137,34 +139,53 @@
   --sidebar-ring: var(--ring);
 }
 
+/*
+ * Dark mode follows DigitalOcean's 2026 dashboard theme. Surfaces are the
+ * "silt" neutrals -- near-black with a faint cool cast (hue ~197deg) rather
+ * than the warm paper tint light mode uses -- and the accent is "foam", a
+ * desaturated teal (#87b2bb). Values below were sampled from the live
+ * dashboard; the DO palette ramps themselves stop at silt-950 (L 28%), so the
+ * page/card surfaces sit deliberately darker than any ramp step.
+ *
+ * Hierarchy, from the page up: background (page + sidebar share it) ->
+ * card (+2L) -> secondary/muted (banner, chips) -> accent (selected sidebar
+ * row, hover). Only lightness moves between steps; chroma stays ~0.005.
+ *
+ * The primary button is teal with DARK text (DO's "Create" button), not white
+ * text -- the accent is too light for white to clear contrast. Links are a
+ * lighter foam step (--link) than the button fill, as on the dashboard.
+ * Warning is tentacle-400, destructive is red-500; chart series are the
+ * 400-step of foam, kelp, tentacle, coral and violet.
+ */
 .dark {
-  --background: rgb(15 13 11);
-  --foreground: rgb(243 241 239);
-  --card: rgb(24 22 19);
-  --card-foreground: rgb(243 241 239);
-  --popover: rgb(32 30 27);
-  --popover-foreground: rgb(243 241 239);
-  --primary: rgb(237 108 53);
-  --primary-foreground: rgb(255 255 255);
-  --secondary: rgb(38 36 33);
-  --secondary-foreground: rgb(243 241 239);
-  --muted: rgb(38 36 33);
-  --muted-foreground: rgb(156 151 146);
-  --accent: rgb(48 45 42);
-  --accent-foreground: rgb(243 241 239);
-  --warning: rgb(229 173 52);
-  --destructive: rgb(239 83 80);
+  --background: rgb(19 22 24);
+  --foreground: rgb(247 248 248);
+  --card: rgb(24 28 30);
+  --card-foreground: rgb(247 248 248);
+  --popover: rgb(33 41 44);
+  --popover-foreground: rgb(247 248 248);
+  --primary: rgb(135 178 187);
+  --primary-foreground: rgb(19 22 24);
+  --secondary: rgb(32 40 43);
+  --secondary-foreground: rgb(247 248 248);
+  --muted: rgb(32 40 43);
+  --muted-foreground: rgb(132 134 135);
+  --accent: rgb(52 55 57);
+  --accent-foreground: rgb(255 255 255);
+  --warning: oklch(75.44% 0.1248 78.5);
+  --destructive: oklch(63.7% 0.237 25.331);
   --destructive-foreground: rgb(255 255 255);
-  --border: rgb(51 48 45);
-  --input: rgb(61 58 55);
-  --ring: rgb(237 108 53);
-  --chart-1: oklch(0.7 0.18 45);
-  --chart-2: oklch(0.72 0.15 165);
-  --chart-3: oklch(0.7 0.16 250);
-  --chart-4: oklch(0.75 0.16 85);
-  --chart-5: oklch(0.65 0.2 340);
-  --sidebar: var(--card);
-  --sidebar-foreground: var(--card-foreground);
+  --border: rgb(49 53 55);
+  --input: rgb(61 66 68);
+  --ring: rgb(135 178 187);
+  --link: rgb(159 197 203);
+  --chart-1: oklch(68.01% 0.0713 207.6);
+  --chart-2: oklch(71.68% 0.1141 147);
+  --chart-3: oklch(75.44% 0.1248 78.5);
+  --chart-4: oklch(70.24% 0.1048 49.1);
+  --chart-5: oklch(74.85% 0.063 334.2);
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
@@ -217,6 +238,6 @@
   }
 
   .link {
-    @apply text-primary underline;
+    @apply text-link underline;
   }
 }

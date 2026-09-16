@@ -1,7 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
-import { Dashboard } from '@/pages/Dashboard'
-
+// The Gear Closet is the landing page on web. Packs live at /packs.
 export const Route = createFileRoute('/_app/')({
-  component: Dashboard,
+  beforeLoad: () => {
+    throw redirect({ to: '/inventory' })
+  },
 })

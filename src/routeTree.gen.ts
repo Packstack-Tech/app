@@ -16,6 +16,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppPacksRouteImport } from './routes/_app/packs'
 import { Route as AppKitsRouteImport } from './routes/_app/kits'
 import { Route as AppInventoryRouteImport } from './routes/_app/inventory'
 import { Route as AppInventoryIndexRouteImport } from './routes/_app/inventory.index'
@@ -57,6 +58,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPacksRoute = AppPacksRouteImport.update({
+  id: '/packs',
+  path: '/packs',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppKitsRoute = AppKitsRouteImport.update({
   id: '/kits',
   path: '/kits',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/inventory': typeof AppInventoryRouteWithChildren
   '/kits': typeof AppKitsRoute
+  '/packs': typeof AppPacksRoute
   '/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/kits': typeof AppKitsRoute
+  '/packs': typeof AppPacksRoute
   '/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/_app/inventory': typeof AppInventoryRouteWithChildren
   '/_app/kits': typeof AppKitsRoute
+  '/_app/packs': typeof AppPacksRoute
   '/_app/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/inventory'
     | '/kits'
+    | '/packs'
     | '/settings'
     | '/auth/login'
     | '/auth/register'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/kits'
+    | '/packs'
     | '/settings'
     | '/auth/login'
     | '/auth/register'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/_app/inventory'
     | '/_app/kits'
+    | '/_app/packs'
     | '/_app/settings'
     | '/auth/login'
     | '/auth/register'
@@ -233,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/packs': {
+      id: '/_app/packs'
+      path: '/packs'
+      fullPath: '/packs'
+      preLoaderRoute: typeof AppPacksRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/kits': {
       id: '/_app/kits'
       path: '/kits'
@@ -297,6 +316,7 @@ const AppInventoryRouteWithChildren = AppInventoryRoute._addFileChildren(
 interface AppRouteChildren {
   AppInventoryRoute: typeof AppInventoryRouteWithChildren
   AppKitsRoute: typeof AppKitsRoute
+  AppPacksRoute: typeof AppPacksRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppPackIdRoute: typeof AppPackIdRoute
@@ -305,6 +325,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppInventoryRoute: AppInventoryRouteWithChildren,
   AppKitsRoute: AppKitsRoute,
+  AppPacksRoute: AppPacksRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
   AppPackIdRoute: AppPackIdRoute,

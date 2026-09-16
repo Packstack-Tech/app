@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import { LogOut, MessageSquare, Moon, Plus, Settings, Sun } from 'lucide-react'
+import {
+  ExternalLink,
+  LogOut,
+  MessageSquare,
+  Moon,
+  Plus,
+  Settings,
+  Sparkles,
+  Sun,
+  UserRound,
+} from 'lucide-react'
 import * as Sentry from '@sentry/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -13,14 +23,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import { HikerProfileForm } from '@/containers/HikerProfileForm/HikerProfileForm'
 import { NewTripModal } from '@/containers/NewTripModal'
 import { useDarkMode } from '@/hooks/useDarkMode'
+import { useSubscription } from '@/hooks/useSubscription'
 import { useTripLimit } from '@/hooks/useTripLimit'
 import { logout } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
+import { useHikerProfileQuery } from '@/queries/hiker-profile'
 
 const navLinks = [
-  { name: 'Dashboard', path: '/' as const },
+  { name: 'Packs', path: '/packs' as const },
   { name: 'Gear Closet', path: '/inventory' as const },
   { name: 'Kits', path: '/kits' as const },
 ]
@@ -30,7 +43,10 @@ export const Header = () => {
   const queryClient = useQueryClient()
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { canCreateTrip, openUpgrade } = useTripLimit()
+  const { isSubscribed } = useSubscription()
   const [showNewTrip, setShowNewTrip] = useState(false)
+  const [showHikerProfile, setShowHikerProfile] = useState(false)
+  const { profile: hikerProfile } = useHikerProfileQuery()
 
   const onCreatePack = () => {
     if (canCreateTrip) {
@@ -66,7 +82,6 @@ export const Header = () => {
             <Link
               key={path}
               to={path}
-              activeOptions={{ exact: path === '/' }}
               className="px-3 py-1.5 text-sm font-medium rounded-md transition-colors hover:text-foreground"
               activeProps={{
                 className: 'bg-accent text-foreground',
@@ -78,6 +93,15 @@ export const Header = () => {
               {name}
             </Link>
           ))}
+          <a
+            href="https://www.packstack.io/tools/ultralight-research"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground"
+          >
+            Research
+            <ExternalLink size={13} className="opacity-70" />
+          </a>
         </nav>
 
         <div className="flex items-center justify-end gap-2">
@@ -86,6 +110,18 @@ export const Header = () => {
             Create Pack
           </Button>
           <NewTripModal open={showNewTrip} onOpenChange={setShowNewTrip} />
+          <HikerProfileForm
+            open={showHikerProfile}
+            onOpenChange={setShowHikerProfile}
+            profile={hikerProfile}
+          />
+
+          {!isSubscribed && (
+            <Button size="sm" className="cursor-pointer" onClick={openUpgrade}>
+              <Sparkles size={14} />
+              Upgrade
+            </Button>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -95,6 +131,11 @@ export const Header = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => setShowHikerProfile(true)}>
+                <UserRound size={14} />
+                Hiker Profile
+              </DropdownMenuItem>
+
               <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
                 <Settings size={14} />
                 Settings
