@@ -8,12 +8,11 @@ import {
 import { useToast } from '@/hooks/useToast'
 import {
   createHikerProfile,
-  deleteHikerProfile,
   getHikerProfiles,
   updateHikerProfile,
 } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
-import { HikerProfilePayload } from '@/types/hiker-profile'
+import { HikerProfile, HikerProfilePayload } from '@/types/hiker-profile'
 
 export const HIKER_PROFILES_QUERY = 'hiker-profiles'
 
@@ -27,6 +26,24 @@ export const hikerProfilesQueryOptions = queryOptions({
 
 export const useHikerProfilesQuery = () => {
   return useQuery(hikerProfilesQueryOptions)
+}
+
+/**
+ * The user's one profile. The product is single-profile as of Sept 2026, but
+ * the API still returns a list (kept for mobile builds in the wild) and a few
+ * accounts still hold extra rows from before. The default row is THE profile;
+ * the oldest is the fallback for rows created before is_default existed.
+ */
+export function resolveHikerProfile(
+  profiles: HikerProfile[] | undefined
+): HikerProfile | null {
+  if (!profiles?.length) return null
+  return profiles.find(p => p.is_default) ?? profiles[0]
+}
+
+export const useHikerProfileQuery = () => {
+  const query = useHikerProfilesQuery()
+  return { ...query, profile: resolveHikerProfile(query.data) }
 }
 
 export const useCreateHikerProfile = () => {
@@ -72,21 +89,6 @@ export const useUpdateHikerProfile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [HIKER_PROFILES_QUERY] })
       toast({ title: 'Hiker profile updated' })
-    },
-  })
-}
-
-export const useDeleteHikerProfile = () => {
-  const queryClient = useQueryClient()
-  const { toast } = useToast()
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await deleteHikerProfile(id)
-      Mixpanel.track('HikerProfile:Delete')
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [HIKER_PROFILES_QUERY] })
-      toast({ title: 'Hiker profile deleted' })
     },
   })
 }

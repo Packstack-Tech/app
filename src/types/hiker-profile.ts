@@ -21,5 +21,4 @@ export type HikerProfilePayload = {
   year_of_birth?: number | null
   sex?: Sex | null
   body_type?: BodyType | null
-  is_default?: boolean
 }

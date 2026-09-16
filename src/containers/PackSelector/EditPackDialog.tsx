@@ -10,40 +10,16 @@ import {
 } from '@/components/ui/Dialog'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
-import { HikerProfile } from '@/types/hiker-profile'
 
 interface Props {
   title: string
-  hikerProfileId?: number | null
-  profiles: HikerProfile[] | undefined
   open: boolean
   onClose: () => void
-  onSave: (title: string, hikerProfileId: number | null) => void
+  onSave: (title: string) => void
 }
 
-const NO_PROFILE = '__none__'
-
-export const EditPackDialog: FC<Props> = ({
-  title,
-  hikerProfileId,
-  profiles,
-  open,
-  onClose,
-  onSave,
-}) => {
+export const EditPackDialog: FC<Props> = ({ title, open, onClose, onSave }) => {
   const [value, setValue] = useState(title)
-  const [profileId, setProfileId] = useState<string>(
-    hikerProfileId ? String(hikerProfileId) : NO_PROFILE,
-  )
-
-  const hasProfiles = profiles && profiles.length > 0
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -51,7 +27,7 @@ export const EditPackDialog: FC<Props> = ({
         <DialogHeader>
           <DialogTitle>Edit pack</DialogTitle>
         </DialogHeader>
-        <div className="px-6 py-4 space-y-4">
+        <div className="px-6 py-4">
           <div className="grid gap-1">
             <Label htmlFor="edit-pack-title">Pack Name</Label>
             <Input
@@ -60,37 +36,12 @@ export const EditPackDialog: FC<Props> = ({
               onChange={e => setValue(e.target.value)}
             />
           </div>
-
-          {hasProfiles && (
-            <div className="grid gap-1">
-              <Label htmlFor="edit-pack-profile">Hiker Profile</Label>
-              <Select value={profileId} onValueChange={setProfileId}>
-                <SelectTrigger id="edit-pack-profile" className="w-full">
-                  <SelectValue placeholder="Select profile..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NO_PROFILE}>None</SelectItem>
-                  {profiles.map(p => (
-                    <SelectItem key={p.id} value={String(p.id)}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
         </div>
         <DialogFooter className="flex justify-between">
           <Button onClick={onClose} variant="outline">
             Cancel
           </Button>
-          <Button
-            onClick={() =>
-              onSave(value, profileId !== NO_PROFILE ? Number(profileId) : null)
-            }
-          >
-            Save
-          </Button>
+          <Button onClick={() => onSave(value)}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

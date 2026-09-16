@@ -16,7 +16,7 @@ const FEATURES: Feature[] = [
   { label: 'Gear closet with weight tracking' },
   { label: 'Packing lists with full weight breakdowns' },
   { label: 'Gear research across thousands of products' },
-  { label: 'Hiker profiles and shareable lists' },
+  { label: 'Shareable packing lists' },
   { label: 'Your first reusable gear kit' },
   { label: 'Unlimited packing lists & kits, plus calorie planning', pro: true },
 ]
@@ -36,9 +36,7 @@ export const Onboarding: FC = () => {
         description="This powers calorie estimates and personalized recommendations for your trips."
       >
         <HikerProfileFields
-          isFirstProfile
           showUnitToggle
-          hideDefaultToggle
           submitLabel="Continue"
           fullWidthSubmit
           onSuccess={next}

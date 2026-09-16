@@ -11,7 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/Form'
-import { HikerProfiles } from '@/containers/Dashboard/HikerProfiles'
+import { HikerProfileSection } from '@/containers/Dashboard/HikerProfileSection'
 import { Preferences } from '@/containers/Dashboard/Preferences'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
@@ -85,7 +85,7 @@ export const Settings = () => {
       <hr className="border-border" />
 
       <section className="flex flex-col gap-4">
-        <HikerProfiles bare />
+        <HikerProfileSection bare />
       </section>
 
       <hr className="border-border" />

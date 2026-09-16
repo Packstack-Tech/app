@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from 'react'
+import { FC, useState } from 'react'
 import { MoreVertical } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -8,27 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/Tooltip'
 import { useTripPacks } from '@/hooks/useTripPacks'
-import { useHikerProfilesQuery } from '@/queries/hiker-profile'
 import { useDeletePack } from '@/queries/pack'
 import { TripPackRecord } from '@/types/pack'
 
 import { DeletePackDialog } from './DeletePackDialog'
 import { EditPackDialog } from './EditPackDialog'
-
-function getInitials(name: string): string {
-  return name
-    .split(/\s+/)
-    .map(w => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
 
 interface Props {
   pack: TripPackRecord
@@ -39,7 +24,6 @@ export const PackSelector: FC<Props> = ({ pack, canDelete }) => {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const deletePack = useDeletePack()
-  const { data: profiles } = useHikerProfilesQuery()
   const { selectedIndex, viewMode, selectPack, updatePack, removePack } = useTripPacks(
     useShallow(store => ({
       selectedIndex: store.selectedIndex,
@@ -50,19 +34,13 @@ export const PackSelector: FC<Props> = ({ pack, canDelete }) => {
     }))
   )
 
-  const assignedProfile = useMemo(
-    () => profiles?.find(p => p.id === pack.hiker_profile_id) ?? null,
-    [profiles, pack.hiker_profile_id],
-  )
-
   const isSelected = viewMode === 'pack' && selectedIndex === pack.index
   const selectedStyle = isSelected ? 'border-primary' : ''
 
-  const handleEdit = (value: string, hikerProfileId: number | null) => {
+  const handleEdit = (value: string) => {
     const packName = value.trim()
     if (!packName) return
     updatePack(pack.index, 'title', packName)
-    updatePack(pack.index, 'hiker_profile_id', hikerProfileId)
     setEditOpen(false)
   }
 
@@ -83,18 +61,6 @@ export const PackSelector: FC<Props> = ({ pack, canDelete }) => {
           onClick={() => selectPack(pack.index)}
         >
           {pack.title}
-          {assignedProfile && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-flex items-center justify-center h-4 min-w-4 px-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-semibold leading-none">
-                  {getInitials(assignedProfile.name)}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {assignedProfile.name}
-              </TooltipContent>
-            </Tooltip>
-          )}
         </button>
 
         <DropdownMenu>
@@ -118,8 +84,6 @@ export const PackSelector: FC<Props> = ({ pack, canDelete }) => {
 
       <EditPackDialog
         title={pack.title}
-        hikerProfileId={pack.hiker_profile_id}
-        profiles={profiles}
         open={editOpen}
         onClose={() => setEditOpen(false)}
         onSave={handleEdit}

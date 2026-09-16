@@ -62,7 +62,6 @@ export function usePackSync(tripId?: number) {
                 title: pack.title,
                 items: pack.items,
                 trip_id: id,
-                hiker_profile_id: pack.hiker_profile_id,
               })
               assignPackId(index, created.id, id)
             }

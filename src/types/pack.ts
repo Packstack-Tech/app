@@ -15,7 +15,6 @@ export type PackCategoryWeight = {
 type BasePack = {
   title: string
   trip_id?: number
-  hiker_profile_id?: number | null
 }
 
 export type Pack = BasePack & {
@@ -49,7 +48,6 @@ export type PackFormProps = {
 export type TripPack = {
   id?: number
   title: string
-  hiker_profile_id?: number | null
   items: PackItem[]
 }
 
@@ -58,6 +56,5 @@ export type TripPackKeys = keyof TripPack
 export type TripPackRecord = {
   id?: number
   title: string
-  hiker_profile_id?: number | null
   index: number
 }

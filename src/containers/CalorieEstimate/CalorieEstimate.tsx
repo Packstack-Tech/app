@@ -3,13 +3,6 @@ import { DropletIcon, FlameIcon, InfoIcon } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { CalorieUpgrade } from '@/components/CalorieUpgrade'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
@@ -19,7 +12,7 @@ import {
 } from '@/lib/calorieAssembler'
 import { calculateDailyCalories } from '@/lib/calorieCalculator'
 import { calculateWeightBreakdown, sumPackItemCalories } from '@/lib/weight'
-import { useHikerProfilesQuery } from '@/queries/hiker-profile'
+import { useHikerProfileQuery } from '@/queries/hiker-profile'
 import { Trip } from '@/types/trip'
 
 interface Props {
@@ -29,46 +22,31 @@ interface Props {
 export const CalorieEstimate: FC<Props> = ({ trip }) => {
   const user = useUser()
   const { isSubscribed, openUpgrade } = useSubscription()
-  const { packs } = useTripPacks(useShallow(store => ({ packs: store.packs })))
-  const { data: profiles } = useHikerProfilesQuery()
+  const { packs, selectedIndex } = useTripPacks(
+    useShallow(store => ({
+      packs: store.packs,
+      selectedIndex: store.selectedIndex,
+    }))
+  )
+  const { profile: activeProfile } = useHikerProfileQuery()
 
-  const defaultProfile = profiles?.find(p => p.is_default) ?? profiles?.[0]
-  const [selectedProfileId, setSelectedProfileId] = useState<string | undefined>(undefined)
-
-  const activeProfile = useMemo(() => {
-    if (!profiles?.length) return null
-    if (selectedProfileId) return profiles.find(p => p.id === Number(selectedProfileId)) ?? null
-    return defaultProfile ?? null
-  }, [profiles, selectedProfileId, defaultProfile])
-
-  const relevantProfiles = useMemo(() => {
-    if (!profiles?.length) return []
-    const assignedIds = new Set(
-      packs.map(p => p.hiker_profile_id).filter((id): id is number => id != null),
-    )
-    if (assignedIds.size === 0) return profiles
-    return profiles.filter(p => assignedIds.has(p.id))
-  }, [profiles, packs])
-
-  const showProfileSelector = relevantProfiles.length > 1
+  // The estimate is for the pack being edited. selectedIndex survives the All
+  // view (viewMode is a separate flag), so this is the last pack the user had
+  // open. Summing every pack in the trip was wrong whenever packs were people
+  // rather than loadout variants, and the app can't tell which they are.
+  const selectedPack = packs[selectedIndex] ?? packs[0]
+  const packItems = useMemo(() => selectedPack?.items ?? [], [selectedPack])
 
   const [safetyMargin, setSafetyMargin] = useState(false)
 
-  const packsForProfile = useMemo(() => {
-    if (!activeProfile) return packs
-    return packs.filter(
-      p => p.hiker_profile_id === activeProfile.id || !p.hiker_profile_id,
-    )
-  }, [packs, activeProfile])
-
-  const totalPackWeight = useMemo(() => {
-    const allItems = packsForProfile.flatMap(p => p.items)
-    return calculateWeightBreakdown(allItems, user.conversion_unit).total
-  }, [packsForProfile, user.conversion_unit])
+  const totalPackWeight = useMemo(
+    () => calculateWeightBreakdown(packItems, user.conversion_unit).total,
+    [packItems, user.conversion_unit],
+  )
 
   const packedCalories = useMemo(
-    () => sumPackItemCalories(packsForProfile.flatMap(p => p.items)),
-    [packsForProfile],
+    () => sumPackItemCalories(packItems),
+    [packItems],
   )
 
   const missing = useMemo(
@@ -117,30 +95,15 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
       </div>
 
       <div className="text-sm rounded-lg border border-border bg-muted/30 overflow-hidden">
-        {/* Profile selector */}
+        {/* Which pack the estimate is for */}
         <div className="px-3 py-2 border-b border-border bg-muted/50">
-          {profiles && profiles.length > 0 ? (
-            showProfileSelector ? (
-              <Select
-                value={selectedProfileId ?? String(activeProfile?.id ?? '')}
-                onValueChange={setSelectedProfileId}
-              >
-                <SelectTrigger size="sm" className="w-full text-xs">
-                  <SelectValue placeholder="Select profile..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {relevantProfiles.map(p => (
-                    <SelectItem key={p.id} value={String(p.id)}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                {activeProfile?.name}
-              </p>
-            )
+          {activeProfile ? (
+            <p className="text-xs text-muted-foreground">
+              {activeProfile.name}
+              {packs.length > 1 && selectedPack && (
+                <> &middot; {selectedPack.title}</>
+              )}
+            </p>
           ) : (
             <p className="text-xs text-muted-foreground">
               <a href="/settings" className="text-primary hover:underline">

@@ -27,7 +27,6 @@ import {
 } from '@/components/ui/Tooltip'
 import { useUnits } from '@/hooks/useUnits'
 import { cn } from '@/lib/utils'
-import { useHikerProfilesQuery } from '@/queries/hiker-profile'
 import { useCreatePack } from '@/queries/pack'
 import { useCreateTrip } from '@/queries/trip'
 
@@ -41,8 +40,6 @@ export const NewTripModal: FC<Props> = ({ open, onOpenChange }) => {
   const units = useUnits()
   const createTrip = useCreateTrip()
   const createPack = useCreatePack()
-  const { data: profiles } = useHikerProfilesQuery()
-  const defaultProfile = profiles?.find(p => p.is_default) ?? profiles?.[0]
 
   const [title, setTitle] = useState('')
   const [location, setLocation] = useState('')
@@ -75,7 +72,6 @@ export const NewTripModal: FC<Props> = ({ open, onOpenChange }) => {
       title: 'Main Pack',
       trip_id: trip.id,
       items: [],
-      hiker_profile_id: defaultProfile?.id ?? null,
     })
 
     reset()

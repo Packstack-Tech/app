@@ -86,6 +86,13 @@ export const cloneTrip = (tripId: number) =>
 export const deleteTrip = (tripId: number) =>
   http.delete<boolean>(`/trip/${tripId}`)
 
+/** Trip + packs + totals as markdown for pasting into an AI assistant. Public; keyed on trip uuid or id. */
+export const getTripAiReview = (tripKey: string | number) =>
+  http.get<string>(`/trip/${tripKey}/ai-review`, {
+    responseType: 'text',
+    headers: { Accept: 'text/markdown' },
+  })
+
 /**
  * Pack endpoints
  */
@@ -248,14 +255,9 @@ export const importLighterpack = (data: UploadInventory) => {
 export const getHikerProfiles = () =>
   http.get<HikerProfile[]>('/hiker-profile')
 
-export const getHikerProfile = (id: number) =>
-  http.get<HikerProfile>(`/hiker-profile/${id}`)
-
 export const createHikerProfile = (data: HikerProfilePayload) =>
   http.post<HikerProfile>('/hiker-profile', data)
 
 export const updateHikerProfile = (id: number, data: Partial<HikerProfilePayload>) =>
   http.put<HikerProfile>(`/hiker-profile/${id}`, data)
 
-export const deleteHikerProfile = (id: number) =>
-  http.delete(`/hiker-profile/${id}`)

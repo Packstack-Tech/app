@@ -1,5 +1,14 @@
 import { FC, useMemo } from 'react'
-import { CheckSquare, Download, Flame, Link, PackageOpen, Scale, Settings } from 'lucide-react'
+import {
+  CheckSquare,
+  Download,
+  Flame,
+  Link,
+  PackageOpen,
+  Scale,
+  Settings,
+  Sparkles,
+} from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { EmptyState } from '@/components/EmptyState'
@@ -17,6 +26,7 @@ import { usePackMembership } from '@/hooks/usePackMembership'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
+import { tripAiReviewText } from '@/lib/aiReview'
 import { groupByCategory } from '@/lib/categorize'
 import { downloadPackingListCsv } from '@/lib/download'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -97,11 +107,10 @@ export const PackingList: FC<Props> = ({ trip }) => {
 
   const availablePacks = useMemo(
     () =>
-      packs.map(({ id, title, hiker_profile_id }, idx) => ({
+      packs.map(({ id, title }, idx) => ({
         index: idx,
         id,
         title,
-        hiker_profile_id,
       })),
     [packs]
   )
@@ -234,7 +243,36 @@ export const PackingList: FC<Props> = ({ trip }) => {
                     }}
                   >
                     <Link size={14} />
-                    Copy shareable link
+                    Copy Public URL
+                  </DropdownMenuItem>
+                )}
+                {!!trip && (
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      try {
+                        // Fetch first, then write: the markdown is the payload,
+                        // not the URL, so it works in assistants that can't
+                        // fetch links.
+                        const text = await tripAiReviewText(trip)
+                        await navigator.clipboard.writeText(text)
+                        Mixpanel.track('Trip:Copy for AI', { id: trip.uuid })
+                        toast({
+                          title: 'Copied for AI',
+                          description:
+                            'Trip and gear list are on your clipboard with a shakedown prompt. Paste into any AI assistant.',
+                          duration: 4000,
+                        })
+                      } catch {
+                        toast({
+                          title: "Couldn't copy for AI",
+                          description: 'Please try again in a moment.',
+                          duration: 3000,
+                        })
+                      }
+                    }}
+                  >
+                    <Sparkles size={14} />
+                    Copy for AI
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

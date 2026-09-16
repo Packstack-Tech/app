@@ -34,7 +34,7 @@ interface TripPacksState {
   displayUnitSystem: SYSTEM_UNIT | null
   synced: boolean
   isDragging: boolean
-  addPack: (title: string, hikerProfileId?: number | null) => void
+  addPack: (title: string) => void
   removePack: (index: number) => void
   updatePack: (index: number, key: TripPackKeys, value: string | number | null) => void
   selectPack: (index: number) => void
@@ -118,12 +118,12 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
   isDragging: false,
   packs: [initPack],
 
-  addPack: (title, hikerProfileId) =>
+  addPack: title =>
     set(state => {
       const count = state.packs.length
       return {
         selectedIndex: count,
-        packs: [...state.packs, { title, hiker_profile_id: hikerProfileId ?? null, items: [] }],
+        packs: [...state.packs, { title, items: [] }],
         synced: false,
         revision: state.revision + 1,
       }

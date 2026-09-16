@@ -80,4 +80,3 @@ export const FREE_KIT_LIMIT = 1
 // this is separate from FREE_TRIP_LIMIT: that one caps the trips listed on the
 // Packs tab, this one caps the pack variants inside one trip.
 export const FREE_PACKS_PER_TRIP = 1
-export const FREE_HIKER_PROFILE_LIMIT = 1

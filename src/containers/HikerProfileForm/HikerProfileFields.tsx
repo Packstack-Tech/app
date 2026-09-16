@@ -4,7 +4,6 @@ import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Button, Input } from '@/components/ui'
-import { Checkbox } from '@/components/ui/Checkbox'
 import {
   Form,
   FormControl,
@@ -42,14 +41,12 @@ const schema = z.object({
     .optional(),
   sex: z.enum(['male', 'female']).nullable().optional(),
   body_type: z.enum(['average', 'muscular']).nullable().optional(),
-  is_default: z.boolean(),
 })
 
 type FormValues = z.infer<typeof schema>
 
 type Props = {
   profile?: HikerProfile | null
-  isFirstProfile?: boolean
   submitLabel?: string
   fullWidthSubmit?: boolean
   /**
@@ -58,18 +55,14 @@ type Props = {
    * unit preference is set). Defaults to the account preference otherwise.
    */
   showUnitToggle?: boolean
-  /** Hide the "Default profile" checkbox (submits is_default from defaults). */
-  hideDefaultToggle?: boolean
   onSuccess?: () => void
 }
 
 export const HikerProfileFields = ({
   profile,
-  isFirstProfile = false,
   submitLabel,
   fullWidthSubmit = false,
   showUnitToggle = false,
-  hideDefaultToggle = false,
   onSuccess,
 }: Props) => {
   const units = useUnits()
@@ -108,7 +101,6 @@ export const HikerProfileFields = ({
       year_of_birth: profile?.year_of_birth ?? null,
       sex: profile?.sex ?? null,
       body_type: profile?.body_type ?? null,
-      is_default: profile?.is_default ?? isFirstProfile,
     },
   })
 
@@ -123,7 +115,6 @@ export const HikerProfileFields = ({
       year_of_birth: data.year_of_birth || null,
       sex: data.sex || null,
       body_type: data.body_type || null,
-      is_default: data.is_default,
     }
 
     if (isEditing) {
@@ -309,24 +300,6 @@ export const HikerProfileFields = ({
           />
         </div>
 
-        {!hideDefaultToggle && (
-          <FormField
-            control={form.control}
-            name="is_default"
-            render={({ field }) => (
-              <FormItem className="flex items-center gap-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    disabled={isFirstProfile}
-                  />
-                </FormControl>
-                <FormLabel className="mt-0!">Default profile</FormLabel>
-              </FormItem>
-            )}
-          />
-        )}
       </Form>
 
       <div className={cn('flex', fullWidthSubmit ? '' : 'justify-end')}>

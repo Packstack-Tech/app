@@ -11,14 +11,12 @@ type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
   profile?: HikerProfile | null
-  isFirstProfile?: boolean
 }
 
 export const HikerProfileForm = ({
   open,
   onOpenChange,
   profile,
-  isFirstProfile = false,
 }: Props) => {
   const isEditing = !!profile
 
@@ -37,7 +35,6 @@ export const HikerProfileForm = ({
           <HikerProfileFields
             key={profile?.id ?? 'new'}
             profile={profile}
-            isFirstProfile={isFirstProfile}
             onSuccess={() => onOpenChange(false)}
           />
         </div>

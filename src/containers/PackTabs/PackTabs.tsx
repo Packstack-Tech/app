@@ -5,7 +5,6 @@ import { useShallow } from 'zustand/react/shallow'
 import { PackSelector } from '@/containers/PackSelector'
 import { usePackLimit } from '@/hooks/usePackLimit'
 import { useTripPacks } from '@/hooks/useTripPacks'
-import { useHikerProfilesQuery } from '@/queries/hiker-profile'
 import { TripPackRecord } from '@/types/pack'
 
 import { NewPackDialog } from './NewPackDialog'
@@ -23,7 +22,6 @@ export const PackTabs: FC<Props> = ({ packs }) => {
       setViewMode: store.setViewMode,
     }))
   )
-  const { data: profiles } = useHikerProfilesQuery()
   const { canAddPack, openUpgrade } = usePackLimit()
 
   // Gate before the dialog opens: an ungated add would reach the server on the
@@ -60,9 +58,8 @@ export const PackTabs: FC<Props> = ({ packs }) => {
 
       <NewPackDialog
         open={dialogOpen}
-        profiles={profiles}
         onClose={() => setDialogOpen(false)}
-        onSave={(title, hikerProfileId) => addPack(title, hikerProfileId)}
+        onSave={title => addPack(title)}
       />
     </div>
   )
