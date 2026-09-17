@@ -22,6 +22,7 @@ import {
   ReplacementScoreResponse,
 } from '@/types/item'
 import { Kit, KitPayload } from '@/types/kit'
+import { ConsentDecision, ConsentDetails, OAuthGrant } from '@/types/oauth'
 import { Pack } from '@/types/pack'
 import {
   CatalogBrand,
@@ -261,3 +262,14 @@ export const createHikerProfile = (data: HikerProfilePayload) =>
 export const updateHikerProfile = (id: number, data: Partial<HikerProfilePayload>) =>
   http.put<HikerProfile>(`/hiker-profile/${id}`, data)
 
+
+// --- MCP connector / OAuth ---------------------------------------------------
+// Consent is completed by the web app (cookie session); Connected apps lists
+// and revokes grants. All four are cookie-authenticated.
+export const getConsentDetails = (requestId: string) =>
+  http.get<ConsentDetails>(`/oauth/consent/${encodeURIComponent(requestId)}`)
+export const decideConsent = (data: ConsentDecision) =>
+  http.post<{ redirect_to: string }>('/oauth/consent', data)
+export const getOAuthGrants = () => http.get<OAuthGrant[]>('/oauth/grants')
+export const revokeOAuthGrant = (grantId: number) =>
+  http.delete(`/oauth/grants/${grantId}`)

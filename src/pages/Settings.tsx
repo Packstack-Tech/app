@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/Form'
 import { Preferences } from '@/containers/Dashboard/Preferences'
+import { ConnectedApps } from '@/containers/Settings/ConnectedApps'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -123,6 +124,10 @@ export const Settings = () => {
           </div>
         )}
       </section>
+
+      <hr className="border-border" />
+
+      <ConnectedApps />
 
       <hr className="border-border" />
 

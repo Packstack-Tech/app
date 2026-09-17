@@ -13,6 +13,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as ConnectAuthorizeRouteImport } from './routes/connect.authorize'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
@@ -42,6 +43,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const ConnectAuthorizeRoute = ConnectAuthorizeRouteImport.update({
+  id: '/connect/authorize',
+  path: '/connect/authorize',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/register',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/connect/authorize': typeof ConnectAuthorizeRoute
   '/inventory/$itemId': typeof AppInventoryItemIdRoute
   '/inventory/new': typeof AppInventoryNewRoute
   '/pack/$id': typeof AppPackIdRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/connect/authorize': typeof ConnectAuthorizeRoute
   '/': typeof AppIndexRoute
   '/inventory/$itemId': typeof AppInventoryItemIdRoute
   '/inventory/new': typeof AppInventoryNewRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/connect/authorize': typeof ConnectAuthorizeRoute
   '/_app/': typeof AppIndexRoute
   '/_app/inventory/$itemId': typeof AppInventoryItemIdRoute
   '/_app/inventory/new': typeof AppInventoryNewRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/auth/login'
     | '/auth/register'
+    | '/connect/authorize'
     | '/inventory/$itemId'
     | '/inventory/new'
     | '/pack/$id'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/auth/login'
     | '/auth/register'
+    | '/connect/authorize'
     | '/'
     | '/inventory/$itemId'
     | '/inventory/new'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/auth/login'
     | '/auth/register'
+    | '/connect/authorize'
     | '/_app/'
     | '/_app/inventory/$itemId'
     | '/_app/inventory/new'
@@ -192,6 +204,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
+  ConnectAuthorizeRoute: typeof ConnectAuthorizeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -223,6 +236,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/connect/authorize': {
+      id: '/connect/authorize'
+      path: '/connect/authorize'
+      fullPath: '/connect/authorize'
+      preLoaderRoute: typeof ConnectAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/register': {
       id: '/auth/register'
@@ -349,6 +369,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
+  ConnectAuthorizeRoute: ConnectAuthorizeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

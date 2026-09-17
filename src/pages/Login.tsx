@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ArrowLeft } from 'lucide-react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 
 import { GoogleAuthButton } from '@/components/GoogleAuthButton'
 import { Button, Input } from '@/components/ui'
@@ -28,6 +28,13 @@ export const Login = () => {
   const [otp, setOtp] = useState('')
   const [cooldown, setCooldown] = useState(0)
   const navigate = useNavigate()
+  // Set by pages that require login (e.g. /connect/authorize); validated as a
+  // same-origin path in the /auth route. Default to the dashboard.
+  const { redirect } = useSearch({ from: '/auth' })
+  const afterLogin = useCallback(
+    () => navigate({ to: (redirect as never) ?? '/' }),
+    [navigate, redirect]
+  )
 
   const sendOtp = useSendOtp()
   const verifyOtp = useVerifyOtp()
@@ -84,7 +91,7 @@ export const Login = () => {
             Mixpanel.identify(`${user.id}`)
             Mixpanel.track('User:Login')
             Mixpanel.people.set({ $name: user.username, $email: user.email })
-            navigate({ to: '/' })
+            afterLogin()
           },
           onError: error => {
             handleException(error, {
@@ -94,7 +101,7 @@ export const Login = () => {
         }
       )
     },
-    [email, verifyOtp, navigate]
+    [email, verifyOtp, afterLogin]
   )
 
   if (googleAuthMutation.isPending) {
@@ -215,7 +222,7 @@ export const Login = () => {
                 $name: user.username,
                 $email: user.email,
               })
-              navigate({ to: '/' })
+              afterLogin()
             },
             onError: error => {
               handleException(error, {
