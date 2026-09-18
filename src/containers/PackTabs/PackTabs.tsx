@@ -30,7 +30,7 @@ export const PackTabs: FC<Props> = ({ packs }) => {
     if (canAddPack) {
       setDialogOpen(true)
     } else {
-      openUpgrade()
+      openUpgrade('pack_limit')
     }
   }
 

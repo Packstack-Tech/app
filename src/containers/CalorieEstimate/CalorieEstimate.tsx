@@ -82,7 +82,7 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
           <FlameIcon size={14} className="text-primary" />
           Calorie Estimate
         </div>
-        <CalorieUpgrade compact onUpgrade={openUpgrade} />
+        <CalorieUpgrade compact onUpgrade={() => openUpgrade('calorie_estimate')} />
       </div>
     )
   }

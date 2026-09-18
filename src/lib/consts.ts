@@ -80,3 +80,10 @@ export const FREE_KIT_LIMIT = 1
 // this is separate from FREE_TRIP_LIMIT: that one caps the trips listed on the
 // Packs tab, this one caps the pack variants inside one trip.
 export const FREE_PACKS_PER_TRIP = 1
+
+// Mobile app store listings. Used by the "Get the app" bar shown to
+// phone-sized browsers in the web app and by the iOS Smart App Banner in
+// index.html (app-id below must match APP_STORE_URL).
+export const APP_STORE_ID = '6760873801'
+export const APP_STORE_URL = `https://apps.apple.com/us/app/packstack-app/id${APP_STORE_ID}`
+export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=io.packstack.mobile'

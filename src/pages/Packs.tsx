@@ -58,7 +58,7 @@ export const PacksPage: FC = () => {
     if (canCreateTrip) {
       setShowNewTrip(true)
     } else {
-      openUpgrade()
+      openUpgrade('trip_limit')
     }
   }
 

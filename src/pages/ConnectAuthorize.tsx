@@ -113,7 +113,7 @@ export const ConnectAuthorize = ({ requestId }: Props) => {
           <Note>
             Making changes through a connected app requires a Packstack subscription. You can
             allow the connection now — reading will work right away, and edits will ask you to{' '}
-            <button type="button" className="link" onClick={openUpgrade}>upgrade</button>.
+            <button type="button" className="link" onClick={() => openUpgrade('connect_authorize')}>upgrade</button>.
           </Note>
         )}
 

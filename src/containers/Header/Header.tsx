@@ -52,7 +52,7 @@ export const Header = () => {
     if (canCreateTrip) {
       setShowNewTrip(true)
     } else {
-      openUpgrade()
+      openUpgrade('trip_limit')
     }
   }
 
@@ -117,7 +117,7 @@ export const Header = () => {
           />
 
           {!isSubscribed && (
-            <Button size="sm" className="cursor-pointer" onClick={openUpgrade}>
+            <Button size="sm" className="cursor-pointer" onClick={() => openUpgrade('header')}>
               <Sparkles size={14} />
               Upgrade
             </Button>

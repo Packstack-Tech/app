@@ -22,7 +22,7 @@ export const KitsPage = () => {
     if (canCreateKit) {
       setView({ mode: 'editor' })
     } else {
-      openUpgrade()
+      openUpgrade('kit_limit')
     }
   }
 

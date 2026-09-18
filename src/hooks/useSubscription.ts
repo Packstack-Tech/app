@@ -3,9 +3,25 @@ import { ErrorCode, Purchases, PurchasesError } from '@revenuecat/purchases-js'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { useUser } from '@/hooks/useUser'
+import { Mixpanel } from '@/lib/mixpanel'
 import { ENTITLEMENT_ID, FALLBACK_OFFERING_ID } from '@/lib/consts'
 import { useRevenueCat } from '@/providers/RevenueCatProvider'
 import { USER_QUERY } from '@/queries/user'
+
+/**
+ * Where the paywall was opened from. Tracked on every open and on the
+ * outcome so we can see which gate actually drives purchases. Mirrors the
+ * mobile PaywallSource union in mobile/src/hooks/useUpgrade.ts.
+ */
+export type PaywallSource =
+  | 'trip_limit'
+  | 'trip_clone_limit'
+  | 'pack_limit'
+  | 'kit_limit'
+  | 'calorie_estimate'
+  | 'header'
+  | 'settings'
+  | 'connect_authorize'
 
 export function useSubscription() {
   const user = useUser()
@@ -19,8 +35,9 @@ export function useSubscription() {
     Boolean(user?.is_subscribed) ||
     Boolean(customerInfo?.entitlements.active[ENTITLEMENT_ID])
 
-  const openUpgrade = useCallback(async () => {
+  const openUpgrade = useCallback(async (source: PaywallSource) => {
     if (!Purchases.isConfigured()) return
+    Mixpanel.track('Paywall:Open', { source })
     try {
       const purchases = Purchases.getSharedInstance()
       const offerings = await purchases.getOfferings()
@@ -32,8 +49,10 @@ export function useSubscription() {
       })
       await refresh()
       await queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
+      Mixpanel.track('Paywall:Purchase', { source })
     } catch (e) {
       if (e instanceof PurchasesError && e.errorCode === ErrorCode.UserCancelledError) {
+        Mixpanel.track('Paywall:Dismiss', { source })
         return
       }
       // The RevenueCat paywall surfaces purchase errors in its own UI; log

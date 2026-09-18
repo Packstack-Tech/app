@@ -58,7 +58,7 @@ export const PackCard: FC<Props> = ({ trip, showCountdown, highlight }) => {
   const onDelete = () => deleteTrip.mutate(id)
   const onClone = () => {
     if (!canCreateTrip) {
-      openUpgrade()
+      openUpgrade('trip_clone_limit')
       return
     }
     cloneTrip.mutate(id, {
