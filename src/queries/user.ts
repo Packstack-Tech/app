@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/useToast'
 import * as Sentry from '@sentry/react'
 
 import {
+  deleteAccount,
   getUser,
   googleAuth,
   resendVerificationEmail,
@@ -104,6 +105,24 @@ export const useResendVerification = () => {
         title: 'Verification email sent',
         description: 'Check your inbox for the verification link.',
       })
+    },
+  })
+}
+
+/**
+ * Deletes the account and tears down local identity the same way logout
+ * does. The caller navigates: the query cache is cleared here, so the
+ * router's user guard would otherwise refetch and 401.
+ */
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      await deleteAccount()
+      Mixpanel.track('User:AccountDeleted')
+      Mixpanel.reset()
+      Sentry.setUser(null)
+      queryClient.clear()
     },
   })
 }

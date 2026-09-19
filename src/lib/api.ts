@@ -67,6 +67,10 @@ export const googleAuth = (credential: string) =>
 
 export const logout = () => http.post('/user/logout')
 
+// Permanently deletes the account and everything under it. Same endpoint the
+// mobile app uses.
+export const deleteAccount = () => http.delete('/user')
+
 export const resendVerificationEmail = () =>
   http.post('/user/resend-verification')
 
