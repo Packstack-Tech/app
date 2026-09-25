@@ -186,6 +186,9 @@ export const archiveItem = (itemId: number) => http.delete(`/item/${itemId}`)
 export const deleteItem = (itemId: number) =>
   http.post(`/item/${itemId}/delete`)
 
+export const detachItemCatalog = (itemId: number) =>
+  http.delete(`/item/${itemId}/catalog`)
+
 export const bulkArchiveItems = (ids: number[]) =>
   http.put('/item/bulk-archive', ids)
 

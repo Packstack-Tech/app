@@ -13,6 +13,7 @@ import {
   bulkRestoreItems,
   createItem,
   deleteItem,
+  detachItemCatalog,
   getGroupedInventory,
   getInventory,
   importInventory,
@@ -100,6 +101,26 @@ export const useDeleteItem = () => {
     onSuccess: () => {
       toast({
         title: '✅ Item archived',
+      })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+    },
+  })
+}
+
+export const useDetachItemCatalog = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async (itemId: number) => {
+      const res = await detachItemCatalog(itemId)
+      Mixpanel.track('Item:CatalogDetach')
+      return res.data
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Manufacturer specs removed',
+        description: 'This item is now fully manual and won\'t be auto-matched again.',
       })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })

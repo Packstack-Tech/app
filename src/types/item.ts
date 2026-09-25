@@ -66,6 +66,7 @@ export type Item = {
   brand_id?: number
   category_id?: number
   catalog_product_id?: number
+  catalog_locked?: boolean
   consumable: boolean
   created_at: string
   notes: string

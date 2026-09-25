@@ -1,6 +1,8 @@
 import { FC } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Unlink } from 'lucide-react'
 
+import { Button } from '@/components/ui'
+import { useDetachItemCatalog } from '@/queries/item'
 import { Item } from '@/types/item'
 
 interface Props {
@@ -9,11 +11,23 @@ interface Props {
 
 export const CatalogSection: FC<Props> = ({ item }) => {
   const cp = item.catalog_product
+  const detach = useDetachItemCatalog()
   if (!cp) return null
 
   return (
     <section>
-      <h2 className="text-base font-semibold text-foreground mb-4">Manufacturer Specs</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-semibold text-foreground">Manufacturer Specs</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => detach.mutate(item.id)}
+          disabled={detach.isPending}
+          title="Remove the auto-matched product and keep this item fully manual"
+        >
+          <Unlink size={14} className="mr-1" /> Detach
+        </Button>
+      </div>
       <div className="rounded-lg border border-border p-4 space-y-3">
         {cp.image_url && (
           <img
@@ -48,6 +62,9 @@ export const CatalogSection: FC<Props> = ({ item }) => {
             ))}
           </dl>
         )}
+        <p className="text-xs text-muted-foreground">
+          Matched automatically. Wrong product? Detach it, or change the brand/product above and the match will update.
+        </p>
       </div>
     </section>
   )
