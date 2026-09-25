@@ -27,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/Dialog'
+import { Label } from '@/components/ui/Label'
 import { ScrollArea } from '@/components/ui/ScrollArea'
 import {
   Select,
@@ -281,9 +282,11 @@ export const CategoryManagementModal: FC<Props> = ({ open, onOpenChange }) => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {merging?.conflict
-                ? `"${merging.conflict.name}" already exists`
-                : `Merge "${merging?.source.name}"`}
+              {merging?.conflict ? (
+                <>&ldquo;{merging.conflict.name}&rdquo; already exists</>
+              ) : (
+                <>Merge &ldquo;{merging?.source.name}&rdquo;</>
+              )}
             </DialogTitle>
             <DialogDescription>
               {merging?.conflict ? (
@@ -303,21 +306,24 @@ export const CategoryManagementModal: FC<Props> = ({ open, onOpenChange }) => {
           </DialogHeader>
 
           {!merging?.conflict && (
-            <Select value={mergeTarget} onValueChange={setMergeTarget}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {mergeOptions.map(c => (
-                  <SelectItem key={c.id} value={String(c.category_id)}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid gap-1.5 px-6 py-4">
+              <Label htmlFor="merge-target">Merge into</Label>
+              <Select value={mergeTarget} onValueChange={setMergeTarget}>
+                <SelectTrigger id="merge-target" className="w-full">
+                  <SelectValue placeholder="Choose a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mergeOptions.map(c => (
+                    <SelectItem key={c.id} value={String(c.category_id)}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="flex justify-between">
             <Button variant="outline" onClick={() => setMerging(null)}>
               Cancel
             </Button>
