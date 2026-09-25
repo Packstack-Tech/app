@@ -39,9 +39,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
 import { useUser } from '@/hooks/useUser'
-import { toSelectOptions } from '@/lib/utils'
 import { convertWeight, getItemDisplayUnit } from '@/lib/weight'
-import { useCategories } from '@/queries/category'
+import { useCategoryOptions } from '@/queries/category'
 import { useCreateItem, useDeleteItem, useUpdateItem } from '@/queries/item'
 import {
   useCatalogBrands,
@@ -148,7 +147,7 @@ export const ItemForm: FC<Props> = ({
   const brandId = form.watch('brand_id')
   const productId = form.watch('product_id')
 
-  const { data: categories } = useCategories()
+  const { options: categoryOptions, categories } = useCategoryOptions()
 
   const noBrandSelected = !brandId && !form.watch('brand_new')
   const noProductSelected = !productId && !form.watch('product_new')
@@ -187,10 +186,6 @@ export const ItemForm: FC<Props> = ({
     [variantEntries]
   )
 
-  const categoryOptions = useMemo(
-    () => toSelectOptions(categories),
-    [categories]
-  )
 
   const applyAutoFill = (entry: CatalogEntry) => {
     if (entry.weight != null) {

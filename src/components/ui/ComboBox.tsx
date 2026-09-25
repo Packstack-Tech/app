@@ -6,18 +6,18 @@ import { cn } from '@/lib/utils'
 import { CreateableOption, Option } from '@/types/lib'
 
 import { Button } from './Button'
-import { Loading } from './Loading'
-import {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-} from './Popover'
 import {
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
 } from './Command'
+import { Loading } from './Loading'
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from './Popover'
 
 type Props = {
   options: Option[]
@@ -73,6 +73,17 @@ export const Combobox: FC<Props> = ({
     const lower = searchText.toLowerCase()
     return options.filter(o => o.label.toLowerCase().includes(lower))
   }, [options, searchText, onSearch, selectedOption])
+
+  // Options keep their order; a heading starts wherever its group first appears.
+  const groupedOptions = useMemo(() => {
+    const groups: { heading?: string; options: Option[] }[] = []
+    for (const option of filteredOptions) {
+      const last = groups[groups.length - 1]
+      if (last && last.heading === option.group) last.options.push(option)
+      else groups.push({ heading: option.group, options: [option] })
+    }
+    return groups
+  }, [filteredOptions])
 
   const canCreate = useMemo(() => {
     if (isLoading || !searchText) return false
@@ -170,9 +181,9 @@ export const Combobox: FC<Props> = ({
           <CommandList
             onWheel={e => e.stopPropagation()}
           >
-            {filteredOptions.length > 0 && (
-              <CommandGroup>
-                {filteredOptions.map(option => (
+            {groupedOptions.map(({ heading, options: groupOptions }) => (
+              <CommandGroup key={heading ?? ''} heading={heading}>
+                {groupOptions.map(option => (
                   <CommandItem
                     key={option.value}
                     value={String(option.value)}
@@ -183,7 +194,7 @@ export const Combobox: FC<Props> = ({
                   </CommandItem>
                 ))}
               </CommandGroup>
-            )}
+            ))}
             {!isLoading && filteredOptions.length === 0 && !canCreate && (
               <CommandEmpty>
                 {onSearch && !searchText ? (

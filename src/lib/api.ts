@@ -9,7 +9,12 @@ import {
   UploadInventory,
   VerifyOtpRequest,
 } from '@/types/api'
-import { Category, CategoryItems } from '@/types/category'
+import {
+  Category,
+  CategoryItems,
+  ItemCategory,
+  MyCategories,
+} from '@/types/category'
 import { HikerProfile, HikerProfilePayload } from '@/types/hiker-profile'
 import {
   AllBenchmarks,
@@ -128,6 +133,19 @@ export const getCategories = () => http.get<Category[]>('/category')
 
 export const updateCategory = (categoryId: number, name: string) =>
   http.put<Category>(`/category/${categoryId}`, { name })
+
+export const getMyCategories = () => http.get<MyCategories>('/category/mine')
+
+export const createCategory = (name: string) =>
+  http.post<ItemCategory>('/category', { name })
+
+export const mergeCategory = (categoryId: number, intoCategoryId: number) =>
+  http.post<ItemCategory>(`/category/${categoryId}/merge`, {
+    into_category_id: intoCategoryId,
+  })
+
+export const deleteCategory = (categoryId: number) =>
+  http.delete(`/category/${categoryId}`)
 
 /**
  * Catalog endpoints

@@ -18,7 +18,6 @@ import {
   getInventory,
   importInventory,
   importLighterpack,
-  updateCategory,
   updateCategorySortOrder,
   updateItem,
   updateItemSortOrder,
@@ -27,11 +26,10 @@ import { Mixpanel } from '@/lib/mixpanel'
 import { CATEGORY_QUERY } from '@/queries/category'
 import { CATALOG_BRANDS_QUERY, CATALOG_PRODUCTS_QUERY } from '@/queries/resources'
 import { UpdateItemSortOrder, UploadInventory } from '@/types/api'
-import { CategoryItems } from '@/types/category'
 import { CreateItem, EditItem } from '@/types/item'
 
-const INVENTORY_QUERY = ['inventory-query']
-const GROUPED_INVENTORY_QUERY = ['grouped-inventory-query']
+export const INVENTORY_QUERY = ['inventory-query']
+export const GROUPED_INVENTORY_QUERY = ['grouped-inventory-query']
 
 export const inventoryQueryOptions = queryOptions({
   queryKey: INVENTORY_QUERY,
@@ -257,55 +255,6 @@ export const useUpdateCategorySort = () => {
   })
 }
 
-type CategoryChange = {
-  categories: CategoryItems[]
-  renames: Record<number, string>
-}
-
-export const useSaveCategoryChanges = () => {
-  const queryClient = useQueryClient()
-  const { toast } = useToast()
-  return useMutation({
-    mutationFn: async ({ categories, renames }: CategoryChange) => {
-      const originalNames = new Map(
-        categories
-          .filter(rec => rec.category)
-          .map(rec => [rec.category!.category.id, rec.category!.category.name])
-      )
-
-      const renamePromises = Object.entries(renames)
-        .filter(([id, name]) => name.trim() && originalNames.get(Number(id)) !== name)
-        .map(([id, name]) => updateCategory(Number(id), name))
-
-      const sortOrder = categories
-        .map((cat, fullIdx) =>
-          cat.category
-            ? { id: cat.category.id, sort_order: fullIdx }
-            : null
-        )
-        .filter(
-          (entry): entry is { id: number; sort_order: number } =>
-            entry !== null
-        )
-
-      await Promise.all([
-        ...renamePromises,
-        updateCategorySortOrder(sortOrder),
-      ])
-      Mixpanel.track('Category:Save')
-    },
-    onSuccess: () => {
-      toast({ title: 'Categories updated' })
-      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
-      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
-      queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
-    },
-    onError: () => {
-      toast({ title: 'Failed to update categories' })
-    },
-  })
-}
-
 export const useImportLighterpack = () => {
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -322,7 +271,9 @@ export const useImportLighterpack = () => {
         })
         Mixpanel.track('Import:LighterPack:success', resp)
         queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
-      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+        queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+        // Imports can create categories.
+        queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
       } else {
         Mixpanel.track('Import:LighterPack:failure')
         const errors = resp.errors.map(
@@ -360,7 +311,9 @@ export const useImportInventory = () => {
         })
         Mixpanel.track('Import:CSV:success', resp)
         queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
-      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+        queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+        // Imports can create categories.
+        queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
       } else {
         Mixpanel.track('Import:CSV:failure')
         const errors = resp.errors.map(
