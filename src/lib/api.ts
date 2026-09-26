@@ -164,13 +164,15 @@ export const searchCatalogProducts = (brand: string, q?: string) =>
  */
 export const searchCatalogGear = (q: string, compact = false) =>
   http.get<CatalogProduct[]>('/resources/catalog/products/search', {
-    params: compact ? { q, compact: 1 } : { q },
+    // v=2: product-with-variants shape. Without it the API serves the legacy
+    // flat-entries shape for mobile builds that predate the variants pivot.
+    params: compact ? { q, compact: 1, v: 2 } : { q, v: 2 },
   })
 
 /** The one catalog product (with variants) for a brand + product name, or null. */
 export const getCatalogProduct = (brand: string, product: string) =>
   http.get<CatalogProduct | null>('/resources/catalog/search', {
-    params: { brand, product },
+    params: { brand, product, v: 2 },
   })
 
 /**
