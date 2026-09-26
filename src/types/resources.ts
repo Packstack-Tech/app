@@ -55,46 +55,52 @@ export type CatalogProductOption = {
   product_name: string
 }
 
-export type CatalogEntry = {
+// ── Catalog product (one shape for search, browse and the item-form
+// pickers; produced by api/app/catalog/resolver.py serialize_product) ──
+
+export type CatalogVariant = {
   id: number
-  brand_id: number
-  product_id: number
-  product_variant_id: number | null
-  variant_name: string | null
+  name: string
   weight: number | null
   weight_unit: string | null
-  product_url: string | null
-  category_suggestion: string | null
+  /** true = this option changes the weight (size, length, capacity…);
+   *  false = cosmetic (color, pattern) and inherits the product weight. */
+  has_weight: boolean
+  kcal: number | null
+  image_url: string | null
+  kind: 'size' | 'length' | 'gender' | 'color' | 'capacity' | 'other' | null
+  sort_order: number
 }
 
-// ── Gear search (catalog product search, shared with mobile) ───────
-
-export type CatalogGearVariant = {
+export type CatalogProduct = {
   id: number
+  brand_name: string
+  product_name: string
+  display_name: string
   brand_id: number | null
   product_id: number | null
-  product_variant_id: number | null
-  variant_name: string | null
+  /** Base / default-configuration weight. Null only for products with no known weight. */
   weight: number | null
   weight_unit: string | null
   kcal: number | null
-  // Omitted by the compact search payload (?compact=1) used by quick add.
-  display_name?: string
-  image_url?: string | null
-  description?: string | null
-  additional_specs?: Record<string, string> | null
-}
-
-export type CatalogGearProduct = {
-  brand_name: string
-  product_name: string
+  weight_range_g: { min: number; max: number } | null
+  /** Alias of weight_range_g.min, kept for browse sorting. */
+  lightest_weight_g: number | null
   product_url: string | null
-  catalog_url_slug: string | null
-  /** First non-null variant image, so list rows need no variant scan. */
   image_url: string | null
   category: string | null
   subcategory: string | null
-  subcategory_slug: string | null
-  lightest_weight_g: number | null
-  variants: CatalogGearVariant[]
+  catalog_url_slug: string | null
+  /** Weight-bearing variants first, then cosmetic. Hidden variants are never sent. */
+  variants: CatalogVariant[]
+  weight_variant_count: number
+  // Omitted by the compact search payload (?compact=1) used by quick add.
+  description?: string | null
+  additional_specs?: Record<string, unknown> | null
+  status?: string
 }
+
+/** @deprecated use CatalogProduct */
+export type CatalogGearProduct = CatalogProduct
+/** @deprecated use CatalogVariant */
+export type CatalogGearVariant = CatalogVariant

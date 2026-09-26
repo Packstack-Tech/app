@@ -17,15 +17,23 @@ import {
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
 import { useUser } from '@/hooks/useUser'
+import {
+  buildVariantOptions,
+  catalogVariantValue,
+  legacyVariantValue,
+  parseVariantValue,
+  variantPrefillWeight,
+} from '@/lib/catalogVariants'
+import { Mixpanel } from '@/lib/mixpanel'
 import { convertWeight, getItemDisplayUnit } from '@/lib/weight'
 import { useCategoryOptions } from '@/queries/category'
 import {
   useCatalogBrands,
-  useCatalogEntries,
+  useCatalogProduct,
   useCatalogProducts,
 } from '@/queries/resources'
 import { Item, ItemForm, Unit } from '@/types/item'
-import { CatalogEntry } from '@/types/resources'
+import { CatalogProduct, CatalogVariant } from '@/types/resources'
 
 interface Props {
   form: UseFormReturn<ItemForm>
@@ -50,7 +58,7 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
     brand: selectedBrandName,
     enabled: true,
   })
-  const { data: catalogEntries } = useCatalogEntries({
+  const { data: catalogProduct } = useCatalogProduct({
     brand: selectedBrandName,
     product: selectedProductName,
     enabled: !!selectedBrandName && !!selectedProductName,
@@ -98,57 +106,91 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
     return fromCatalog
   }, [catalogProducts.data, item?.product_id, item?.product?.name])
 
-  const variantEntries = useMemo(
+  const productVariantOptions = useMemo(
     () =>
-      catalogEntries?.filter(
-        (e): e is CatalogEntry & { variant_name: string; product_variant_id: number } =>
-          e.variant_name != null && e.product_variant_id != null
-      ) || [],
-    [catalogEntries]
+      buildVariantOptions({
+        product: catalogProduct,
+        unit: defaultUnit,
+        legacy:
+          item?.product_variant_id && item.product_variant?.name
+            ? { id: item.product_variant_id, name: item.product_variant.name }
+            : undefined,
+      }),
+    [catalogProduct, defaultUnit, item?.product_variant_id, item?.product_variant?.name]
   )
 
-  const productVariantOptions = useMemo(() => {
-    const fromCatalog = variantEntries.map(e => ({
-      label: e.variant_name,
-      value: e.product_variant_id,
-    }))
-    if (
-      item?.product_variant_id &&
-      item.product_variant?.name &&
-      !fromCatalog.some(o => o.value === item.product_variant_id)
-    ) {
-      return [
-        { label: item.product_variant.name, value: item.product_variant_id },
-        ...fromCatalog,
-      ]
+  // The combobox value: a picked catalog variant, else the item's own
+  // variant (matched to the catalog by name when possible).
+  const watchedCatalogVariant = form.watch('catalog_variant_id')
+  const watchedLegacyVariant = form.watch('product_variant_id')
+  const variantValue = useMemo(() => {
+    if (watchedCatalogVariant) return catalogVariantValue(watchedCatalogVariant)
+    if (item?.catalog_variant_id && item.catalog_product_id === catalogProduct?.id) {
+      return catalogVariantValue(item.catalog_variant_id)
     }
-    return fromCatalog
-  }, [variantEntries, item?.product_variant_id, item?.product_variant?.name])
+    if (watchedLegacyVariant) {
+      const name = item?.product_variant?.name?.toLowerCase()
+      const match = catalogProduct?.variants.find(v => v.name.toLowerCase() === name)
+      return match ? catalogVariantValue(match.id) : legacyVariantValue(watchedLegacyVariant)
+    }
+    return undefined
+  }, [watchedCatalogVariant, watchedLegacyVariant, item, catalogProduct])
 
-
-  const applyAutoFill = (entry: CatalogEntry) => {
-    if (entry.weight != null) {
-      const fromUnit = (entry.weight_unit || 'g') as Unit
-      const converted = convertWeight(entry.weight, fromUnit, defaultUnit)
+  const applyAutoFill = (product: CatalogProduct, variant?: CatalogVariant) => {
+    const w = variantPrefillWeight(product, variant)
+    if (w) {
+      const converted = convertWeight(w.weight, w.unit as Unit, defaultUnit)
       form.setValue('weight', Math.round(converted.weight * 100) / 100)
       form.setValue('unit', defaultUnit)
     }
-    if (entry.product_url) {
-      form.setValue('product_url', entry.product_url)
+    if (product.product_url) {
+      form.setValue('product_url', product.product_url)
     }
-    if (entry.category_suggestion && categories?.length) {
-      const suggestion = entry.category_suggestion.toLowerCase()
+    if (product.category && categories?.length) {
+      const suggestion = product.category.toLowerCase()
       const match = categories.find(c => c.name.toLowerCase() === suggestion)
       if (match) form.setValue('category_id', match.id)
     }
   }
 
   useEffect(() => {
-    if (!pendingAutoFill || !catalogEntries?.length) return
+    if (!pendingAutoFill || !catalogProduct) return
     setPendingAutoFill(false)
-    const base = catalogEntries.find(e => !e.variant_name) || catalogEntries[0]
-    applyAutoFill(base)
-  }, [pendingAutoFill, catalogEntries])
+    applyAutoFill(catalogProduct)
+  }, [pendingAutoFill, catalogProduct])
+
+  const selectVariant = ({ label, value, isNew }: { label: string; value?: number | string; isNew?: boolean }) => {
+    if (isNew) {
+      // Free text: the API resolves it (and researches it) in the background.
+      form.setValue('product_variant_new', label)
+      form.setValue('product_variant_id', undefined)
+      form.setValue('catalog_variant_id', undefined)
+      form.setValue('catalog_product_id', undefined)
+      return
+    }
+    const parsed = parseVariantValue(value)
+    if (!parsed) return
+    if (parsed.kind === 'legacy') {
+      form.setValue('product_variant_id', parsed.id)
+      form.setValue('product_variant_new', undefined)
+      form.setValue('catalog_variant_id', undefined)
+      form.setValue('catalog_product_id', undefined)
+      return
+    }
+    const variant = catalogProduct?.variants.find(v => v.id === parsed.id)
+    if (!catalogProduct || !variant) return
+    // Explicit catalog pick: the API locks the link to exactly this pair.
+    form.setValue('catalog_product_id', catalogProduct.id)
+    form.setValue('catalog_variant_id', variant.id)
+    form.setValue('product_variant_new', variant.name)
+    form.setValue('product_variant_id', undefined)
+    applyAutoFill(catalogProduct, variant)
+    Mixpanel.track('Catalog:VariantSelected', {
+      has_weight: variant.has_weight,
+      kind: variant.kind,
+      source: 'item-form',
+    })
+  }
 
   return (
     <section>
@@ -221,6 +263,8 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
                 form.setValue('product_new', undefined)
                 form.setValue('product_variant_id', undefined)
                 form.setValue('product_variant_new', undefined)
+                form.setValue('catalog_variant_id', undefined)
+                form.setValue('catalog_product_id', undefined)
                 setSelectedBrandName(undefined)
                 setSelectedProductName(undefined)
               }}
@@ -259,6 +303,8 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
                 form.setValue('product_new', undefined)
                 form.setValue('product_variant_id', undefined)
                 form.setValue('product_variant_new', undefined)
+                form.setValue('catalog_variant_id', undefined)
+                form.setValue('catalog_product_id', undefined)
                 setSelectedProductName(undefined)
               }}
             />
@@ -271,27 +317,21 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
                 <TooltipTrigger asChild>
                   <InfoIcon className="size-3.5 text-muted-foreground" />
                 </TooltipTrigger>
-                <TooltipContent>Requires a product. Variants include size, gender, year, etc.</TooltipContent>
+                <TooltipContent>Size, length, capacity — anything that changes the weight. Colors are fine too but don't affect weight.</TooltipContent>
               </Tooltip>
             </FormLabel>
             <Combobox
-              value={form.watch('product_variant_id')}
+              value={variantValue}
               options={productVariantOptions}
               disabled={noBrandSelected || noProductSelected}
               creatable
               label="Variants"
-              onSelect={({ label, value, isNew }) => {
-                if (isNew) {
-                  form.setValue('product_variant_new', label)
-                } else {
-                  form.setValue('product_variant_id', value as number)
-                  const entry = catalogEntries?.find(e => e.product_variant_id === value)
-                  if (entry) applyAutoFill(entry)
-                }
-              }}
+              onSelect={selectVariant}
               onRemove={() => {
                 form.setValue('product_variant_id', undefined)
                 form.setValue('product_variant_new', undefined)
+                form.setValue('catalog_variant_id', undefined)
+                form.setValue('catalog_product_id', undefined)
               }}
             />
           </FormItem>

@@ -39,16 +39,24 @@ import {
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
 import { useUser } from '@/hooks/useUser'
+import {
+  buildVariantOptions,
+  catalogVariantValue,
+  legacyVariantValue,
+  parseVariantValue,
+  variantPrefillWeight,
+} from '@/lib/catalogVariants'
+import { Mixpanel } from '@/lib/mixpanel'
 import { convertWeight, getItemDisplayUnit } from '@/lib/weight'
 import { useCategoryOptions } from '@/queries/category'
 import { useCreateItem, useDeleteItem, useUpdateItem } from '@/queries/item'
 import {
   useCatalogBrands,
-  useCatalogEntries,
+  useCatalogProduct,
   useCatalogProducts,
 } from '@/queries/resources'
 import { Item, ItemForm as ItemFormValues, Unit } from '@/types/item'
-import { CatalogEntry } from '@/types/resources'
+import { CatalogProduct, CatalogVariant } from '@/types/resources'
 
 // TODO add field max/min length
 const schema = z.object({
@@ -59,6 +67,8 @@ const schema = z.object({
   product_new: z.string().optional(),
   product_variant_id: z.number().optional(),
   product_variant_new: z.string().optional(),
+  catalog_product_id: z.number().optional(),
+  catalog_variant_id: z.number().optional(),
   category_id: z.number().optional(),
   category_new: z.string().optional(),
   weight: z.coerce.number().min(0, 'Weight must be positive').optional(),
@@ -85,6 +95,10 @@ const formDefaults = (item?: Item, defaultUnit: Unit = 'g') => ({
   brand_id: item?.brand_id || undefined,
   product_id: item?.product_id || undefined,
   product_variant_id: item?.product_variant_id || undefined,
+  // Not prefilled: an unchanged pair is ignored by the API, and prefilling
+  // would turn every save into an "explicit pick" that locks the link.
+  catalog_product_id: undefined,
+  catalog_variant_id: undefined,
   category_id: item?.category?.category_id || undefined,
   weight: item?.weight || 0,
   unit: item?.unit || defaultUnit,
@@ -126,7 +140,7 @@ export const ItemForm: FC<Props> = ({
     brand: selectedBrandName,
     enabled: open,
   })
-  const { data: catalogEntries } = useCatalogEntries({
+  const { data: catalogProduct } = useCatalogProduct({
     brand: selectedBrandName,
     product: selectedProductName,
     enabled: open && !!selectedBrandName && !!selectedProductName,
@@ -170,35 +184,46 @@ export const ItemForm: FC<Props> = ({
     [catalogProducts.data]
   )
 
-  const variantEntries = useMemo(
-    () => catalogEntries?.filter((e): e is CatalogEntry & { variant_name: string; product_variant_id: number } =>
-      e.variant_name != null && e.product_variant_id != null
-    ) || [],
-    [catalogEntries]
-  )
-
   const productVariantOptions = useMemo(
     () =>
-      variantEntries.map(e => ({
-        label: e.variant_name,
-        value: e.product_variant_id,
-      })),
-    [variantEntries]
+      buildVariantOptions({
+        product: catalogProduct,
+        unit: defaultUnit,
+        legacy:
+          item?.product_variant_id && item.product_variant?.name
+            ? { id: item.product_variant_id, name: item.product_variant.name }
+            : undefined,
+      }),
+    [catalogProduct, defaultUnit, item?.product_variant_id, item?.product_variant?.name]
   )
 
+  const watchedCatalogVariant = form.watch('catalog_variant_id')
+  const watchedLegacyVariant = form.watch('product_variant_id')
+  const variantValue = useMemo(() => {
+    if (watchedCatalogVariant) return catalogVariantValue(watchedCatalogVariant)
+    if (item?.catalog_variant_id && item.catalog_product_id === catalogProduct?.id) {
+      return catalogVariantValue(item.catalog_variant_id)
+    }
+    if (watchedLegacyVariant) {
+      const name = item?.product_variant?.name?.toLowerCase()
+      const match = catalogProduct?.variants.find(v => v.name.toLowerCase() === name)
+      return match ? catalogVariantValue(match.id) : legacyVariantValue(watchedLegacyVariant)
+    }
+    return undefined
+  }, [watchedCatalogVariant, watchedLegacyVariant, item, catalogProduct])
 
-  const applyAutoFill = (entry: CatalogEntry) => {
-    if (entry.weight != null) {
-      const fromUnit = (entry.weight_unit || 'g') as Unit
-      const converted = convertWeight(entry.weight, fromUnit, defaultUnit)
+  const applyAutoFill = (product: CatalogProduct, variant?: CatalogVariant) => {
+    const w = variantPrefillWeight(product, variant)
+    if (w) {
+      const converted = convertWeight(w.weight, w.unit as Unit, defaultUnit)
       form.setValue('weight', Math.round(converted.weight * 100) / 100)
       form.setValue('unit', defaultUnit)
     }
-    if (entry.product_url) {
-      form.setValue('product_url', entry.product_url)
+    if (product.product_url) {
+      form.setValue('product_url', product.product_url)
     }
-    if (entry.category_suggestion && categories?.length) {
-      const suggestion = entry.category_suggestion.toLowerCase()
+    if (product.category && categories?.length) {
+      const suggestion = product.category.toLowerCase()
       const match = categories.find(c => c.name.toLowerCase() === suggestion)
       if (match) {
         form.setValue('category_id', match.id)
@@ -207,14 +232,46 @@ export const ItemForm: FC<Props> = ({
   }
 
   useEffect(() => {
-    if (!pendingAutoFill || !catalogEntries?.length) return
+    if (!pendingAutoFill || !catalogProduct) return
     setPendingAutoFill(false)
-    const base = catalogEntries.find(e => !e.variant_name) || catalogEntries[0]
-    applyAutoFill(base)
-  }, [pendingAutoFill, catalogEntries])
+    applyAutoFill(catalogProduct)
+  }, [pendingAutoFill, catalogProduct])
+
+  const clearCatalogPick = () => {
+    form.setValue('catalog_variant_id', undefined)
+    form.setValue('catalog_product_id', undefined)
+  }
+
+  const selectVariant = ({ label, value, isNew }: { label: string; value?: number | string; isNew?: boolean }) => {
+    if (isNew) {
+      form.setValue('product_variant_new', label)
+      form.setValue('product_variant_id', undefined)
+      clearCatalogPick()
+      return
+    }
+    const parsed = parseVariantValue(value)
+    if (!parsed) return
+    if (parsed.kind === 'legacy') {
+      form.setValue('product_variant_id', parsed.id)
+      form.setValue('product_variant_new', undefined)
+      clearCatalogPick()
+      return
+    }
+    const variant = catalogProduct?.variants.find(v => v.id === parsed.id)
+    if (!catalogProduct || !variant) return
+    form.setValue('catalog_product_id', catalogProduct.id)
+    form.setValue('catalog_variant_id', variant.id)
+    form.setValue('product_variant_new', variant.name)
+    form.setValue('product_variant_id', undefined)
+    applyAutoFill(catalogProduct, variant)
+    Mixpanel.track('Catalog:VariantSelected', {
+      has_weight: variant.has_weight,
+      kind: variant.kind,
+      source: 'item-dialog',
+    })
+  }
 
   const onSubmit = (data: ItemFormValues) => {
-    console.log(data)
     const { itemname, ...payload } = data
     if (item) {
       updateItem.mutate(
@@ -310,6 +367,7 @@ export const ItemForm: FC<Props> = ({
                       form.setValue('product_new', undefined)
                       form.setValue('product_variant_id', undefined)
                       form.setValue('product_variant_new', undefined)
+                      clearCatalogPick()
                       setSelectedBrandName(undefined)
                       setSelectedProductName(undefined)
                     }}
@@ -356,6 +414,7 @@ export const ItemForm: FC<Props> = ({
                         form.setValue('product_new', undefined)
                         form.setValue('product_variant_id', undefined)
                         form.setValue('product_variant_new', undefined)
+                        clearCatalogPick()
                         setSelectedProductName(undefined)
                       }}
                     />
@@ -377,26 +436,17 @@ export const ItemForm: FC<Props> = ({
                     </FormLabel>
 
                     <Combobox
-                      value={form.watch('product_variant_id')}
+                      value={variantValue}
                       options={productVariantOptions}
                       disabled={noProductSelected}
                       creatable
                       label="Variants"
                       tabIndex={4}
-                      onSelect={({ label, value, isNew }) => {
-                        if (isNew) {
-                          form.setValue('product_variant_new', label)
-                        } else {
-                          form.setValue('product_variant_id', value as number)
-                          const entry = catalogEntries?.find(
-                            e => e.product_variant_id === value
-                          )
-                          if (entry) applyAutoFill(entry)
-                        }
-                      }}
+                      onSelect={selectVariant}
                       onRemove={() => {
                         form.setValue('product_variant_id', undefined)
                         form.setValue('product_variant_new', undefined)
+                        clearCatalogPick()
                       }}
                     />
 

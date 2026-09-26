@@ -37,6 +37,8 @@ const schema = z.object({
   product_new: z.string().optional(),
   product_variant_id: z.number().optional(),
   product_variant_new: z.string().optional(),
+  catalog_product_id: z.number().optional(),
+  catalog_variant_id: z.number().optional(),
   category_id: z.number().optional(),
   category_new: z.string().optional(),
   weight: z.coerce.number().min(0, 'Weight must be positive').optional(),
@@ -61,6 +63,10 @@ const formDefaults = (item?: Item, defaultUnit: Unit = 'g'): ItemFormValues => (
   brand_id: item?.brand_id || undefined,
   product_id: item?.product_id || undefined,
   product_variant_id: item?.product_variant_id || undefined,
+  // Not prefilled: an unchanged pair is ignored by the API, and prefilling
+  // would turn every save into an "explicit pick" that locks the link.
+  catalog_product_id: undefined,
+  catalog_variant_id: undefined,
   category_id: item?.category?.category_id || undefined,
   weight: item?.weight || 0,
   unit: item?.unit || defaultUnit,

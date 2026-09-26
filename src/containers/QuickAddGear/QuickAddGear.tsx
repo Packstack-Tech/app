@@ -21,20 +21,20 @@ import { ItemForm } from '@/containers/ItemForm'
 import { useToast } from '@/hooks/useToast'
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
-import { buildQuickAddItem, quickAddItemName } from '@/lib/quickAdd'
+import { buildQuickAddItem, pickableVariants, quickAddItemName } from '@/lib/quickAdd'
 import { convertWeight, formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
 import { useCategories } from '@/queries/category'
 import { useCreateItem } from '@/queries/item'
 import { useCatalogGearSearch } from '@/queries/resources'
 import { Item, Unit } from '@/types/item'
-import { CatalogGearProduct, CatalogGearVariant } from '@/types/resources'
+import { CatalogProduct, CatalogVariant } from '@/types/resources'
 
 import { RecentlyAddedGear } from './RecentlyAddedGear'
 
 const DEBOUNCE_MS = 400
 const MIN_QUERY_LENGTH = 2
 
-const productKey = (p: CatalogGearProduct) => `${p.brand_name}::${p.product_name}`
+const productKey = (p: CatalogProduct) => `${p.brand_name}::${p.product_name}`
 
 type Props = {
   open: boolean
@@ -43,7 +43,7 @@ type Props = {
    * Fired after a successful create with the item the API returned — the trip
    * sidebar uses it to drop the new item straight into the open pack.
    */
-  onAdded?: (item: Item, product: CatalogGearProduct) => void
+  onAdded?: (item: Item, product: CatalogProduct) => void
   /**
    * Takes over "Enter gear manually" for callers with their own manual form
    * (the Gear Closet uses the item detail page, not ItemForm). When omitted,
@@ -125,7 +125,7 @@ export const QuickAddGear: FC<Props> = ({
   }, [noResults, settledQuery])
 
   const addVariant = useCallback(
-    (product: CatalogGearProduct, variant: CatalogGearVariant) => {
+    (product: CatalogProduct, variant?: CatalogVariant) => {
       if (createItem.isPending) return
 
       createItem.mutate(
@@ -136,8 +136,16 @@ export const QuickAddGear: FC<Props> = ({
               brand: product.brand_name,
               product: product.product_name,
               subcategory: product.subcategory,
-              variant_count: product.variants.length,
+              variant_count: pickableVariants(product).length,
+              variant_picked: !!variant,
             })
+            if (variant) {
+              Mixpanel.track('Catalog:VariantSelected', {
+                has_weight: variant.has_weight,
+                kind: variant.kind,
+                source: 'quick-add',
+              })
+            }
             toast({
               title: `✅ Added ${quickAddItemName(product)}`,
               description: `${product.brand_name} ${product.product_name} is in your gear closet.`,
@@ -161,12 +169,11 @@ export const QuickAddGear: FC<Props> = ({
   )
 
   const handleSelect = useCallback(
-    (product: CatalogGearProduct) => {
-      if (product.variants.length === 0) return
-      // One variant is unambiguous — add it outright. Several means the choice
-      // is the user's, so the row expands rather than guessing a size.
-      if (product.variants.length === 1) {
-        addVariant(product, product.variants[0])
+    (product: CatalogProduct) => {
+      // No weight-bearing variants: nothing to choose, add the product.
+      // Otherwise the size/length is the user's call, so the row expands.
+      if (pickableVariants(product).length === 0) {
+        addVariant(product)
         return
       }
       const key = productKey(product)
@@ -261,7 +268,7 @@ export const QuickAddGear: FC<Props> = ({
                   {(results || []).map(product => {
                     const key = productKey(product)
                     const expanded = expandedKey === key
-                    const multiVariant = product.variants.length > 1
+                    const multiVariant = pickableVariants(product).length > 0
 
                     return (
                       <li key={key} className="border-b border-border/60">
@@ -319,9 +326,24 @@ export const QuickAddGear: FC<Props> = ({
                         {expanded && (
                           <ul className="bg-accent/40 pb-1">
                             <li className="px-2 pt-1.5 pb-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-                              Choose a variant
+                              Choose a size
                             </li>
-                            {product.variants.map(variant => (
+                            {product.weight != null && product.weight_unit && (
+                              <li>
+                                <button
+                                  type="button"
+                                  onClick={() => addVariant(product)}
+                                  disabled={createItem.isPending}
+                                  className="w-full flex items-center justify-between gap-3 px-2 py-1.5 text-left text-sm rounded-sm hover:bg-accent transition-colors cursor-pointer disabled:opacity-60"
+                                >
+                                  <span className="truncate">Standard</span>
+                                  <span className="shrink-0 text-muted-foreground tabular-nums">
+                                    {convertWeight(product.weight, product.weight_unit as Unit, itemUnit).display}
+                                  </span>
+                                </button>
+                              </li>
+                            )}
+                            {pickableVariants(product).map(variant => (
                               <li key={variant.id}>
                                 <button
                                   type="button"
@@ -329,9 +351,7 @@ export const QuickAddGear: FC<Props> = ({
                                   disabled={createItem.isPending}
                                   className="w-full flex items-center justify-between gap-3 px-2 py-1.5 text-left text-sm rounded-sm hover:bg-accent transition-colors cursor-pointer disabled:opacity-60"
                                 >
-                                  <span className="truncate">
-                                    {variant.variant_name || 'Standard'}
-                                  </span>
+                                  <span className="truncate">{variant.name}</span>
                                   <span className="shrink-0 text-muted-foreground tabular-nums">
                                     {variant.weight != null && variant.weight_unit
                                       ? convertWeight(

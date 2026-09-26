@@ -2,8 +2,9 @@ import { FC } from 'react'
 import { ExternalLink, Unlink } from 'lucide-react'
 
 import { Button } from '@/components/ui'
+import { formatItemWeight } from '@/lib/weight'
 import { useDetachItemCatalog } from '@/queries/item'
-import { Item } from '@/types/item'
+import { Item, Unit } from '@/types/item'
 
 interface Props {
   item: Item
@@ -11,6 +12,7 @@ interface Props {
 
 export const CatalogSection: FC<Props> = ({ item }) => {
   const cp = item.catalog_product
+  const cv = item.catalog_variant
   const detach = useDetachItemCatalog()
   if (!cp) return null
 
@@ -38,6 +40,23 @@ export const CatalogSection: FC<Props> = ({ item }) => {
         )}
         <div>
           <p className="text-sm font-medium">{cp.display_name}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {cv ? (
+              cv.weight != null && cv.weight_unit ? (
+                <>
+                  {cv.name} · {formatItemWeight(cv.weight, cv.weight_unit as Unit, item.unit)}
+                </>
+              ) : cp.weight != null && cp.weight_unit ? (
+                <>
+                  {cv.name} · {formatItemWeight(cp.weight, cp.weight_unit as Unit, item.unit)} (same as standard)
+                </>
+              ) : (
+                cv.name
+              )
+            ) : cp.weight != null && cp.weight_unit ? (
+              <>Standard · {formatItemWeight(cp.weight, cp.weight_unit as Unit, item.unit)}</>
+            ) : null}
+          </p>
           {cp.description && (
             <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{cp.description}</p>
           )}

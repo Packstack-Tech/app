@@ -16,6 +16,10 @@ export type ItemForm = {
   product_new?: string
   product_variant_id?: number
   product_variant_new?: string
+  /** Explicit catalog pick (locks the item's catalog link). Sent only when
+   *  the user chose a catalog variant; otherwise the API derives the link. */
+  catalog_product_id?: number
+  catalog_variant_id?: number
   category_id?: number
   category_new?: string
   weight: number
@@ -47,8 +51,8 @@ export type CatalogProduct = {
   id: number
   brand_name: string
   product_name: string
-  variant_name?: string
   display_name: string
+  kcal?: number | null
   weight?: number
   weight_unit?: string
   product_url?: string
@@ -59,6 +63,18 @@ export type CatalogProduct = {
   additional_specs?: Record<string, unknown>
 }
 
+/** The item's joined catalog variant (ORM row, not the search serializer). */
+export type CatalogVariantRef = {
+  id: number
+  catalog_product_id: number
+  name: string
+  weight: number | null
+  weight_unit: string | null
+  kcal: number | null
+  image_url: string | null
+  kind: string | null
+}
+
 export type Item = {
   id: number
   name: string
@@ -66,6 +82,7 @@ export type Item = {
   brand_id?: number
   category_id?: number
   catalog_product_id?: number
+  catalog_variant_id?: number
   catalog_locked?: boolean
   consumable: boolean
   created_at: string
@@ -95,6 +112,7 @@ export type Item = {
   product?: Product
   product_variant?: ProductVariant
   catalog_product?: CatalogProduct
+  catalog_variant?: CatalogVariantRef
   replaced_by?: Item
 }
 

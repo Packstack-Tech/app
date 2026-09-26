@@ -24,7 +24,7 @@ type Props = {
   onRemove: () => void
   label: string
   tabIndex?: number
-  value?: number
+  value?: number | string
   disabled?: boolean
   onSelect: (value: CreateableOption) => void
   onSearch?: (value: string) => void

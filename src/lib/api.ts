@@ -31,8 +31,7 @@ import { ConsentDecision, ConsentDetails, OAuthGrant } from '@/types/oauth'
 import { Pack } from '@/types/pack'
 import {
   CatalogBrand,
-  CatalogEntry,
-  CatalogGearProduct,
+  CatalogProduct,
   CatalogProductOption,
 } from '@/types/resources'
 import { CreateTrip, EditTrip, Trip } from '@/types/trip'
@@ -164,12 +163,13 @@ export const searchCatalogProducts = (brand: string, q?: string) =>
  * `compact` requests the trimmed payload used by the quick-add typeahead.
  */
 export const searchCatalogGear = (q: string, compact = false) =>
-  http.get<CatalogGearProduct[]>('/resources/catalog/products/search', {
+  http.get<CatalogProduct[]>('/resources/catalog/products/search', {
     params: compact ? { q, compact: 1 } : { q },
   })
 
-export const getCatalogEntries = (brand: string, product: string) =>
-  http.get<CatalogEntry[]>('/resources/catalog/search', {
+/** The one catalog product (with variants) for a brand + product name, or null. */
+export const getCatalogProduct = (brand: string, product: string) =>
+  http.get<CatalogProduct | null>('/resources/catalog/search', {
     params: { brand, product },
   })
 

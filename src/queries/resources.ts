@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import {
-  getCatalogEntries,
+  getCatalogProduct,
   searchCatalogBrands,
   searchCatalogGear,
   searchCatalogProducts,
@@ -60,8 +60,9 @@ export const useCatalogGearSearch = (query: string, compact = false) => {
   })
 }
 
-export const CATALOG_ENTRIES_QUERY = 'catalog-entries'
-export const useCatalogEntries = ({
+export const CATALOG_PRODUCT_QUERY = 'catalog-product'
+/** The catalog product (with variants) for a brand + product name; null when unknown. */
+export const useCatalogProduct = ({
   brand,
   product,
   enabled,
@@ -71,10 +72,10 @@ export const useCatalogEntries = ({
   enabled: boolean
 }) => {
   return useQuery({
-    queryKey: [CATALOG_ENTRIES_QUERY, brand, product],
+    queryKey: [CATALOG_PRODUCT_QUERY, brand, product],
     queryFn: async () => {
-      const res = await getCatalogEntries(brand!, product!)
-      return res.data
+      const res = await getCatalogProduct(brand!, product!)
+      return res.data ?? null
     },
     enabled: !!brand && !!product && enabled,
   })
