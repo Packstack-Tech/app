@@ -12,6 +12,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/Form'
 import {
   Popover,
@@ -28,6 +29,7 @@ import {
 } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 import { useUnits } from '@/hooks/useUnits'
+import { Mixpanel } from '@/lib/mixpanel'
 import {
   TEMP_CATEGORY_OPTIONS,
   TERRAIN_OPTIONS,
@@ -37,6 +39,7 @@ import { useUpdateTrip } from '@/queries/trip'
 import { Trip } from '@/types/trip'
 
 type TripDetailFormValues = {
+  title: string
   location: string
   dates?: DateRange
   distance: number | ''
@@ -61,6 +64,7 @@ type FormatFns = {
 }
 
 const formDefaults = (trip: Trip, fmt: FormatFns): TripDetailFormValues => ({
+  title: trip.title || '',
   location: trip.location || '',
   dates: trip.start_date
     ? {
@@ -92,10 +96,12 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
   }, [trip])
 
   const onSave = (data: TripDetailFormValues) => {
+    const title = data.title.trim() || trip.title
+    if (title !== trip.title) Mixpanel.track('Trip:Rename')
     updateTrip.mutate(
       {
         id: trip.id,
-        title: trip.title,
+        title,
         location: data.location || undefined,
         start_date: data.dates?.from ? format(data.dates.from, 'yyyy-MM-dd') : undefined,
         end_date: data.dates?.to ? format(data.dates.to, 'yyyy-MM-dd') : undefined,
@@ -129,6 +135,27 @@ export const TripDetails: FC<Props> = ({ trip, onBack }) => {
           <form onSubmit={form.handleSubmit(onSave)}>
             <div className="rounded-lg border border-border bg-card p-5 space-y-5">
               <div className="space-y-4">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Trip
+                </p>
+
+                <FormField
+                  control={form.control}
+                  name="title"
+                  rules={{ validate: v => v.trim().length > 0 || 'Give the trip a name' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Isle Royale, JMT 2026..." maxLength={200} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="border-t border-border pt-5 space-y-4">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Location & Dates
                 </p>

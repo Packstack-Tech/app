@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Backpack, SearchX } from 'lucide-react'
+import { OnChangeFn, SortingState } from '@tanstack/react-table'
 
 import { EmptyState } from '@/components/EmptyState'
 import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable'
@@ -7,6 +8,7 @@ import { Loading } from '@/components/ui/Loading'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
 import { ItemScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
+import { Mixpanel } from '@/lib/mixpanel'
 import { ItemCondition, ItemStatus } from '@/types/item'
 
 import { columns } from './columns'
@@ -42,6 +44,17 @@ export const InventoryTable = ({
 }: Props) => {
   const user = useUser()
   const data = useCategorizedItems({ showRemoved })
+
+  // One sort for every category section; [] = the user's manual order.
+  const [sorting, setSorting] = useState<SortingState>([])
+  const onSortingChange = useCallback<OnChangeFn<SortingState>>(updater => {
+    setSorting(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      const s = next[0]
+      Mixpanel.track('Inventory:Sort', s ? { column: s.id, direction: s.desc ? 'desc' : 'asc' } : { column: null })
+      return next
+    })
+  }, [])
 
   const filteredData = useMemo(() => {
     let result = data
@@ -112,6 +125,8 @@ export const InventoryTable = ({
             key={categoryName}
             category={categoryName}
             showHeader={index === 0}
+            sorting={sorting}
+            onSortingChange={onSortingChange}
             columns={tableCols}
             data={items}
             searchFilter={searchFilter}

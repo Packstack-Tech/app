@@ -1,9 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { CSSProperties, useEffect, useMemo, useState } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
+  OnChangeFn,
+  SortingState,
   useReactTable,
 } from '@tanstack/react-table'
 
@@ -24,8 +28,12 @@ import { useUpdateItemSort } from '@/queries/item'
 
 import { ItemRow } from './ItemRow'
 
+type ColumnMeta = { style?: CSSProperties; align?: 'left' | 'right' | 'center' }
+
+type SummaryRow = { weight?: number | null; unit?: string; price?: number | null }
+
 function computeGroupSummary(
-  data: any[],
+  data: SummaryRow[],
   unitSystem: SYSTEM_UNIT
 ): { count: number; weightDisplay: string; value: number } {
   const CONVERSION: Record<string, number> = { g: 1, kg: 1000, oz: 28.3495, lb: 453.592 }
@@ -63,6 +71,14 @@ interface DataTableProps<TData, TValue> {
    * the list carries a <thead>.
    */
   showHeader?: boolean
+  /**
+   * Sort state is owned by the parent so one header click applies to every
+   * category section. Empty = the user's manual (drag) order. While a sort
+   * is active, drag reordering is disabled because the manual order is
+   * hidden anyway.
+   */
+  sorting?: SortingState
+  onSortingChange?: OnChangeFn<SortingState>
 }
 
 export function CategorizedItemsTable<TData extends { id: number }, TValue>({
@@ -77,6 +93,8 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   onToggleCategory,
   onSelectItem,
   showHeader = false,
+  sorting,
+  onSortingChange,
 }: DataTableProps<TData, TValue>) {
   const user = useUser()
   const updateItemSort = useUpdateItemSort()
@@ -86,17 +104,22 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
     setCategoryItems(data)
   }, [data])
 
+  const isSorted = !!sorting && sorting.length > 0
+
   const table = useReactTable({
     data: categoryItems,
     columns,
     state: {
       globalFilter: searchFilter,
-      sorting: [{ id: 'sort_order', desc: false }],
+      sorting: sorting ?? [],
     },
     filterFns: { fuzzy: fuzzyFilter },
     onGlobalFilterChange: onSearchFilterChange,
+    onSortingChange,
+    enableSortingRemoval: true,   // asc → desc → off
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   })
 
   const moveItem = (dragIndex: number | undefined, hoverIndex: number) => {
@@ -131,7 +154,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   const someSelected = selectedCount > 0 && !allSelected
 
   const groupSummary = useMemo(
-    () => computeGroupSummary(data, user.unit_weight),
+    () => computeGroupSummary(data as SummaryRow[], user.unit_weight),
     [data, user.unit_weight]
   )
 
@@ -141,7 +164,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
     <colgroup>
       <col className="w-10" />
       {columns.map((column, i) => (
-        <col key={i} style={(column.meta as any)?.style} />
+        <col key={i} style={(column.meta as ColumnMeta | undefined)?.style} />
       ))}
     </colgroup>
   )
@@ -155,16 +178,46 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 <TableHead className="w-10 px-2" />
-                {headerGroup.headers.map(header => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
+                {headerGroup.headers.map(header => {
+                  const canSort = header.column.getCanSort()
+                  const dir = header.column.getIsSorted()
+                  const align = (header.column.columnDef.meta as ColumnMeta | undefined)?.align
+                  const label = header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())
+                  return (
+                    <TableHead key={header.id}>
+                      {canSort ? (
+                        <button
+                          type="button"
+                          onClick={header.column.getToggleSortingHandler()}
+                          className={
+                            'inline-flex items-center gap-1 select-none hover:text-foreground transition-colors ' +
+                            (dir ? 'text-foreground' : '') +
+                            (align === 'right' ? ' flex-row-reverse' : '')
+                          }
+                          aria-sort={dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : 'none'}
+                          title={
+                            dir === 'asc' ? 'Sorted ascending — click for descending'
+                              : dir === 'desc' ? 'Sorted descending — click to clear'
+                                : 'Click to sort'
+                          }
+                        >
+                          {label}
+                          {dir === 'asc' ? (
+                            <ArrowUp size={12} />
+                          ) : dir === 'desc' ? (
+                            <ArrowDown size={12} />
+                          ) : (
+                            <ArrowUpDown size={12} className="opacity-30" />
+                          )}
+                        </button>
+                      ) : (
+                        label
                       )}
-                  </TableHead>
-                ))}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
             ))}
           </TableHeader>
@@ -213,7 +266,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
               key={row.id}
               idx={idx}
               id={category}
-              disabled={!!searchFilter}
+              disabled={!!searchFilter || isSorted}
               isSelected={selectedIds?.has((row.original as TData).id)}
               isActive={activeItemId === (row.original as TData).id}
               onToggleSelect={() => onToggleItem?.((row.original as TData).id)}

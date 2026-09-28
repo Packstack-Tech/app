@@ -1,5 +1,5 @@
-import { FC } from 'react'
-import { PieChart } from 'lucide-react'
+import { FC, useMemo, useState } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown, PieChart } from 'lucide-react'
 import { ResponsivePie } from '@nivo/pie'
 
 import { Button } from '@/components/ui'
@@ -43,13 +43,45 @@ export const BreakdownDialog: FC<Props> = ({ data, label = 'View Breakdown' }) =
     '#5574A6',
     '#3B3EAC',
   ]
-  const chartData = data.map(({ label, value }) => {
+  // Colors are assigned by pie order and must follow the category when the
+  // table is sorted, so each row carries its own color.
+  const chartData = data.map(({ label, value }, index) => {
     return {
       id: label,
       label: label,
       value: value,
+      color: chartColors[index % chartColors.length],
     }
   })
+
+  type SortKey = 'label' | 'value'
+  const [sort, setSort] = useState<{ key: SortKey; desc: boolean } | null>(null)
+  const toggleSort = (key: SortKey) =>
+    setSort(prev => {
+      // asc → desc → off (weight starts descending: heaviest first is the useful view)
+      const next =
+        !prev || prev.key !== key
+          ? { key, desc: key === 'value' }
+          : prev.desc === (key === 'value')
+            ? { key, desc: key !== 'value' }
+            : null
+      Mixpanel.track('Breakdown:Sort', next ? { column: next.key, direction: next.desc ? 'desc' : 'asc' } : { column: null })
+      return next
+    })
+  const tableRows = useMemo(() => {
+    if (!sort) return chartData
+    const rows = [...chartData]
+    rows.sort((a, b) =>
+      sort.key === 'value'
+        ? a.value - b.value
+        : a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+    )
+    return sort.desc ? rows.reverse() : rows
+  }, [chartData, sort])
+  const SortIcon = ({ column }: { column: SortKey }) =>
+    sort?.key === column
+      ? sort.desc ? <ArrowDown size={12} /> : <ArrowUp size={12} />
+      : <ArrowUpDown size={12} className="opacity-30" />
 
   const aggregateUnit = data[0]?.unit || ''
   const valueFormat = (value: number) => `${value.toFixed(2)} ${aggregateUnit}`
@@ -106,20 +138,35 @@ export const BreakdownDialog: FC<Props> = ({ data, label = 'View Breakdown' }) =
               <thead>
                 <tr>
                   <th className="w-6"></th>
-                  <th className="text-left font-semibold pb-1">Category</th>
-                  <th className="text-right font-semibold pb-1">Weight</th>
+                  <th className="text-left font-semibold pb-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleSort('label')}
+                      className="inline-flex items-center gap-1 select-none hover:text-foreground"
+                      title="Sort by category"
+                    >
+                      Category <SortIcon column="label" />
+                    </button>
+                  </th>
+                  <th className="text-right font-semibold pb-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleSort('value')}
+                      className="inline-flex items-center gap-1 flex-row-reverse select-none hover:text-foreground"
+                      title="Sort by weight"
+                    >
+                      Weight <SortIcon column="value" />
+                    </button>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {chartData.map(({ label, value }, index) => (
+                {tableRows.map(({ label, value, color }) => (
                   <tr key={label} className="border-b border-border">
                     <td className="py-1.5">
                       <div
                         className="w-3 h-3 rounded-full"
-                        style={{
-                          backgroundColor:
-                            chartColors[index % chartColors.length],
-                        }}
+                        style={{ backgroundColor: color }}
                       />
                     </td>
                     <td className="py-1.5">{label}</td>
