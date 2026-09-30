@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 
 import { SYSTEM_UNIT } from '@/lib/consts'
+import { applyPackItemEdit } from '@/lib/worn'
 import { Item } from '@/types/item'
 import { PackItem, PackItemEditableKeys, TripPackKeys } from '@/types/pack'
 import { TripPack } from '@/types/pack'
@@ -237,7 +238,8 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
   updateItem: (id, key, value) =>
     set(state =>
       updateCurrentPackItems(state, items =>
-        items.map(item => (item.item_id === id ? { ...item, [key]: value } : item))
+        // applyPackItemEdit keeps worn / worn_quantity / quantity consistent.
+        items.map(item => (item.item_id === id ? applyPackItemEdit(item, key, value) : item))
       )
     ),
 

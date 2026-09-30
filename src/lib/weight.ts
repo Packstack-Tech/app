@@ -3,6 +3,7 @@ import { Unit } from '@/types/item'
 import { PackItem } from '@/types/pack'
 
 import { SYSTEM_UNIT } from './consts'
+import { wornQuantity } from './worn'
 
 const CONVERSION_FACTORS: Record<Unit, number> = {
   g: 1,
@@ -124,27 +125,23 @@ export function calculateWeightBreakdown(
   items: PackItem[],
   toUnit: Unit
 ): WeightBreakdown {
-  const { worn, consumable, total } = items.reduce(
-    (acc, { item, quantity, worn }) => {
-      const converted = convertWeightValue(item.weight || 0, item.unit, toUnit)
-      const quantityWeight = converted * quantity
+  // Same split as the API (utils/pack_weight.py), mobile and the public
+  // site: worn units are worn; the remaining units are consumable or base.
+  return items.reduce(
+    (acc, pi) => {
+      const { item, quantity } = pi
+      const unit = convertWeightValue(item.weight || 0, item.unit, toUnit)
+      const worn = unit * wornQuantity(pi)
+      const rest = unit * quantity - worn
       return {
-        worn: worn ? acc.worn + converted : acc.worn,
-        consumable: item.consumable
-          ? acc.consumable + quantityWeight
-          : acc.consumable,
-        total: acc.total + quantityWeight,
+        worn: acc.worn + worn,
+        consumable: item.consumable ? acc.consumable + rest : acc.consumable,
+        base: item.consumable ? acc.base : acc.base + rest,
+        total: acc.total + unit * quantity,
       }
     },
-    { worn: 0, consumable: 0, total: 0 }
+    { worn: 0, consumable: 0, base: 0, total: 0 }
   )
-
-  return {
-    worn,
-    consumable,
-    base: total - (worn + consumable),
-    total,
-  }
 }
 
 /**

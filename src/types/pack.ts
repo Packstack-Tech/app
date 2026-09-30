@@ -28,7 +28,10 @@ export type Pack = BasePack & {
 
 type PackItemEditable = {
   quantity: number
+  /** Kept equal to `worn_quantity > 0`; read counts through `wornQuantity()`. */
   worn: boolean
+  /** Units worn, 0..quantity (1 of 5 shirts). Optional: cached trips predate it. */
+  worn_quantity?: number
   checked: boolean
   sort_order: number
 }

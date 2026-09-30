@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react'
-import { FlameIcon, StickyNoteIcon, XCircleIcon } from 'lucide-react'
+import { FlameIcon, MinusIcon, PlusIcon, StickyNoteIcon, XCircleIcon } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { Cell } from '@tanstack/react-table'
 
@@ -18,6 +18,7 @@ import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
 import { ownedQuantity } from '@/lib/overpack'
 import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
+import { wornQuantity } from '@/lib/worn'
 import { ItemForm as ItemFormValues, Unit } from '@/types/item'
 import { PackItem } from '@/types/pack'
 
@@ -146,20 +147,91 @@ export const WornCell: FC<Props> = ({
     )
   }
 
-  const onClick = () => updateItem(original.item_id, 'worn', !original.worn)
+  const worn = wornQuantity(original)
+
+  // One unit (or less): today's toggle.
+  if (original.quantity <= 1) {
+    const onClick = () => updateItem(original.item_id, 'worn', !original.worn)
+    return (
+      <div className="flex justify-center">
+        <button
+          onClick={onClick}
+          className={`cursor-pointer text-[10px] capitalize leading-none px-1.5 py-0.5 rounded-full transition-colors ${
+            worn > 0
+              ? 'bg-primary text-primary-foreground'
+              : 'border border-border text-muted-foreground'
+          }`}
+        >
+          worn
+        </button>
+      </div>
+    )
+  }
+
+  // Several units: how many of them are worn (1 of 5 shirts). The column is
+  // narrow, so the pill opens a stepper instead of holding one inline.
+  const maxWorn = Math.floor(original.quantity)
+  const setWorn = (next: number) => {
+    const clamped = Math.max(0, Math.min(next, maxWorn))
+    if (clamped === worn) return
+    updateItem(original.item_id, 'worn_quantity', clamped)
+    Mixpanel.track('PackItem:WornQuantitySet', {
+      quantity: original.quantity,
+      worn_quantity: clamped,
+      previous: worn,
+      source: 'worn-cell',
+    })
+  }
 
   return (
     <div className="flex justify-center">
-      <button
-        onClick={onClick}
-        className={`cursor-pointer text-[10px] capitalize leading-none px-1.5 py-0.5 rounded-full transition-colors ${
-          original.worn
-            ? 'bg-primary text-primary-foreground'
-            : 'border border-border text-muted-foreground'
-        }`}
-      >
-        worn
-      </button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            className={`cursor-pointer text-[10px] leading-none px-1.5 py-0.5 rounded-full tabular-nums transition-colors ${
+              worn > 0
+                ? 'bg-primary text-primary-foreground'
+                : 'border border-border text-muted-foreground'
+            }`}
+            aria-label={`${worn} of ${original.quantity} worn`}
+          >
+            {worn > 0 ? `${worn}/${original.quantity}` : 'worn'}
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-3" align="center">
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              How many of the {original.quantity} are worn?
+            </span>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setWorn(worn - 1)}
+                disabled={worn <= 0}
+                className="flex h-7 w-7 items-center justify-center rounded-md border border-border disabled:opacity-40"
+                aria-label="Wear one fewer"
+              >
+                <MinusIcon size={14} />
+              </button>
+              <span className="min-w-12 text-center text-sm font-medium tabular-nums">
+                {worn} of {original.quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setWorn(worn + 1)}
+                disabled={worn >= maxWorn}
+                className="flex h-7 w-7 items-center justify-center rounded-md border border-border disabled:opacity-40"
+                aria-label="Wear one more"
+              >
+                <PlusIcon size={14} />
+              </button>
+            </div>
+            <span className="text-[11px] text-muted-foreground">
+              The rest count toward base weight.
+            </span>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }

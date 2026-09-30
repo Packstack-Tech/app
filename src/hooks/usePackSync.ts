@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
+import { withWornQuantity } from '@/lib/worn'
 import { useCreatePack, useUpdatePack } from '@/queries/pack'
 
 export function usePackSync(tripId?: number) {
@@ -55,12 +56,12 @@ export function usePackSync(tripId?: number) {
             if (pack.id) {
               await updatePack.mutateAsync({
                 id: pack.id,
-                data: { ...pack, trip_id: id },
+                data: { ...pack, items: withWornQuantity(pack.items), trip_id: id },
               })
             } else {
               const created = await createPack.mutateAsync({
                 title: pack.title,
-                items: pack.items,
+                items: withWornQuantity(pack.items),
                 trip_id: id,
               })
               assignPackId(index, created.id, id)

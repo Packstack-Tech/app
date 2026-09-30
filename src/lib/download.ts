@@ -2,6 +2,7 @@ import { saveAs } from 'file-saver'
 
 import { groupByCategory } from '@/lib/categorize'
 import { Currency, formatCurrency } from '@/lib/currencies'
+import { wornQuantity } from '@/lib/worn'
 import { Item } from '@/types/item'
 import { PackItem } from '@/types/pack'
 
@@ -111,7 +112,7 @@ export const downloadPackingListCsv = (
   const rows = categorized.flatMap(({ category, items }) => {
     const categoryName = category?.category?.name ?? 'Uncategorized'
     return items.map(packItem => {
-      const { item, quantity, worn, checked } = packItem
+      const { item, quantity, checked } = packItem
       const kcal = item.calories ? item.calories * quantity : ''
       const value = item.price ? formatCurrency(item.price, currency) : ''
       return [
@@ -119,7 +120,8 @@ export const downloadPackingListCsv = (
         item.name,
         formatProduct(item),
         quantity,
-        worn ? 'true' : 'false',
+        // Number of units worn (0..quantity). Column name kept as `worn`.
+        wornQuantity(packItem),
         checked ? 'true' : 'false',
         item.weight ?? '',
         item.unit,
