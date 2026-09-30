@@ -219,6 +219,9 @@ export const bulkDeleteItems = (ids: number[]) =>
   http.post('/item/bulk-delete', ids)
 
 export const updateItem = (data: EditItem) => http.put<Item>('/item', data)
+/** Copies an item's core characteristics into a new closet item (not notes,
+ *  lifecycle, history or quantity). */
+export const cloneItem = (itemId: number) => http.post<Item>(`/item/${itemId}/clone`)
 
 export const updateItemSortOrder = (data: UpdateItemSortOrder) =>
   http.put('/item/sort', data)

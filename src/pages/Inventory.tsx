@@ -39,9 +39,9 @@ import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { QuickAddGear } from '@/containers/QuickAddGear'
 import { useReplacementScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
-import { ownedValue } from '@/lib/overpack'
 import { formatCurrency } from '@/lib/currencies'
 import { downloadInventory } from '@/lib/download'
+import { ownedValue } from '@/lib/overpack'
 import { cn } from '@/lib/utils'
 import { formatTotalWeight } from '@/lib/weight'
 import { ItemDetailPage } from '@/pages/ItemDetail'
@@ -69,6 +69,8 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   const [conditionFilter, setConditionFilter] = useState<ItemCondition | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
   const [selectedItemId, setSelectedItemId] = useState<number | null>(initialItemId ?? null)
+  // Set right after Clone so the copy's panel opens with its name selected.
+  const [focusNameId, setFocusNameId] = useState<number | null>(null)
   const [showNewItemModal, setShowNewItemModal] = useState(initialShowNew ?? false)
   // Adding gear now starts at the catalog search; the manual form is the
   // fallback offered inside it, matching mobile.
@@ -471,6 +473,11 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
               itemId={selectedItemId}
               inline
               onClose={() => setSelectedItemId(null)}
+              onCloned={id => {
+                setFocusNameId(id)
+                setSelectedItemId(id)
+              }}
+              autoFocusName={focusNameId === selectedItemId}
             />
           )}
         </div>

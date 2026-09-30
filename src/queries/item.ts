@@ -11,6 +11,7 @@ import {
   bulkArchiveItems,
   bulkDeleteItems,
   bulkRestoreItems,
+  cloneItem,
   createItem,
   deleteItem,
   detachItemCatalog,
@@ -191,6 +192,21 @@ export const useBulkDeleteItems = () => {
       toast({ title: 'Items permanently deleted' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+    },
+  })
+}
+
+export const useCloneItem = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (itemId: number) => {
+      const res = await cloneItem(itemId)
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
     },
   })
 }

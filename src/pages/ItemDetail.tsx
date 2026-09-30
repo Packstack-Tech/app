@@ -1,6 +1,6 @@
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ArrowLeft, X } from 'lucide-react'
+import { ArrowLeft, CopyIcon, X } from 'lucide-react'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -24,10 +24,11 @@ import { NotesSection } from '@/containers/ItemDetail/sections/NotesSection'
 import { ReplacementSection } from '@/containers/ItemDetail/sections/ReplacementSection'
 import { RetirementSection } from '@/containers/ItemDetail/sections/RetirementSection'
 import { SpecsSection } from '@/containers/ItemDetail/sections/SpecsSection'
+import { useToast } from '@/hooks/useToast'
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
 import { getItemDisplayUnit } from '@/lib/weight'
-import { useCreateItem, useInventory, useUpdateItem } from '@/queries/item'
+import { useCloneItem, useCreateItem, useInventory, useUpdateItem } from '@/queries/item'
 import { Item, ItemForm as ItemFormValues, Unit } from '@/types/item'
 
 const schema = z.object({
@@ -94,6 +95,11 @@ interface Props {
   inline?: boolean
   onClose?: () => void
   onCreated?: (id: number) => void
+  /** Called with the new item's id after Clone. Without it the page
+   *  navigates to /inventory/$itemId, which opens the copy in the panel. */
+  onCloned?: (id: number) => void
+  /** Focus and select the name field on mount (set for a fresh clone). */
+  autoFocusName?: boolean
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -112,7 +118,7 @@ const STATUS_STYLES: Record<string, string> = {
   lost: 'bg-red-500/15 text-red-400',
 }
 
-export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCreated }) => {
+export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCreated, onCloned, autoFocusName }) => {
   const navigate = useNavigate()
   const { data: inventory } = useInventory()
   const createItem = useCreateItem()
@@ -180,6 +186,62 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
 
   const isSaving = createItem.isPending || updateItem.isPending
 
+  // Clone copies the SAVED item, so it's only offered once the form matches
+  // it -- otherwise unsaved edits would silently not be in the copy.
+  const cloneItem = useCloneItem()
+  const { toast } = useToast()
+  const isDirty = form.formState.isDirty
+  const cloneDisabled = !item || isDirty || isSaving || cloneItem.isPending
+
+  const handleClone = () => {
+    if (!item || cloneDisabled) return
+    cloneItem.mutate(item.id, {
+      onSuccess: copy => {
+        Mixpanel.track('Item:Clone', {
+          source_item_id: item.id,
+          has_catalog: !!item.catalog_product_id,
+          source: 'item-detail',
+        })
+        toast({ title: "Cloned — you're editing the copy" })
+        if (onCloned) onCloned(copy.id)
+        else navigate({ to: '/inventory/$itemId', params: { itemId: String(copy.id) } })
+      },
+    })
+  }
+
+  useEffect(() => {
+    if (autoFocusName && item) form.setFocus('itemname', { shouldSelect: true })
+    // Once, when the copy has loaded into the form.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFocusName, !!item])
+
+  const cloneButton = isEdit ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {/* Disabled buttons swallow pointer events; the span keeps the
+            tooltip working while the button is disabled. */}
+        <span tabIndex={cloneDisabled ? 0 : -1} className="inline-flex">
+          <Button
+            type="button"
+            variant="outline"
+            size={inline ? 'sm' : 'default'}
+            onClick={handleClone}
+            disabled={cloneDisabled}
+            className={cloneDisabled ? 'pointer-events-none' : undefined}
+          >
+            <CopyIcon size={14} />
+            {cloneItem.isPending ? 'Cloning...' : 'Clone'}
+          </Button>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-60">
+        {isDirty
+          ? 'Save your changes before cloning.'
+          : 'Create a new item with the same product, weight and category. Notes, dates and history aren\'t copied.'}
+      </TooltipContent>
+    </Tooltip>
+  ) : null
+
   const itemName = form.watch('itemname')
   const brandDisplay = item?.brand?.name
   const productDisplay = item?.product?.name
@@ -226,6 +288,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
               </Tooltip>
             </div>
           )}
+          {cloneButton}
           <Button
             type="submit"
             form={formId}
@@ -282,6 +345,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
               </Tooltip>
             </div>
           )}
+          {cloneButton}
           <Button
             type="submit"
             form={formId}
