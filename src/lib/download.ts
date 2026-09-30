@@ -24,6 +24,7 @@ export const downloadInventory = (items?: Item[]) => {
     'weight',
     'unit',
     'price',
+    'quantity',
     'consumable',
     'product_url',
     'notes',
@@ -39,6 +40,7 @@ export const downloadInventory = (items?: Item[]) => {
         unit,
         consumable,
         price,
+        quantity,
         product_url,
         notes,
       }) =>
@@ -50,6 +52,7 @@ export const downloadInventory = (items?: Item[]) => {
           weight,
           unit,
           price || 0,
+          quantity ?? 1,
           consumable ? 'true' : '',
           product_url,
           notes,

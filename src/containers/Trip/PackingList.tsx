@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react'
+import { FC, useEffect, useMemo, useRef } from 'react'
 import {
   CheckSquare,
   Download,
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/DropdownMenu'
 import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { useCategorizedPackItems } from '@/hooks/useCategorizedPackItems'
+import { useOverpack } from '@/hooks/useOverpack'
 import { usePackMembership } from '@/hooks/usePackMembership'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
@@ -42,6 +43,7 @@ import { Trip } from '@/types/trip'
 import { PackTabs } from '../PackTabs/PackTabs'
 import { AggregatedPackList } from './AggregatedPackList'
 import { columns } from './columns'
+import { OverpackContext } from './overpackContext'
 import { PackMembershipContext } from './packMembershipContext'
 
 type Props = {
@@ -129,6 +131,20 @@ export const PackingList: FC<Props> = ({ trip }) => {
 
   // Computed once here and provided to the rows, never per cell.
   const membership = usePackMembership()
+  const overpack = useOverpack()
+
+  // One event per trip visit when the warning is actually visible, so the
+  // metric reads "trips where a user saw it", not "renders".
+  const warnedRef = useRef(false)
+  useEffect(() => {
+    if (warnedRef.current || overpack.settings.mode === 'off' || overpack.overCount === 0) return
+    warnedRef.current = true
+    Mixpanel.track('Overpack:WarningShown', {
+      mode: overpack.settings.mode,
+      item_count: overpack.overCount,
+      pack_count: packs.length,
+    })
+  }, [overpack.overCount, overpack.settings.mode, packs.length])
 
   const colgroup = useMemo(
     () => (
@@ -328,6 +344,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
       )}
       {!showAll && (
         <PackMembershipContext.Provider value={membership}>
+         <OverpackContext.Provider value={overpack}>
           {categorizedItems.map(({ category, items }) => {
             const categoryName = category?.category?.name || 'Uncategorized'
             return (
@@ -340,6 +357,7 @@ export const PackingList: FC<Props> = ({ trip }) => {
               />
             )
           })}
+         </OverpackContext.Provider>
         </PackMembershipContext.Provider>
       )}
     </div>

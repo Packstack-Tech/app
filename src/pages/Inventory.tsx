@@ -39,6 +39,7 @@ import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { QuickAddGear } from '@/containers/QuickAddGear'
 import { useReplacementScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
+import { ownedValue } from '@/lib/overpack'
 import { formatCurrency } from '@/lib/currencies'
 import { downloadInventory } from '@/lib/download'
 import { cn } from '@/lib/utils'
@@ -158,7 +159,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
     // wishlisted, sold, or lost so totals reflect the real closet.
     const NOT_OWNED = new Set(['wishlist', 'sold', 'lost'])
     const active = inventory.filter(i => !i.removed && !NOT_OWNED.has(i.status || 'active'))
-    const value = active.reduce((sum, i) => sum + (i.price || 0), 0)
+    const value = active.reduce((sum, i) => sum + ownedValue(i), 0)
     let totalGrams = 0
     for (const item of active) {
       if (item.weight && item.unit) {

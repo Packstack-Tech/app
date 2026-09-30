@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/Form'
 import { Preferences } from '@/containers/Dashboard/Preferences'
 import { ConnectedApps } from '@/containers/Settings/ConnectedApps'
+import { OverpackSettings } from '@/containers/Settings/OverpackSettings'
 import { DeleteAccount } from '@/containers/Settings/DeleteAccount'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useUser } from '@/hooks/useUser'
@@ -92,6 +93,10 @@ export const Settings = () => {
         </h3>
         <Preferences bare />
       </section>
+
+      <hr className="border-border" />
+
+      <OverpackSettings />
 
       <hr className="border-border" />
 

@@ -74,6 +74,7 @@ const schema = z.object({
   weight: z.coerce.number().min(0, 'Weight must be positive').optional(),
   unit: z.string().optional(),
   price: z.coerce.number().min(0, 'Price must be positive').optional(),
+  quantity: z.coerce.number().int('Quantity must be a whole number').min(1, 'You must own at least 1'),
   calories: z.coerce.number().min(0, 'Calories must be positive').optional(),
   consumable: z.boolean().optional(),
   product_url: z.string().optional(),
@@ -103,6 +104,7 @@ const formDefaults = (item?: Item, defaultUnit: Unit = 'g') => ({
   weight: item?.weight || 0,
   unit: item?.unit || defaultUnit,
   price: item?.price || 0,
+  quantity: item?.quantity ?? 1,
   calories: item?.calories || 0,
   consumable: item?.consumable || false,
   product_url: item?.product_url || '',
@@ -274,10 +276,18 @@ export const ItemForm: FC<Props> = ({
   const onSubmit = (data: ItemFormValues) => {
     const { itemname, ...payload } = data
     if (item) {
+      const previousQuantity = item.quantity ?? 1
       updateItem.mutate(
         { ...payload, name: itemname, id: item.id },
         {
           onSuccess: () => {
+            if (payload.quantity !== previousQuantity) {
+              Mixpanel.track('Item:QuantitySet', {
+                quantity: payload.quantity,
+                previous: previousQuantity,
+                source: 'item-form',
+              })
+            }
             onSave?.(data)
             onClose()
           },
@@ -288,6 +298,13 @@ export const ItemForm: FC<Props> = ({
         { ...payload, name: itemname },
         {
           onSuccess: () => {
+            if ((payload.quantity ?? 1) > 1) {
+              Mixpanel.track('Item:QuantitySet', {
+                quantity: payload.quantity,
+                previous: null,
+                source: 'item-form',
+              })
+            }
             form.reset(formDefaults(undefined, defaultUnit))
             if (!another) {
               onClose()
@@ -554,6 +571,29 @@ export const ItemForm: FC<Props> = ({
                             if (!field.value) field.onChange('')
                           }}
                         />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="quantity"
+                    render={({ field }) => (
+                      <FormItem className="w-24">
+                        <FormLabel className="inline-flex items-center gap-1">
+                          Owned
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <InfoIcon className="size-3.5 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-56">
+                              How many of this item you own. Packing more than this
+                              across a trip is flagged.
+                            </TooltipContent>
+                          </Tooltip>
+                        </FormLabel>
+                        <Input {...field} type="number" step="1" min={1} inputMode="numeric" />
                         <FormMessage />
                       </FormItem>
                     )}

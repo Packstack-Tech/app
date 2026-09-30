@@ -22,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/Table'
 import { useUser } from '@/hooks/useUser'
+import { ownedValue } from '@/lib/overpack'
 import { SYSTEM_UNIT } from '@/lib/consts'
 import { formatTotalWeight } from '@/lib/weight'
 import { useUpdateItemSort } from '@/queries/item'
@@ -30,7 +31,7 @@ import { ItemRow } from './ItemRow'
 
 type ColumnMeta = { style?: CSSProperties; align?: 'left' | 'right' | 'center' }
 
-type SummaryRow = { weight?: number | null; unit?: string; price?: number | null }
+type SummaryRow = { weight?: number | null; unit?: string; price?: number | null; quantity?: number }
 
 function computeGroupSummary(
   data: SummaryRow[],
@@ -44,7 +45,8 @@ function computeGroupSummary(
     if (item.weight && item.unit) {
       totalGrams += item.weight * (CONVERSION[item.unit] || 1)
     }
-    if (item.price) totalValue += item.price
+    // Value counts every copy owned; weight counts one (you don't carry them all).
+    if (item.price) totalValue += ownedValue(item)
   }
 
   return {

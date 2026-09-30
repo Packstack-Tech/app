@@ -3,6 +3,7 @@ import { FlameIcon, StickyNoteIcon, XCircleIcon } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { Cell } from '@tanstack/react-table'
 
+import { OverpackBadge } from '@/components/OverpackBadge'
 import { PackMembershipBadge } from '@/components/PackMembershipBadge'
 import { Input } from '@/components/ui'
 import { DialogTrigger } from '@/components/ui/Dialog'
@@ -14,10 +15,13 @@ import {
 import { ItemForm } from '@/containers/ItemForm'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
+import { Mixpanel } from '@/lib/mixpanel'
+import { ownedQuantity } from '@/lib/overpack'
 import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
 import { ItemForm as ItemFormValues, Unit } from '@/types/item'
 import { PackItem } from '@/types/pack'
 
+import { useOverpackContext } from './overpackContext'
 import { usePackMembershipContext } from './packMembershipContext'
 
 type Props = {
@@ -35,6 +39,7 @@ export const NameCell: FC<Props> = ({
   )
   const membership = usePackMembershipContext()
   const otherPacks = membership.get(original.item_id)
+  const overpack = useOverpackContext().byItem.get(original.item_id)
 
   const handleSave = (data: ItemFormValues) => {
     const { itemname, ...rest } = data
@@ -43,6 +48,7 @@ export const NameCell: FC<Props> = ({
       weight: rest.weight,
       unit: rest.unit as Unit,
       price: rest.price,
+      quantity: rest.quantity,
       consumable: rest.consumable,
       notes: rest.notes,
       product_url: rest.product_url,
@@ -69,6 +75,7 @@ export const NameCell: FC<Props> = ({
           </button>
         </DialogTrigger>
         <PackMembershipBadge packNames={otherPacks} />
+        <OverpackBadge status={overpack} />
       </div>
     </ItemForm>
   )
@@ -79,18 +86,32 @@ export const QuantityCell: FC<Props> = ({
     row: { original },
   },
 }) => {
-  const { updateItem } = useTripPacks(
-    useShallow(store => ({ updateItem: store.updateItem }))
+  const { updateItem, selectedIndex } = useTripPacks(
+    useShallow(store => ({ updateItem: store.updateItem, selectedIndex: store.selectedIndex }))
   )
+  const overpack = useOverpackContext()
   const [value, setValue] = useState(original.quantity.toString())
   const [error, setError] = useState(false)
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const quantity = parseFloat(e.target.value.trim())
+    let quantity = parseFloat(e.target.value.trim())
     if (isNaN(quantity)) {
       setError(true)
       return
     }
     setError(false)
+    // Block mode: never let this pack push the trip-wide total past what the
+    // user owns. Clamp rather than refuse so the field still lands on a value.
+    if (!overpack.canSet(original.item_id, selectedIndex, quantity)) {
+      const max = overpack.maxFor(original.item_id, selectedIndex, ownedQuantity(original.item))
+      Mixpanel.track('Overpack:AddBlocked', {
+        item_id: original.item_id,
+        requested: quantity,
+        allowed: max,
+        source: 'quantity-cell',
+      })
+      quantity = max
+      setValue(quantity.toString())
+    }
     updateItem(original.item_id, 'quantity', quantity)
   }
 

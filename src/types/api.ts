@@ -1,5 +1,5 @@
 import { SortOrder } from './image'
-import { User } from './user'
+import { OverpackMode, User } from './user'
 
 export type SendOtpRequest = {
   email: string
@@ -46,6 +46,8 @@ export type UpdateUser = {
   reddit_url?: string
   snap_url?: string
   personal_url?: string
+  overpack_mode?: OverpackMode
+  overpack_include_consumables?: boolean
 }
 
 export type UpdateTripPhotoOrder = {

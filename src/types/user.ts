@@ -5,6 +5,8 @@ import { AvatarImage } from './image'
 import { Unit } from './item'
 import { Trip } from './trip'
 
+export type OverpackMode = 'off' | 'warn' | 'block'
+
 export type User = {
   id: number
   email: string
@@ -20,6 +22,9 @@ export type User = {
   email_verified: boolean
   is_subscribed: boolean
   hide_table_headers: boolean | null
+  /** Over-pack check: packing more of an item than the closet says you own. */
+  overpack_mode: OverpackMode
+  overpack_include_consumables: boolean
 
   instagram_url: string | null
   youtube_url: string | null

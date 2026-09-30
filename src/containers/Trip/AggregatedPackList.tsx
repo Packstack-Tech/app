@@ -3,6 +3,7 @@ import { MoreVertical, PackageOpen, Users } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { EmptyState } from '@/components/EmptyState'
+import { OverpackBadge } from '@/components/OverpackBadge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import {
   AggregatedPackItem,
   useAggregatedPackItems,
 } from '@/hooks/useAggregatedPackItems'
+import { useOverpack } from '@/hooks/useOverpack'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
 import { convertWeightValue, formatTotalWeight } from '@/lib/weight'
@@ -31,6 +33,7 @@ import { convertWeightValue, formatTotalWeight } from '@/lib/weight'
 export const AggregatedPackList: FC = () => {
   const { groups, itemCount, duplicateCount } = useAggregatedPackItems()
   const user = useUser()
+  const overpack = useOverpack()
   const { packs, selectPack, removeItemFromPack, displayUnitSystem } =
     useTripPacks(
       useShallow(store => ({
@@ -102,8 +105,11 @@ export const AggregatedPackList: FC = () => {
                     </span>
 
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-foreground">
-                        {row.item.name}
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate text-sm font-medium text-foreground">
+                          {row.item.name}
+                        </span>
+                        <OverpackBadge status={overpack.byItem.get(row.item.id)} compact />
                       </div>
                       <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                         {carriedByMany && <Users size={11} className="shrink-0" />}

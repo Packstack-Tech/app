@@ -13,9 +13,11 @@ import {
 } from '@/components/ui/Tooltip'
 import { QuickAddGear } from '@/containers/QuickAddGear'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
+import { useOverpack } from '@/hooks/useOverpack'
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { Mixpanel } from '@/lib/mixpanel'
+import { ownedQuantity } from '@/lib/overpack'
 import { useKits } from '@/queries/kit'
 import { Item } from '@/types/item'
 import { Kit } from '@/types/kit'
@@ -49,11 +51,35 @@ export const InventorySidebar = () => {
     return kits.filter(kit => kit.name.toLowerCase().includes(q))
   }, [kits, kitSearch])
 
+  const overpack = useOverpack()
+
+  /** Block mode: refuse an add that would push the trip past what's owned. */
+  const blockedAdd = (item: Item, quantity: number, source: string) => {
+    if (overpack.settings.mode !== 'block') return false
+    if (item.consumable && !overpack.settings.includeConsumables) return false
+    const max = overpack.maxFor(item.id, selectedIndex, ownedQuantity(item))
+    if (quantity <= max) return false
+    Mixpanel.track('Overpack:AddBlocked', {
+      item_id: item.id,
+      requested: quantity,
+      allowed: max,
+      source,
+    })
+    return true
+  }
+
   const onSelect = (item: Item) => {
     const existingItem = selectedItems.find(i => i.item_id === item.id)
     if (existingItem) {
       removeItem(item.id)
     } else {
+      if (blockedAdd(item, 1, 'inventory-sidebar')) {
+        toast({
+          title: `You own ${ownedQuantity(item)} of ${item.name}`,
+          description: 'All of them are already packed on this trip. Edit the item to change how many you own, or turn off blocking in Settings.',
+        })
+        return
+      }
       addItem({
         item: { ...item },
         item_id: item.id,
@@ -81,10 +107,15 @@ export const InventorySidebar = () => {
 
   const onLoadKit = (kit: Kit) => {
     let added = 0
+    let blocked = 0
     for (const kitItem of kit.items) {
       if (kitItem.item.removed) continue
       const exists = selectedItems.find(i => i.item_id === kitItem.item_id)
       if (exists) continue
+      if (blockedAdd(kitItem.item, kitItem.quantity, 'kit-load')) {
+        blocked++
+        continue
+      }
 
       addItem({
         item: { ...kitItem.item },
@@ -100,7 +131,14 @@ export const InventorySidebar = () => {
     if (added > 0) {
       toast({
         title: `Loaded ${kit.name}`,
-        description: `${added} ${added === 1 ? 'item' : 'items'} added to pack`,
+        description:
+          `${added} ${added === 1 ? 'item' : 'items'} added to pack` +
+          (blocked ? `; ${blocked} skipped — already packed everything you own` : ''),
+      })
+    } else if (blocked > 0) {
+      toast({
+        title: `Nothing added from ${kit.name}`,
+        description: 'Everything you own of these items is already packed on this trip.',
       })
     } else {
       toast({

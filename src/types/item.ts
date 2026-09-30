@@ -25,6 +25,8 @@ export type ItemForm = {
   weight: number
   unit: Unit
   price: number
+  /** Owned count, >= 1. Omitted on the wire means "unchanged". */
+  quantity?: number
   calories: number
   consumable: boolean
   product_url: string
@@ -88,6 +90,9 @@ export type Item = {
   created_at: string
   notes: string
   price?: number
+  /** Owned count. Optional in the type because cached/stale rows may predate
+   *  the field — read it through `ownedQuantity()` from lib/overpack. */
+  quantity?: number
   calories?: number | null
   product_id?: number
   product_variant_id?: number

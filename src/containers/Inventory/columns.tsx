@@ -3,6 +3,7 @@ import { Cell, ColumnDef } from '@tanstack/react-table'
 import { numberSort, ordinalSort, orUndefined, stringSort } from '@/components/Tables/lib/sorting'
 import { ItemScores } from '@/hooks/useReplacementScores'
 import { Currency, formatCurrency } from '@/lib/currencies'
+import { ownedQuantity, ownedValue } from '@/lib/overpack'
 import { convertWeight } from '@/lib/weight'
 import { Item, Unit } from '@/types/item'
 
@@ -74,14 +75,29 @@ export const columns = (
     },
   },
   {
+    id: 'quantity',
+    header: 'Qty',
+    accessorFn: item => ownedQuantity(item),
+    sortingFn: numberSort,
+    cell: ({ getValue }) => {
+      const qty = getValue<number>()
+      return qty > 1 ? qty : <span className="text-muted-foreground">1</span>
+    },
+    meta: {
+      align: 'right',
+      style: { textAlign: 'right', width: '5%' },
+    },
+  },
+  {
     id: 'price',
     header: 'Value',
-    accessorFn: item => (item.price ? item.price : undefined),
+    // Owned quantity multiplies value: 3 × $20 stakes are $60 of gear.
+    accessorFn: item => (item.price ? ownedValue(item) : undefined),
     sortingFn: numberSort,
     sortUndefined: 'last',
     cell: ({ getValue }) => {
-      const price = getValue<number | undefined>()
-      return price ? formatCurrency(price, currency) : <EmptyDash />
+      const value = getValue<number | undefined>()
+      return value ? formatCurrency(value, currency) : <EmptyDash />
     },
     meta: {
       align: 'right',
