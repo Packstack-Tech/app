@@ -25,6 +25,7 @@ import { ReplacementSection } from '@/containers/ItemDetail/sections/Replacement
 import { RetirementSection } from '@/containers/ItemDetail/sections/RetirementSection'
 import { SpecsSection } from '@/containers/ItemDetail/sections/SpecsSection'
 import { useUser } from '@/hooks/useUser'
+import { Mixpanel } from '@/lib/mixpanel'
 import { getItemDisplayUnit } from '@/lib/weight'
 import { useCreateItem, useInventory, useUpdateItem } from '@/queries/item'
 import { Item, ItemForm as ItemFormValues, Unit } from '@/types/item'
@@ -44,6 +45,7 @@ const schema = z.object({
   weight: z.coerce.number().min(0, 'Weight must be positive').optional(),
   unit: z.string().optional(),
   price: z.coerce.number().min(0, 'Price must be positive').optional(),
+  quantity: z.coerce.number().int('Quantity must be a whole number').min(1, 'You must own at least 1'),
   calories: z.coerce.number().min(0, 'Calories must be positive').optional(),
   consumable: z.boolean().optional(),
   product_url: z.string().optional(),
@@ -71,6 +73,7 @@ const formDefaults = (item?: Item, defaultUnit: Unit = 'g'): ItemFormValues => (
   weight: item?.weight || 0,
   unit: item?.unit || defaultUnit,
   price: item?.price || 0,
+  quantity: item?.quantity ?? 1,
   calories: item?.calories || 0,
   consumable: item?.consumable || false,
   product_url: item?.product_url || '',
@@ -135,12 +138,33 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
   const onSubmit = (data: ItemFormValues) => {
     const { itemname, ...payload } = data
     if (isEdit && item) {
-      updateItem.mutate({ ...payload, name: itemname, id: item.id })
+      const previousQuantity = item.quantity ?? 1
+      updateItem.mutate(
+        { ...payload, name: itemname, id: item.id },
+        {
+          onSuccess: () => {
+            if (payload.quantity !== previousQuantity) {
+              Mixpanel.track('Item:QuantitySet', {
+                quantity: payload.quantity,
+                previous: previousQuantity,
+                source: 'item-detail',
+              })
+            }
+          },
+        }
+      )
     } else {
       createItem.mutate(
         { ...payload, name: itemname },
         {
           onSuccess: (newItem) => {
+            if ((payload.quantity ?? 1) > 1) {
+              Mixpanel.track('Item:QuantitySet', {
+                quantity: payload.quantity,
+                previous: null,
+                source: 'item-detail',
+              })
+            }
             if (another) {
               form.reset(formDefaults(undefined, defaultUnit))
             } else if (onCreated) {

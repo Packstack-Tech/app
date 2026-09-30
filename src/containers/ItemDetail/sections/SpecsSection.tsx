@@ -1,5 +1,6 @@
 import { FC } from 'react'
 import { UseFormReturn } from 'react-hook-form'
+import { InfoIcon } from 'lucide-react'
 
 import { Input } from '@/components/ui'
 import {
@@ -17,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { Switch } from '@/components/ui/Switch'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { useUser } from '@/hooks/useUser'
 import { convertWeight } from '@/lib/weight'
 import { ItemForm, Unit } from '@/types/item'
@@ -84,7 +86,7 @@ export const SpecsSection: FC<Props> = ({ form }) => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <FormField
             control={form.control}
             name="price"
@@ -104,6 +106,29 @@ export const SpecsSection: FC<Props> = ({ form }) => {
                     onFocus={() => { if (!field.value) field.onChange('') }}
                   />
                 </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="quantity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="inline-flex items-center gap-1">
+                  Owned
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="size-3.5 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-56">
+                      How many of this item you own. Value counts every copy;
+                      packing more than this across a trip is flagged.
+                    </TooltipContent>
+                  </Tooltip>
+                </FormLabel>
+                <Input {...field} type="number" step="1" min={1} inputMode="numeric" />
                 <FormMessage />
               </FormItem>
             )}
