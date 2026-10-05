@@ -17,6 +17,7 @@ interface Props {
   searchFilter: string
   isLoading: boolean
   showRemoved: boolean
+  hideCalories?: boolean
   selectedIds: Set<number>
   activeItemId?: number | null
   onToggleItem: (id: number) => void
@@ -32,6 +33,7 @@ export const InventoryTable = ({
   searchFilter,
   isLoading,
   showRemoved,
+  hideCalories = false,
   selectedIds,
   activeItemId,
   onToggleItem,
@@ -83,8 +85,8 @@ export const InventoryTable = ({
   }, [data, statusFilter, conditionFilter, categoryFilter])
 
   const tableCols = useMemo(
-    () => columns(user.currency, scores),
-    [user.currency, scores]
+    () => columns(user.currency, scores).filter(c => !(hideCalories && c.id === 'calories')),
+    [user.currency, scores, hideCalories]
   )
 
   if (isLoading) {

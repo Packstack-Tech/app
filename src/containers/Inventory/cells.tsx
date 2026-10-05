@@ -1,14 +1,9 @@
 import { FC } from 'react'
 import { FlameIcon, StickyNoteIcon } from 'lucide-react'
-import { Cell } from '@tanstack/react-table'
 import { Link } from '@tanstack/react-router'
+import { Cell } from '@tanstack/react-table'
 
 import { Button } from '@/components/ui'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/Popover'
 import {
   Tooltip,
   TooltipContent,
@@ -181,22 +176,23 @@ export const NotesCell: FC<Props> = ({
 }) => {
   if (!original.notes) return null
 
+  // Hover, not click: the note is the whole point of the icon.
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <Tooltip delayDuration={100}>
+      <TooltipTrigger asChild>
         <StickyNoteIcon
           color="lightblue"
           size={20}
           strokeWidth={1}
-          className="hover:cursor-pointer"
+          className="inline-block hover:cursor-default"
         />
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[240px] p-2 text-left text-xs"
+      </TooltipTrigger>
+      <TooltipContent
         align="center"
+        className="max-w-[320px] p-3 text-left text-sm whitespace-pre-wrap text-wrap bg-popover text-foreground border shadow-md [&>span]:hidden"
       >
-        <p>{original.notes}</p>
-      </PopoverContent>
-    </Popover>
+        {original.notes}
+      </TooltipContent>
+    </Tooltip>
   )
 }

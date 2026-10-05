@@ -31,6 +31,7 @@ export type ItemForm = {
   consumable: boolean
   product_url: string
   notes: string
+  color?: string
   acquired_date?: string
   acquisition_type?: string
   purchase_retailer?: string
@@ -86,6 +87,7 @@ export type Item = {
   catalog_product_id?: number
   catalog_variant_id?: number
   catalog_locked?: boolean
+  color?: string | null
   consumable: boolean
   created_at: string
   notes: string

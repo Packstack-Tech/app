@@ -12,6 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/Popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { ItemForm } from '@/containers/ItemForm'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
@@ -245,21 +246,21 @@ export const NotesCell: FC<Props> = ({
   if (!item.notes) return null
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <Tooltip delayDuration={100}>
+      <TooltipTrigger asChild>
         <StickyNoteIcon
           size={20}
           strokeWidth={1}
-          className="hover:cursor-pointer stroke-sky-600 dark:stroke-sky-200"
+          className="inline-block hover:cursor-default stroke-sky-600 dark:stroke-sky-200"
         />
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[240px] p-2 text-left text-xs"
+      </TooltipTrigger>
+      <TooltipContent
         align="center"
+        className="max-w-[320px] p-3 text-left text-sm whitespace-pre-wrap text-wrap bg-popover text-foreground border shadow-md [&>span]:hidden"
       >
-        <p>{item.notes}</p>
-      </PopoverContent>
-    </Popover>
+        {item.notes}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

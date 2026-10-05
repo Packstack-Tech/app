@@ -51,6 +51,7 @@ const schema = z.object({
   consumable: z.boolean().optional(),
   product_url: z.string().optional(),
   notes: z.string().optional(),
+  color: z.string().max(80).optional(),
   acquired_date: z.string().optional(),
   acquisition_type: z.string().optional(),
   purchase_retailer: z.string().optional(),
@@ -79,6 +80,7 @@ const formDefaults = (item?: Item, defaultUnit: Unit = 'g'): ItemFormValues => (
   consumable: item?.consumable || false,
   product_url: item?.product_url || '',
   notes: item?.notes || '',
+  color: item?.color || '',
   acquired_date: item?.acquired_date || '',
   acquisition_type: item?.acquisition_type || '',
   purchase_retailer: item?.purchase_retailer || '',
@@ -145,6 +147,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
     const { itemname, ...payload } = data
     if (isEdit && item) {
       const previousQuantity = item.quantity ?? 1
+      const previousColor = item.color || ''
       updateItem.mutate(
         { ...payload, name: itemname, id: item.id },
         {
@@ -155,6 +158,9 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
                 previous: previousQuantity,
                 source: 'item-detail',
               })
+            }
+            if ((payload.color || '') !== previousColor) {
+              Mixpanel.track('Item:ColorSet', { cleared: !payload.color, source: 'item-detail' })
             }
           },
         }
@@ -170,6 +176,9 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
                 previous: null,
                 source: 'item-detail',
               })
+            }
+            if (payload.color) {
+              Mixpanel.track('Item:ColorSet', { cleared: false, source: 'item-detail' })
             }
             if (another) {
               form.reset(formDefaults(undefined, defaultUnit))

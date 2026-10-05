@@ -79,6 +79,7 @@ const schema = z.object({
   consumable: z.boolean().optional(),
   product_url: z.string().optional(),
   notes: z.string().optional(),
+  color: z.string().max(80).optional(),
 })
 
 type Props = {
@@ -109,6 +110,7 @@ const formDefaults = (item?: Item, defaultUnit: Unit = 'g') => ({
   consumable: item?.consumable || false,
   product_url: item?.product_url || '',
   notes: item?.notes || '',
+  color: item?.color || '',
 })
 
 export const ItemForm: FC<Props> = ({
@@ -288,6 +290,9 @@ export const ItemForm: FC<Props> = ({
                 source: 'item-form',
               })
             }
+            if ((payload.color || '') !== (item.color || '')) {
+              Mixpanel.track('Item:ColorSet', { cleared: !payload.color, source: 'item-form' })
+            }
             onSave?.(data)
             onClose()
           },
@@ -304,6 +309,9 @@ export const ItemForm: FC<Props> = ({
                 previous: null,
                 source: 'item-form',
               })
+            }
+            if (payload.color) {
+              Mixpanel.track('Item:ColorSet', { cleared: false, source: 'item-form' })
             }
             form.reset(formDefaults(undefined, defaultUnit))
             if (!another) {
@@ -392,8 +400,7 @@ export const ItemForm: FC<Props> = ({
                   <FormMessage />
                 </FormItem>
 
-                <div className="flex gap-4">
-                  <FormItem className="flex flex-col w-1/2">
+                <FormItem className="flex flex-col mb-5">
                     <FormLabel className="inline-flex items-center gap-1">
                       Product
                       <Tooltip>
@@ -437,8 +444,9 @@ export const ItemForm: FC<Props> = ({
                     />
 
                     <FormMessage />
-                  </FormItem>
+                </FormItem>
 
+                <div className="flex gap-4">
                   <FormItem className="flex flex-col w-1/2">
                     <FormLabel className="inline-flex items-center gap-1">
                       Variant
@@ -447,7 +455,7 @@ export const ItemForm: FC<Props> = ({
                           <InfoIcon className="size-3.5 text-muted-foreground" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          Requires a product. Use for color, size, etc.
+                          Requires a product. Size, length, capacity — the option that changes the weight.
                         </TooltipContent>
                       </Tooltip>
                     </FormLabel>
@@ -469,6 +477,20 @@ export const ItemForm: FC<Props> = ({
 
                     <FormMessage />
                   </FormItem>
+
+                  <FormField
+                    control={form.control}
+                    name="color"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col w-1/2">
+                        <FormLabel>Color</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Gemini Green" maxLength={80} tabIndex={5} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
 
@@ -481,7 +503,7 @@ export const ItemForm: FC<Props> = ({
                     options={categoryOptions}
                     label="Categories"
                     creatable
-                    tabIndex={5}
+                    tabIndex={6}
                     onSelect={({ label, value, isNew }) => {
                       if (isNew) {
                         form.setValue('category_new', label)
@@ -511,7 +533,7 @@ export const ItemForm: FC<Props> = ({
                             type="number"
                             step=".01"
                             placeholder="0.00"
-                            tabIndex={6}
+                            tabIndex={7}
                             onFocus={() => {
                               if (!field.value) field.onChange('')
                             }}

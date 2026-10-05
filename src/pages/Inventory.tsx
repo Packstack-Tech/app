@@ -41,7 +41,9 @@ import { useReplacementScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
 import { formatCurrency } from '@/lib/currencies'
 import { downloadInventory } from '@/lib/download'
+import { Mixpanel } from '@/lib/mixpanel'
 import { ownedValue } from '@/lib/overpack'
+import { getHideCalories, setHideCalories } from '@/lib/preferences'
 import { cn } from '@/lib/utils'
 import { formatTotalWeight } from '@/lib/weight'
 import { ItemDetailPage } from '@/pages/ItemDetail'
@@ -64,6 +66,15 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   const [openCsvmport, setOpenCsvImport] = useState(false)
   const [filter, setFilter] = useState('')
   const [showRemoved, setShowRemoved] = useState(false)
+  // Per-browser preference: most closets have no consumables, so the kcal
+  // column is dead space for them.
+  const [hideCalories, setHideCaloriesState] = useState<boolean>(getHideCalories)
+  const toggleHideCalories = () => {
+    const next = !hideCalories
+    setHideCaloriesState(next)
+    setHideCalories(next)
+    Mixpanel.track('Inventory:HideCalories', { hidden: next, source: 'gear-closet' })
+  }
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [statusFilter, setStatusFilter] = useState<ItemStatus | null>(null)
   const [conditionFilter, setConditionFilter] = useState<ItemCondition | null>(null)
@@ -331,6 +342,12 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                     Show removed
                   </span>
                 </label>
+                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                  <Checkbox checked={hideCalories} onClick={toggleHideCalories} />
+                  <span className="text-xs text-muted-foreground leading-none text-nowrap">
+                    Hide calories
+                  </span>
+                </label>
               </div>
 
               {/* Category pill tabs */}
@@ -442,6 +459,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                 searchFilter={filter}
                 isLoading={isLoading}
                 showRemoved={showRemoved}
+                hideCalories={hideCalories}
                 selectedIds={selectedIds}
                 activeItemId={selectedItemId}
                 onToggleItem={toggleItem}

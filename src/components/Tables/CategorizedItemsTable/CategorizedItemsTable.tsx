@@ -188,7 +188,10 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className={align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : undefined}
+                    >
                       {canSort ? (
                         <button
                           type="button"

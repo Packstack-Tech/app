@@ -236,7 +236,7 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
           </FormItem>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormItem className="flex flex-col">
             <FormLabel>Manufacturer</FormLabel>
             <Combobox
@@ -309,7 +309,9 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
               }}
             />
           </FormItem>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormItem className="flex flex-col">
             <FormLabel className="inline-flex items-center gap-1">
               Variant
@@ -317,7 +319,7 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
                 <TooltipTrigger asChild>
                   <InfoIcon className="size-3.5 text-muted-foreground" />
                 </TooltipTrigger>
-                <TooltipContent>Size, length, capacity — anything that changes the weight. Colors are fine too but don't affect weight.</TooltipContent>
+                <TooltipContent>Size, length, capacity — the manufacturer's option that changes the weight. Put the color in its own field.</TooltipContent>
               </Tooltip>
             </FormLabel>
             <Combobox
@@ -335,6 +337,20 @@ export const BasicsSection: FC<Props> = ({ form, item }) => {
               }}
             />
           </FormItem>
+
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Color</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. Gemini Green" maxLength={80} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </div>
     </section>

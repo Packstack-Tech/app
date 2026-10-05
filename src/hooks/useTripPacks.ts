@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 
 import { SYSTEM_UNIT } from '@/lib/consts'
+import { getHideCalories, setHideCalories } from '@/lib/preferences'
 import { applyPackItemEdit } from '@/lib/worn'
 import { Item } from '@/types/item'
 import { PackItem, PackItemEditableKeys, TripPackKeys } from '@/types/pack'
@@ -113,7 +114,7 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
   loadedTripId: null,
   revision: 0,
   checklistMode: false,
-  showCalories: true,
+  showCalories: !getHideCalories(),   // shared with the gear closet's "Hide calories"
   displayUnitSystem: null,
   synced: true,
   isDragging: false,
@@ -282,7 +283,10 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
     set(state => ({ checklistMode: !state.checklistMode })),
 
   toggleShowCalories: () =>
-    set(state => ({ showCalories: !state.showCalories })),
+    set(state => {
+      setHideCalories(state.showCalories)
+      return { showCalories: !state.showCalories }
+    }),
 
   setDisplayUnitSystem: system => set({ displayUnitSystem: system }),
 }))
