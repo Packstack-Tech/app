@@ -22,6 +22,8 @@ export type PaywallSource =
   | 'header'
   | 'settings'
   | 'connect_authorize'
+  /** The client let the action through but the API answered 402. */
+  | 'server_402'
 
 export function useSubscription() {
   const user = useUser()

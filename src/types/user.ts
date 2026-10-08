@@ -21,6 +21,8 @@ export type User = {
   deactivated: boolean
   email_verified: boolean
   is_subscribed: boolean
+  /** Trips counted against the free limit — includes recently deleted ones. */
+  trip_limit_count?: number
   hide_table_headers: boolean | null
   /** Over-pack check: packing more of an item than the closet says you own. */
   overpack_mode: OverpackMode

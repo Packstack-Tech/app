@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import { useSubscription } from '@/hooks/useSubscription'
 import { useToast } from '@/hooks/useToast'
 import { cloneTrip, createTrip, deleteTrip, editTrip, getTrip } from '@/lib/api'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -54,7 +55,7 @@ export const useTripQuery = (id?: string | number) => {
 
 export const useCreateTrip = () => {
   const queryClient = useQueryClient()
-  const { toast } = useToast()
+  const { openUpgrade } = useSubscription()
   return useMutation({
     mutationFn: async (params: CreateTrip) => {
       const res = await createTrip(params)
@@ -64,12 +65,9 @@ export const useCreateTrip = () => {
     onSuccess: ({ id }) =>
       queryClient.invalidateQueries({ queryKey: [TRIP_QUERY, id] }),
     onError: (error: { response?: { status?: number } }) => {
-      if (error?.response?.status === 402) {
-        toast({
-          title: 'Upgrade required',
-          description: 'Subscribe to create more than one trip.',
-        })
-      }
+      // The client-side limit check normally catches this first; a 402 here
+      // means the server disagreed, so go straight to the paywall.
+      if (error?.response?.status === 402) openUpgrade('server_402')
     },
   })
 }
@@ -192,6 +190,7 @@ export const useUpdateTrip = () => {
 export const useCloneTrip = () => {
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const { openUpgrade } = useSubscription()
   return useMutation({
     mutationFn: async (tripId: number) => {
       const res = await cloneTrip(tripId)
@@ -205,12 +204,9 @@ export const useCloneTrip = () => {
       queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
     },
     onError: (error: { response?: { status?: number } }) => {
-      if (error?.response?.status === 402) {
-        toast({
-          title: 'Upgrade required',
-          description: 'Subscribe to create more than one trip.',
-        })
-      }
+      // The client-side limit check normally catches this first; a 402 here
+      // means the server disagreed, so go straight to the paywall.
+      if (error?.response?.status === 402) openUpgrade('server_402')
     },
   })
 }

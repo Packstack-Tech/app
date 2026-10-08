@@ -60,13 +60,24 @@ export const NewTripModal: FC<Props> = ({ open, onOpenChange }) => {
     e.preventDefault()
     if (!isValid || isPending) return
 
-    const trip = await createTrip.mutateAsync({
-      title: title.trim(),
-      location: location.trim() || undefined,
-      start_date: dates?.from ? format(dates.from, 'yyyy-MM-dd') : undefined,
-      end_date: dates?.to ? format(dates.to, 'yyyy-MM-dd') : undefined,
-      distance: distance ? units.toCanonicalDistance(Number(distance)) : undefined,
-    })
+    let trip
+    try {
+      trip = await createTrip.mutateAsync({
+        title: title.trim(),
+        location: location.trim() || undefined,
+        start_date: dates?.from ? format(dates.from, 'yyyy-MM-dd') : undefined,
+        end_date: dates?.to ? format(dates.to, 'yyyy-MM-dd') : undefined,
+        distance: distance ? units.toCanonicalDistance(Number(distance)) : undefined,
+      })
+    } catch (error) {
+      // 402: useCreateTrip opens the paywall; close this dialog so it doesn't
+      // sit (and trap focus) underneath it. Other errors keep the form open.
+      if ((error as { response?: { status?: number } })?.response?.status === 402) {
+        reset()
+        onOpenChange(false)
+      }
+      return
+    }
 
     await createPack.mutateAsync({
       title: 'Main Pack',

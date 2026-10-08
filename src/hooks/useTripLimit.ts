@@ -6,8 +6,12 @@ export function useTripLimit() {
   const user = useUser()
   const { isSubscribed, openUpgrade } = useSubscription()
 
-  const activeTripCount = (user?.trips ?? []).filter(t => !t.removed).length
-  const canCreateTrip = isSubscribed || activeTripCount < FREE_TRIP_LIMIT
+  // The server's count includes recently deleted trips (deleting doesn't free
+  // a slot). Fall back to active trips if the API hasn't sent it.
+  const tripLimitCount =
+    user?.trip_limit_count ??
+    (user?.trips ?? []).filter(t => !t.removed).length
+  const canCreateTrip = isSubscribed || tripLimitCount < FREE_TRIP_LIMIT
 
-  return { canCreateTrip, isSubscribed, activeTripCount, openUpgrade }
+  return { canCreateTrip, isSubscribed, tripLimitCount, openUpgrade }
 }
