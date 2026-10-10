@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { useTripPacks } from '@/hooks/useTripPacks'
-import { useUser } from '@/hooks/useUser'
 import { groupByCategory } from '@/lib/categorize'
 import {
   calculateCategoryWeights,
@@ -26,11 +26,8 @@ function categorizePackItems(items: PackItem[], toUnit: string) {
 }
 
 export const WeightBreakdown = () => {
-  const user = useUser()
-  const { packs, displayUnitSystem } = useTripPacks(
-    useShallow(store => ({ packs: store.packs, displayUnitSystem: store.displayUnitSystem }))
-  )
-  const unit = getConversionUnit(displayUnitSystem ?? user.unit_weight)
+  const { packs } = useTripPacks(useShallow(store => ({ packs: store.packs })))
+  const unit = getConversionUnit(useWeightSystem())
 
   const breakdowns = packs.map(({ items, title }) => ({
     title,

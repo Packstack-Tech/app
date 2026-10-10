@@ -122,7 +122,7 @@ export const Settings = () => {
         ) : (
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm">
-              Upgrade to Pro for unlimited gear lists and kits, multiple packs per trip, calorie and water planning, and editing through connected AI assistants. One-time purchase.
+              Upgrade to Pro for unlimited gear lists and kits, multiple packs per trip, calorie and water planning, watermark-free trip summary cards, and editing through connected AI assistants. Monthly, annual, or one-time.
             </p>
             <Button type="button" onClick={() => openUpgrade('settings')}>
               Upgrade

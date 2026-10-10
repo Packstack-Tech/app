@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, Archive, ArchiveRestore, MoreHorizontal, Trash2, Weight } from 'lucide-react'
+import { Archive, ArchiveRestore, Flame, MoreHorizontal, Scale, Settings, Trash2, Weight } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 
+import { MenuSwitchItem } from '@/components/MenuSwitchItem'
 import { Button, Input } from '@/components/ui'
 import {
   AlertDialog,
@@ -32,20 +34,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
+import { WeightValue } from '@/components/WeightValue'
 import { CategoryManagementModal } from '@/containers/CategoryManagementModal'
 import { ImportCsvModal } from '@/containers/ImportCsvModal'
 import { ImportLighterpackModal } from '@/containers/ImportLighterpackModal'
 import { InventoryTable } from '@/containers/Inventory/InventoryTable'
 import { QuickAddGear } from '@/containers/QuickAddGear'
-import { useReplacementScores } from '@/hooks/useReplacementScores'
+import { useDisplayPrefs, useToggleWeightSystem, useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { useUser } from '@/hooks/useUser'
 import { formatCurrency } from '@/lib/currencies'
 import { downloadInventory } from '@/lib/download'
 import { Mixpanel } from '@/lib/mixpanel'
 import { ownedValue } from '@/lib/overpack'
-import { getHideCalories, setHideCalories } from '@/lib/preferences'
 import { cn } from '@/lib/utils'
-import { formatTotalWeight } from '@/lib/weight'
 import { ItemDetailPage } from '@/pages/ItemDetail'
 import { useGroupedInventory } from '@/queries/item'
 import { useBulkArchiveItems, useBulkDeleteItems, useBulkRestoreItems, useInventory } from '@/queries/item'
@@ -66,15 +67,20 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   const [openCsvmport, setOpenCsvImport] = useState(false)
   const [filter, setFilter] = useState('')
   const [showRemoved, setShowRemoved] = useState(false)
-  // Per-browser preference: most closets have no consumables, so the kcal
-  // column is dead space for them.
-  const [hideCalories, setHideCaloriesState] = useState<boolean>(getHideCalories)
-  const toggleHideCalories = () => {
-    const next = !hideCalories
-    setHideCaloriesState(next)
-    setHideCalories(next)
-    Mixpanel.track('Inventory:HideCalories', { hidden: next, source: 'gear-closet' })
+  const toggleShowRemoved = () => {
+    setShowRemoved(!showRemoved)
+    Mixpanel.track('Inventory:ShowRemoved', { shown: !showRemoved })
   }
+  // Shared with the pack page's Options menu. Most closets have no
+  // consumables, so the kcal column is dead space for them.
+  const { showCalories, toggleShowCalories } = useDisplayPrefs(
+    useShallow(state => ({
+      showCalories: state.showCalories,
+      toggleShowCalories: state.toggleShowCalories,
+    }))
+  )
+  const weightSystem = useWeightSystem()
+  const toggleWeightSystem = useToggleWeightSystem('gear-closet')
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [statusFilter, setStatusFilter] = useState<ItemStatus | null>(null)
   const [conditionFilter, setConditionFilter] = useState<ItemCondition | null>(null)
@@ -87,7 +93,6 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   // fallback offered inside it, matching mobile.
   const [showQuickAdd, setShowQuickAdd] = useState(false)
 
-  const scores = useReplacementScores(inventory)
   const { data: groups } = useGroupedInventory()
 
   const categoryNames = useMemo(() => {
@@ -167,7 +172,7 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   }
 
   const stats = useMemo(() => {
-    if (!inventory) return { count: 0, value: 0, weightDisplay: formatTotalWeight(0, user.unit_weight), attentionCount: 0 }
+    if (!inventory) return { count: 0, value: 0, totalGrams: 0 }
     // Only gear you actually own: exclude removed items and items that are
     // wishlisted, sold, or lost so totals reflect the real closet.
     const NOT_OWNED = new Set(['wishlist', 'sold', 'lost'])
@@ -179,17 +184,9 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
         totalGrams += item.weight * (CONVERSION[item.unit] || 1)
       }
     }
-    const weightDisplay = formatTotalWeight(totalGrams, user.unit_weight)
 
-    let attentionCount = 0
-    for (const item of active) {
-      if (item.status === 'retired') continue
-      const score = scores.get(item.id)
-      if (score != null && score >= 0.7) attentionCount++
-    }
-
-    return { count: active.length, value, weightDisplay, attentionCount }
-  }, [inventory, scores, user.unit_weight])
+    return { count: active.length, value, totalGrams }
+  }, [inventory])
 
   const selectionCount = selectedIds.size
   const allSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedIds.has(id))
@@ -280,14 +277,14 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                 )}
                 <span className="inline-flex items-center gap-1">
                   <Weight size={14} />
-                  <span className="font-semibold text-foreground tabular-nums">{stats.weightDisplay}</span>
+                  <WeightValue
+                    className="font-semibold text-foreground tabular-nums"
+                    value={stats.totalGrams}
+                    unit="g"
+                    system={weightSystem}
+                    format="total"
+                  />
                 </span>
-                {stats.attentionCount > 0 && (
-                  <span className="inline-flex items-center gap-1 text-warning">
-                    <AlertTriangle size={14} />
-                    <span className="font-semibold tabular-nums">{stats.attentionCount}</span> need attention
-                  </span>
-                )}
               </div>
 
               {/* Toolbar row */}
@@ -332,22 +329,41 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                   </SelectContent>
                 </Select>
 
-                {/* Sits with the other filters, because that is what it is. */}
-                <label className="flex items-center gap-1.5 cursor-pointer select-none ml-auto">
-                  <Checkbox
-                    checked={showRemoved}
-                    onClick={() => setShowRemoved(!showRemoved)}
-                  />
-                  <span className="text-xs text-muted-foreground leading-none text-nowrap">
-                    Show removed
-                  </span>
-                </label>
-                <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                  <Checkbox checked={hideCalories} onClick={toggleHideCalories} />
-                  <span className="text-xs text-muted-foreground leading-none text-nowrap">
-                    Hide calories
-                  </span>
-                </label>
+                {/* Same menu as the pack page's; units and calories are shared with it. */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="ml-auto">
+                      <Settings size={14} />
+                      Options
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <MenuSwitchItem
+                      icon={Scale}
+                      label="Metric units"
+                      checked={weightSystem === 'METRIC'}
+                      onToggle={toggleWeightSystem}
+                    />
+                    <MenuSwitchItem
+                      icon={Flame}
+                      label="Show calories"
+                      checked={showCalories}
+                      onToggle={() => {
+                        toggleShowCalories()
+                        Mixpanel.track('Inventory:HideCalories', {
+                          hidden: showCalories,
+                          source: 'gear-closet',
+                        })
+                      }}
+                    />
+                    <MenuSwitchItem
+                      icon={Archive}
+                      label="Show removed"
+                      checked={showRemoved}
+                      onToggle={toggleShowRemoved}
+                    />
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* Category pill tabs */}
@@ -459,13 +475,12 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                 searchFilter={filter}
                 isLoading={isLoading}
                 showRemoved={showRemoved}
-                hideCalories={hideCalories}
+                hideCalories={!showCalories}
                 selectedIds={selectedIds}
                 activeItemId={selectedItemId}
                 onToggleItem={toggleItem}
                 onToggleCategory={toggleCategory}
                 onSelectItem={setSelectedItemId}
-                scores={scores}
                 statusFilter={statusFilter}
                 conditionFilter={conditionFilter}
                 categoryFilter={categoryFilter}

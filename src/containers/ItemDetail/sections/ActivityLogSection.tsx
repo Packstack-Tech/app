@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, Fragment, ReactNode, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
   Calendar,
@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
+import { WeightValue } from '@/components/WeightValue'
 import { useCreateItemLog, useItemLogs, useUpdateItemLog } from '@/queries/itemLifecycle'
 import { CreateItemLog, ItemLogEntry } from '@/types/item'
 
@@ -76,13 +77,23 @@ const LogEntry: FC<{ entry: ItemLogEntry; onEdit: (entry: ItemLogEntry) => void 
   const Icon = EVENT_ICONS[entry.event_type] || StickyNote
   const label = EVENT_LABELS[entry.event_type] || entry.event_type
 
-  const details: string[] = []
+  const details: ReactNode[] = []
   if (entry.old_condition && entry.new_condition) {
     details.push(`${entry.old_condition} → ${entry.new_condition}`)
   }
   if (entry.cost) details.push(`$${Number(entry.cost).toFixed(2)}`)
   if (entry.old_weight && entry.new_weight) {
-    details.push(`${entry.old_weight}g → ${entry.new_weight}g`)
+    details.push(
+      <>
+        <WeightValue value={entry.old_weight} unit="g" system="METRIC">
+          {`${entry.old_weight}g`}
+        </WeightValue>
+        {' → '}
+        <WeightValue value={entry.new_weight} unit="g" system="METRIC">
+          {`${entry.new_weight}g`}
+        </WeightValue>
+      </>
+    )
   }
 
   return (
@@ -103,7 +114,14 @@ const LogEntry: FC<{ entry: ItemLogEntry; onEdit: (entry: ItemLogEntry) => void 
           <span className="text-[11px] text-muted-foreground">{formatDate(entry.event_date)}</span>
         </div>
         {details.length > 0 && (
-          <p className="text-xs text-muted-foreground mt-0.5">{details.join(' · ')}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {details.map((detail, i) => (
+              <Fragment key={i}>
+                {i > 0 && ' · '}
+                {detail}
+              </Fragment>
+            ))}
+          </p>
         )}
         {entry.note && (
           <p className="text-xs text-muted-foreground mt-1">{entry.note}</p>

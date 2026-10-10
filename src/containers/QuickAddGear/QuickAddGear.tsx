@@ -17,12 +17,13 @@ import {
   DialogTitle,
 } from '@/components/ui/Dialog'
 import { ScrollArea } from '@/components/ui/ScrollArea'
+import { WeightValue } from '@/components/WeightValue'
 import { ItemForm } from '@/containers/ItemForm'
 import { useToast } from '@/hooks/useToast'
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
 import { buildQuickAddItem, pickableVariants, quickAddItemName } from '@/lib/quickAdd'
-import { convertWeight, formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
+import { getItemDisplayUnit } from '@/lib/weight'
 import { useCategories } from '@/queries/category'
 import { useCreateItem } from '@/queries/item'
 import { useCatalogGearSearch } from '@/queries/resources'
@@ -307,13 +308,15 @@ export const QuickAddGear: FC<Props> = ({
                           </span>
 
                           <span className="shrink-0 inline-flex items-center gap-1 text-sm tabular-nums">
-                            {product.lightest_weight_g != null
-                              ? formatItemWeight(
-                                product.lightest_weight_g,
-                                'g',
-                                itemUnit
-                              )
-                              : '—'}
+                            {product.lightest_weight_g != null ? (
+                              <WeightValue
+                                value={product.lightest_weight_g}
+                                unit="g"
+                                system={user.unit_weight}
+                              />
+                            ) : (
+                              '—'
+                            )}
                             {multiVariant &&
                               (expanded ? (
                                 <ChevronDown size={14} className="text-muted-foreground" />
@@ -337,9 +340,12 @@ export const QuickAddGear: FC<Props> = ({
                                   className="w-full flex items-center justify-between gap-3 px-2 py-1.5 text-left text-sm rounded-sm hover:bg-accent transition-colors cursor-pointer disabled:opacity-60"
                                 >
                                   <span className="truncate">Standard</span>
-                                  <span className="shrink-0 text-muted-foreground tabular-nums">
-                                    {convertWeight(product.weight, product.weight_unit as Unit, itemUnit).display}
-                                  </span>
+                                  <WeightValue
+                                    className="shrink-0 text-muted-foreground tabular-nums"
+                                    value={product.weight}
+                                    unit={product.weight_unit as Unit}
+                                    system={user.unit_weight}
+                                  />
                                 </button>
                               </li>
                             )}
@@ -353,13 +359,15 @@ export const QuickAddGear: FC<Props> = ({
                                 >
                                   <span className="truncate">{variant.name}</span>
                                   <span className="shrink-0 text-muted-foreground tabular-nums">
-                                    {variant.weight != null && variant.weight_unit
-                                      ? convertWeight(
-                                        variant.weight,
-                                        variant.weight_unit as Unit,
-                                        itemUnit
-                                      ).display
-                                      : '—'}
+                                    {variant.weight != null && variant.weight_unit ? (
+                                      <WeightValue
+                                        value={variant.weight}
+                                        unit={variant.weight_unit as Unit}
+                                        system={user.unit_weight}
+                                      />
+                                    ) : (
+                                      '—'
+                                    )}
                                   </span>
                                 </button>
                               </li>

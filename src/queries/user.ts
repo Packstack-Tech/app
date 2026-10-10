@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react'
 import {
   queryOptions,
   useMutation,
@@ -6,8 +7,6 @@ import {
 } from '@tanstack/react-query'
 
 import { useToast } from '@/hooks/useToast'
-import * as Sentry from '@sentry/react'
-
 import {
   deleteAccount,
   getUser,
@@ -18,6 +17,7 @@ import {
   verifyOtp,
 } from '@/lib/api'
 import { getCurrency } from '@/lib/currencies'
+import { useDisplayPrefs } from '@/lib/displayPrefs'
 import { Mixpanel } from '@/lib/mixpanel'
 import { getConversionUnit } from '@/lib/weight'
 import { SendOtpRequest, UpdateUser, VerifyOtpRequest } from '@/types/api'
@@ -135,8 +135,10 @@ export const useUpdateUser = () => {
       const res = await updateUser(params)
       return res.data
     },
-    onSuccess: () => {
+    onSuccess: (_, params) => {
       queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
+      // A saved weight unit wins over the session's Options-menu override.
+      if (params.unit_weight) useDisplayPrefs.getState().setWeightSystem(null)
       toast({
         title: '✅ Settings updated',
       })

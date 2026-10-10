@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
-import { ENTITLEMENT_ID, FALLBACK_OFFERING_ID } from '@/lib/consts'
+import { ENTITLEMENT_ID, FALLBACK_OFFERING_ID, PAYWALL_OFFERING_ID } from '@/lib/consts'
 import { useRevenueCat } from '@/providers/RevenueCatProvider'
 import { USER_QUERY } from '@/queries/user'
 
@@ -43,15 +43,26 @@ export function useSubscription() {
     try {
       const purchases = Purchases.getSharedInstance()
       const offerings = await purchases.getOfferings()
-      // Dashboard-driven: the current (default) offering wins, so swapping
-      // offerings in RevenueCat takes effect without a deploy.
-      await purchases.presentPaywall({
-        offering:
-          offerings.current ?? offerings.all[FALLBACK_OFFERING_ID] ?? undefined,
-      })
+      // tiered_offerings first; if it has nothing purchasable on the web
+      // (e.g. no Web Billing products attached), fall back to the dashboard's
+      // current offering, then the old web offering, rather than an empty
+      // paywall.
+      const offering = [
+        offerings.all[PAYWALL_OFFERING_ID],
+        offerings.current,
+        offerings.all[FALLBACK_OFFERING_ID],
+      ].find(o => o && o.availablePackages.length > 0)
+      if (offering && offering.identifier !== PAYWALL_OFFERING_ID) {
+        Mixpanel.track('Paywall:OfferingFallback', {
+          source,
+          wanted: PAYWALL_OFFERING_ID,
+          shown: offering.identifier,
+        })
+      }
+      await purchases.presentPaywall({ offering: offering ?? undefined })
       await refresh()
       await queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
-      Mixpanel.track('Paywall:Purchase', { source })
+      Mixpanel.track('Paywall:Purchase', { source, offering: offering?.identifier })
     } catch (e) {
       if (e instanceof PurchasesError && e.errorCode === ErrorCode.UserCancelledError) {
         Mixpanel.track('Paywall:Dismiss', { source })

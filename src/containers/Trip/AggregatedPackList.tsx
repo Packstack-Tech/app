@@ -11,14 +11,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import { WeightValue } from '@/components/WeightValue'
 import {
   AggregatedPackItem,
   useAggregatedPackItems,
 } from '@/hooks/useAggregatedPackItems'
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { useOverpack } from '@/hooks/useOverpack'
 import { useTripPacks } from '@/hooks/useTripPacks'
-import { useUser } from '@/hooks/useUser'
-import { convertWeightValue, formatTotalWeight } from '@/lib/weight'
+import { convertWeightValue } from '@/lib/weight'
 
 /**
  * The cross-pack overview, shown when a trip has more than one pack.
@@ -32,19 +33,16 @@ import { convertWeightValue, formatTotalWeight } from '@/lib/weight'
  */
 export const AggregatedPackList: FC = () => {
   const { groups, itemCount, duplicateCount } = useAggregatedPackItems()
-  const user = useUser()
   const overpack = useOverpack()
-  const { packs, selectPack, removeItemFromPack, displayUnitSystem } =
-    useTripPacks(
-      useShallow(store => ({
-        packs: store.packs,
-        selectPack: store.selectPack,
-        removeItemFromPack: store.removeItemFromPack,
-        displayUnitSystem: store.displayUnitSystem,
-      }))
-    )
+  const { packs, selectPack, removeItemFromPack } = useTripPacks(
+    useShallow(store => ({
+      packs: store.packs,
+      selectPack: store.selectPack,
+      removeItemFromPack: store.removeItemFromPack,
+    }))
+  )
 
-  const effectiveSystem = displayUnitSystem ?? user.unit_weight
+  const effectiveSystem = useWeightSystem()
 
   const rowGrams = (row: AggregatedPackItem) =>
     convertWeightValue(row.item.weight || 0, row.item.unit, 'g') *
@@ -86,9 +84,13 @@ export const AggregatedPackList: FC = () => {
               <h3 className="text-sm font-semibold text-foreground">
                 {categoryName}
               </h3>
-              <span className="text-xs text-foreground">
-                {formatTotalWeight(categoryGrams, effectiveSystem)}
-              </span>
+              <WeightValue
+                className="text-xs text-foreground"
+                value={categoryGrams}
+                unit="g"
+                system={effectiveSystem}
+                format="total"
+              />
             </div>
 
             <ul>
@@ -120,9 +122,13 @@ export const AggregatedPackList: FC = () => {
                     </div>
 
                     {weight > 0 && (
-                      <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                        {formatTotalWeight(weight, effectiveSystem)}
-                      </span>
+                      <WeightValue
+                        className="shrink-0 text-xs tabular-nums text-muted-foreground"
+                        value={weight}
+                        unit="g"
+                        system={effectiveSystem}
+                        format="total"
+                      />
                     )}
 
                     <DropdownMenu>

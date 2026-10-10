@@ -1,10 +1,8 @@
 import { FC } from 'react'
 import { CircleIcon, Plus } from 'lucide-react'
-import { useShallow } from 'zustand/react/shallow'
 
-import { useTripPacks } from '@/hooks/useTripPacks'
-import { useUser } from '@/hooks/useUser'
-import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
+import { WeightValue } from '@/components/WeightValue'
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { Item } from '@/types/item'
 
 interface Props {
@@ -14,20 +12,15 @@ interface Props {
 }
 
 export const InventoryItem: FC<Props> = ({ item, selected, onClick }) => {
-  const user = useUser()
-  const { displayUnitSystem } = useTripPacks(
-    useShallow(store => ({ displayUnitSystem: store.displayUnitSystem }))
-  )
-  const brandParts = [
+  const system = useWeightSystem()
+  const brand = [
     item.brand?.name,
     item.product?.name,
     item.product_variant?.name,
-  ].filter(Boolean)
-  const targetUnit = getItemDisplayUnit(displayUnitSystem ?? user.unit_weight)
-  const weightStr = item.weight
-    ? formatItemWeight(item.weight, item.unit, targetUnit)
-    : null
-  const subtitle = [brandParts.join(' '), weightStr].filter(Boolean).join(' \u2014 ')
+  ]
+    .filter(Boolean)
+    .join(' ')
+  const weight = item.weight || 0
 
   return (
     <li>
@@ -44,9 +37,17 @@ export const InventoryItem: FC<Props> = ({ item, selected, onClick }) => {
           <div className="text-xs font-semibold truncate text-foreground">
             {item.name}
           </div>
-          {subtitle && (
+          {(brand || weight > 0) && (
             <div className="text-[11px] text-muted-foreground truncate">
-              {subtitle}
+              {brand}
+              {brand && weight > 0 && ' \u2014 '}
+              {weight > 0 && (
+                <WeightValue
+                  value={weight}
+                  unit={item.unit}
+                  system={system}
+                />
+              )}
             </div>
           )}
         </div>

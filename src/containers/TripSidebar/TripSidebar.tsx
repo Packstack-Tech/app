@@ -17,11 +17,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
+import { WeightValue } from '@/components/WeightValue'
 import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { CalorieEstimate } from '@/containers/CalorieEstimate/CalorieEstimate'
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUnits } from '@/hooks/useUnits'
-import { useUser } from '@/hooks/useUser'
 import { groupByCategory } from '@/lib/categorize'
 import {
   formatDateRange,
@@ -55,11 +56,9 @@ function categorizePackItems(items: PackItem[], toUnit: string) {
 }
 
 export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
-  const user = useUser()
   const units = useUnits()
-  const { packs, displayUnitSystem } = useTripPacks(
-    useShallow(store => ({ packs: store.packs, displayUnitSystem: store.displayUnitSystem }))
-  )
+  const { packs } = useTripPacks(useShallow(store => ({ packs: store.packs })))
+  const system = useWeightSystem()
 
   const isEnriching =
     trip.enrich_status === 'pending' || trip.enrich_status === 'processing'
@@ -84,7 +83,7 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
     { label: 'Conditions', value: labelFor(trip.temp_category, TEMP_CATEGORY_OPTIONS) },
   ].filter((row): row is { label: string; value: string } => row.value != null)
 
-  const unit = getConversionUnit(displayUnitSystem ?? user.unit_weight)
+  const unit = getConversionUnit(system)
 
   const totals = useMemo(() => {
     const breakdowns = packs.map(({ items }) => ({
@@ -179,19 +178,19 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
             <div className="px-3 py-1.5 space-y-0.5">
               <div className="flex justify-between py-0.5">
                 <p className="text-muted-foreground">Base</p>
-                <p>{w.base.toFixed(2)} {unit}</p>
+                <WeightValue value={w.base} unit={unit} system={system} format="precise" />
               </div>
               <div className="flex justify-between py-0.5">
                 <p className="text-muted-foreground">Worn</p>
-                <p>{w.worn.toFixed(2)} {unit}</p>
+                <WeightValue value={w.worn} unit={unit} system={system} format="precise" />
               </div>
               <div className="flex justify-between py-0.5">
                 <p className="text-muted-foreground">Consumable</p>
-                <p>{w.consumable.toFixed(2)} {unit}</p>
+                <WeightValue value={w.consumable} unit={unit} system={system} format="precise" />
               </div>
               <div className="flex justify-between py-0.5 border-t border-border mt-1 pt-1">
                 <p className="font-semibold">Total</p>
-                <p className="font-semibold">{w.total.toFixed(2)} {unit}</p>
+                <WeightValue className="font-semibold" value={w.total} unit={unit} system={system} format="precise" />
               </div>
             </div>
           </div>

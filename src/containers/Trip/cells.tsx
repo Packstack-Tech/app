@@ -13,12 +13,12 @@ import {
   PopoverTrigger,
 } from '@/components/ui/Popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
+import { WeightValue } from '@/components/WeightValue'
 import { ItemForm } from '@/containers/ItemForm'
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { useTripPacks } from '@/hooks/useTripPacks'
-import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
 import { ownedQuantity } from '@/lib/overpack'
-import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
 import { wornQuantity } from '@/lib/worn'
 import { ItemForm as ItemFormValues, Unit } from '@/types/item'
 import { PackItem } from '@/types/pack'
@@ -269,20 +269,18 @@ export const WeightCell: FC<Props> = ({
     row: { original },
   },
 }) => {
-  const user = useUser()
-  const { displayUnitSystem } = useTripPacks(
-    useShallow(store => ({ displayUnitSystem: store.displayUnitSystem }))
-  )
+  const effectiveSystem = useWeightSystem()
   const { item } = original
   if (!item.weight) return '-'
 
-  const effectiveSystem = displayUnitSystem ?? user.unit_weight
-  const targetUnit = getItemDisplayUnit(effectiveSystem)
-  const formatted = formatItemWeight(item.weight, item.unit, targetUnit)
-
   return (
     <div className="flex pl-1 whitespace-nowrap">
-      <span className="ml-auto">{formatted}</span>
+      <WeightValue
+        className="ml-auto"
+        value={item.weight}
+        unit={item.unit}
+        system={effectiveSystem}
+      />
     </div>
   )
 }

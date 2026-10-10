@@ -12,6 +12,7 @@ import {
 import { useShallow } from 'zustand/react/shallow'
 
 import { EmptyState } from '@/components/EmptyState'
+import { MenuSwitchItem } from '@/components/MenuSwitchItem'
 import { CategorizedPackItemsTable } from '@/components/Tables/CategorizedPackItemsTable'
 import { Button } from '@/components/ui'
 import {
@@ -20,8 +21,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import { WeightValue } from '@/components/WeightValue'
 import { BreakdownDialog } from '@/containers/BreakdownDialog'
 import { useCategorizedPackItems } from '@/hooks/useCategorizedPackItems'
+import { useDisplayPrefs, useToggleWeightSystem, useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { useOverpack } from '@/hooks/useOverpack'
 import { usePackMembership } from '@/hooks/usePackMembership'
 import { useToast } from '@/hooks/useToast'
@@ -71,10 +74,6 @@ export const PackingList: FC<Props> = ({ trip }) => {
     viewMode,
     checklistMode,
     toggleChecklistMode,
-    showCalories,
-    toggleShowCalories,
-    displayUnitSystem,
-    setDisplayUnitSystem,
   } = useTripPacks(
     useShallow(state => ({
       packs: state.packs,
@@ -82,14 +81,16 @@ export const PackingList: FC<Props> = ({ trip }) => {
       viewMode: state.viewMode,
       checklistMode: state.checklistMode,
       toggleChecklistMode: state.toggleChecklistMode,
-      showCalories: state.showCalories,
-      toggleShowCalories: state.toggleShowCalories,
-      displayUnitSystem: state.displayUnitSystem,
-      setDisplayUnitSystem: state.setDisplayUnitSystem,
     }))
   )
-
-  const effectiveSystem = displayUnitSystem ?? user.unit_weight
+  const { showCalories, toggleShowCalories } = useDisplayPrefs(
+    useShallow(state => ({
+      showCalories: state.showCalories,
+      toggleShowCalories: state.toggleShowCalories,
+    }))
+  )
+  const effectiveSystem = useWeightSystem()
+  const toggleWeightSystem = useToggleWeightSystem('pack')
   const unit = getConversionUnit(effectiveSystem)
   const isMetric = effectiveSystem === 'METRIC'
 
@@ -172,66 +173,30 @@ export const PackingList: FC<Props> = ({ trip }) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={e => {
-                    e.preventDefault()
-                    toggleChecklistMode()
-                  }}
-                >
-                  <CheckSquare size={14} />
-                  Checklist mode
-                  <span
-                    role="switch"
-                    aria-checked={checklistMode}
-                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-muted-foreground/40 transition-colors bg-input data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                    data-state={checklistMode ? 'checked' : 'unchecked'}
-                  >
-                    <span
-                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-muted-foreground/40 data-[state=checked]:bg-primary-foreground shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
-                      data-state={checklistMode ? 'checked' : 'unchecked'}
-                    />
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={e => {
-                    e.preventDefault()
-                    setDisplayUnitSystem(isMetric ? 'IMPERIAL' : 'METRIC')
-                  }}
-                >
-                  <Scale size={14} />
-                  Metric units
-                  <span
-                    role="switch"
-                    aria-checked={isMetric}
-                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-muted-foreground/40 transition-colors bg-input data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                    data-state={isMetric ? 'checked' : 'unchecked'}
-                  >
-                    <span
-                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-muted-foreground/40 data-[state=checked]:bg-primary-foreground shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
-                      data-state={isMetric ? 'checked' : 'unchecked'}
-                    />
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={e => {
-                    e.preventDefault()
+                <MenuSwitchItem
+                  icon={CheckSquare}
+                  label="Checklist mode"
+                  checked={checklistMode}
+                  onToggle={toggleChecklistMode}
+                />
+                <MenuSwitchItem
+                  icon={Scale}
+                  label="Metric units"
+                  checked={isMetric}
+                  onToggle={toggleWeightSystem}
+                />
+                <MenuSwitchItem
+                  icon={Flame}
+                  label="Show calories"
+                  checked={showCalories}
+                  onToggle={() => {
                     toggleShowCalories()
+                    Mixpanel.track('Inventory:HideCalories', {
+                      hidden: showCalories,
+                      source: 'pack',
+                    })
                   }}
-                >
-                  <Flame size={14} />
-                  Show calories
-                  <span
-                    role="switch"
-                    aria-checked={showCalories}
-                    className="ml-auto relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-muted-foreground/40 transition-colors bg-input data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                    data-state={showCalories ? 'checked' : 'unchecked'}
-                  >
-                    <span
-                      className="pointer-events-none block h-3.5 w-3.5 rounded-full bg-muted-foreground/40 data-[state=checked]:bg-primary-foreground shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-4"
-                      data-state={showCalories ? 'checked' : 'unchecked'}
-                    />
-                  </span>
-                </DropdownMenuItem>
+                />
                 <DropdownMenuItem
                   onClick={() => {
                     downloadPackingListCsv(currentPack.items, {
@@ -313,19 +278,19 @@ export const PackingList: FC<Props> = ({ trip }) => {
         <div className="mb-4 flex items-center justify-between gap-4 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <span>
-              Base <span className="ml-1 font-medium text-foreground">{weights.base.toFixed(2)} {unit}</span>
+              Base <WeightValue className="ml-1 font-medium text-foreground" value={weights.base} unit={unit} system={effectiveSystem} format="precise" />
             </span>
             <span className="text-border">|</span>
             <span>
-              Worn <span className="ml-1 font-medium text-foreground">{weights.worn.toFixed(2)} {unit}</span>
+              Worn <WeightValue className="ml-1 font-medium text-foreground" value={weights.worn} unit={unit} system={effectiveSystem} format="precise" />
             </span>
             <span className="text-border">|</span>
             <span>
-              Consumable <span className="ml-1 font-medium text-foreground">{weights.consumable.toFixed(2)} {unit}</span>
+              Consumable <WeightValue className="ml-1 font-medium text-foreground" value={weights.consumable} unit={unit} system={effectiveSystem} format="precise" />
             </span>
             <span className="text-border">|</span>
             <span>
-              Total <span className="ml-1 font-semibold text-primary">{weights.total.toFixed(2)} {unit}</span>
+              Total <WeightValue className="ml-1 font-semibold text-primary" value={weights.total} unit={unit} system={effectiveSystem} format="precise" />
             </span>
           </div>
           {breakdownData.length > 0 && (

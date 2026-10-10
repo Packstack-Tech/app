@@ -66,10 +66,14 @@ export const DraggableTypes = {
 // not a per-store product ID.
 export const ENTITLEMENT_ID = 'Full Access'
 
-// Fallback RevenueCat offering, used only if the dashboard's "current"
-// pointer is unset. Which paywall is presented is dashboard-driven: change
-// the default offering in RevenueCat and every platform follows without a
-// deploy.
+// The offering the paywall presents (monthly, annual and one-time Pro). Asked
+// for by ID, same as mobile (mobile/src/lib/consts.ts). Once it's set as the
+// default offering in RevenueCat, both apps could go back to following
+// `current`.
+export const PAYWALL_OFFERING_ID = 'tiered_offerings'
+
+// Used only if PAYWALL_OFFERING_ID is missing or has no web-purchasable
+// packages AND the dashboard's "current" pointer is unset.
 export const FALLBACK_OFFERING_ID = 'web_full_access'
 
 // Number of active (non-removed) trips a non-subscribed user may have.

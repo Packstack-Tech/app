@@ -11,8 +11,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/AlertDialog'
+import { WeightValue } from '@/components/WeightValue'
 import { useUser } from '@/hooks/useUser'
-import { convertWeight, getItemDisplayUnit } from '@/lib/weight'
 import { useInventory, usePermanentlyDeleteItem } from '@/queries/item'
 import { Item, Unit } from '@/types/item'
 
@@ -35,7 +35,6 @@ type Props = {
 export const RecentlyAddedGear: FC<Props> = ({ onEdit }) => {
   const { data: items } = useInventory()
   const user = useUser()
-  const itemUnit = getItemDisplayUnit(user.unit_weight)
   const permanentlyDelete = usePermanentlyDeleteItem()
   const [pendingDelete, setPendingDelete] = useState<Item | null>(null)
 
@@ -64,10 +63,6 @@ export const RecentlyAddedGear: FC<Props> = ({ onEdit }) => {
           const secondary = [item.brand?.name, item.product?.name]
             .filter(Boolean)
             .join(' · ')
-          const weight =
-            item.weight != null && item.unit
-              ? convertWeight(item.weight, item.unit as Unit, itemUnit).display
-              : null
 
           return (
             <li key={item.id} className="group flex items-center gap-2">
@@ -84,10 +79,13 @@ export const RecentlyAddedGear: FC<Props> = ({ onEdit }) => {
                     </span>
                   )}
                 </span>
-                {!!weight && (
-                  <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                    {weight}
-                  </span>
+                {!!item.weight && !!item.unit && (
+                  <WeightValue
+                    className="shrink-0 text-xs text-muted-foreground tabular-nums"
+                    value={item.weight}
+                    unit={item.unit as Unit}
+                    system={user.unit_weight}
+                  />
                 )}
               </button>
               <button

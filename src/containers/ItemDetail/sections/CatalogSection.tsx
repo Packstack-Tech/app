@@ -2,7 +2,8 @@ import { FC } from 'react'
 import { ExternalLink, Unlink } from 'lucide-react'
 
 import { Button } from '@/components/ui'
-import { formatItemWeight } from '@/lib/weight'
+import { WeightValue } from '@/components/WeightValue'
+import { formatItemWeight, unitSystemOf } from '@/lib/weight'
 import { useDetachItemCatalog } from '@/queries/item'
 import { Item, Unit } from '@/types/item'
 
@@ -44,17 +45,41 @@ export const CatalogSection: FC<Props> = ({ item }) => {
             {cv ? (
               cv.weight != null && cv.weight_unit ? (
                 <>
-                  {cv.name} · {formatItemWeight(cv.weight, cv.weight_unit as Unit, item.unit)}
+                  {cv.name} ·{' '}
+                  <WeightValue
+                    value={cv.weight}
+                    unit={cv.weight_unit as Unit}
+                    system={unitSystemOf(item.unit)}
+                  >
+                    {formatItemWeight(cv.weight, cv.weight_unit as Unit, item.unit)}
+                  </WeightValue>
                 </>
               ) : cp.weight != null && cp.weight_unit ? (
                 <>
-                  {cv.name} · {formatItemWeight(cp.weight, cp.weight_unit as Unit, item.unit)} (same as standard)
+                  {cv.name} ·{' '}
+                  <WeightValue
+                    value={cp.weight}
+                    unit={cp.weight_unit as Unit}
+                    system={unitSystemOf(item.unit)}
+                  >
+                    {formatItemWeight(cp.weight, cp.weight_unit as Unit, item.unit)}
+                  </WeightValue>{' '}
+                  (same as standard)
                 </>
               ) : (
                 cv.name
               )
             ) : cp.weight != null && cp.weight_unit ? (
-              <>Standard · {formatItemWeight(cp.weight, cp.weight_unit as Unit, item.unit)}</>
+              <>
+                Standard ·{' '}
+                <WeightValue
+                  value={cp.weight}
+                  unit={cp.weight_unit as Unit}
+                  system={unitSystemOf(item.unit)}
+                >
+                  {formatItemWeight(cp.weight, cp.weight_unit as Unit, item.unit)}
+                </WeightValue>
+              </>
             ) : null}
           </p>
           {cp.description && (

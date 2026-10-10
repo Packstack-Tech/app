@@ -6,7 +6,6 @@ import { EmptyState } from '@/components/EmptyState'
 import { CategorizedItemsTable } from '@/components/Tables/CategorizedItemsTable'
 import { Loading } from '@/components/ui/Loading'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
-import { ItemScores } from '@/hooks/useReplacementScores'
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
 import { ItemCondition, ItemStatus } from '@/types/item'
@@ -23,7 +22,6 @@ interface Props {
   onToggleItem: (id: number) => void
   onToggleCategory: (ids: number[]) => void
   onSelectItem?: (id: number) => void
-  scores: ItemScores
   statusFilter?: ItemStatus | null
   conditionFilter?: ItemCondition | null
   categoryFilter?: string | null
@@ -39,7 +37,6 @@ export const InventoryTable = ({
   onToggleItem,
   onToggleCategory,
   onSelectItem,
-  scores,
   statusFilter,
   conditionFilter,
   categoryFilter,
@@ -85,8 +82,8 @@ export const InventoryTable = ({
   }, [data, statusFilter, conditionFilter, categoryFilter])
 
   const tableCols = useMemo(
-    () => columns(user.currency, scores).filter(c => !(hideCalories && c.id === 'calories')),
-    [user.currency, scores, hideCalories]
+    () => columns(user.currency).filter(c => !(hideCalories && c.id === 'calories')),
+    [user.currency, hideCalories]
   )
 
   if (isLoading) {

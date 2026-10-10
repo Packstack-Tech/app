@@ -21,10 +21,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table'
-import { useUser } from '@/hooks/useUser'
+import { WeightValue } from '@/components/WeightValue'
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { ownedValue } from '@/lib/overpack'
-import { SYSTEM_UNIT } from '@/lib/consts'
-import { formatTotalWeight } from '@/lib/weight'
 import { useUpdateItemSort } from '@/queries/item'
 
 import { ItemRow } from './ItemRow'
@@ -34,9 +33,8 @@ type ColumnMeta = { style?: CSSProperties; align?: 'left' | 'right' | 'center' }
 type SummaryRow = { weight?: number | null; unit?: string; price?: number | null; quantity?: number }
 
 function computeGroupSummary(
-  data: SummaryRow[],
-  unitSystem: SYSTEM_UNIT
-): { count: number; weightDisplay: string; value: number } {
+  data: SummaryRow[]
+): { count: number; totalGrams: number; value: number } {
   const CONVERSION: Record<string, number> = { g: 1, kg: 1000, oz: 28.3495, lb: 453.592 }
   let totalGrams = 0
   let totalValue = 0
@@ -51,7 +49,7 @@ function computeGroupSummary(
 
   return {
     count: data.length,
-    weightDisplay: formatTotalWeight(totalGrams, unitSystem),
+    totalGrams,
     value: totalValue,
   }
 }
@@ -98,7 +96,7 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   sorting,
   onSortingChange,
 }: DataTableProps<TData, TValue>) {
-  const user = useUser()
+  const weightSystem = useWeightSystem()
   const updateItemSort = useUpdateItemSort()
   const [categoryItems, setCategoryItems] = useState(data)
 
@@ -156,8 +154,8 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
   const someSelected = selectedCount > 0 && !allSelected
 
   const groupSummary = useMemo(
-    () => computeGroupSummary(data as SummaryRow[], user.unit_weight),
-    [data, user.unit_weight]
+    () => computeGroupSummary(data as SummaryRow[]),
+    [data]
   )
 
   if (!visibleRows.length) return null
@@ -254,7 +252,13 @@ export function CategorizedItemsTable<TData extends { id: number }, TValue>({
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-semibold text-foreground text-sm">{category}</h3>
                 <span className="text-[11px] text-muted-foreground tabular-nums">
-                  {groupSummary.count} {groupSummary.count === 1 ? 'item' : 'items'} · {groupSummary.weightDisplay}
+                  {groupSummary.count} {groupSummary.count === 1 ? 'item' : 'items'} ·{' '}
+                  <WeightValue
+                    value={groupSummary.totalGrams}
+                    unit="g"
+                    system={weightSystem}
+                    format="total"
+                  />
                   {groupSummary.value > 0 && ` · $${groupSummary.value.toFixed(0)}`}
                 </span>
               </div>

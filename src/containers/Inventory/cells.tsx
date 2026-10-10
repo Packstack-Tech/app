@@ -9,8 +9,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/Tooltip'
-import { useUser } from '@/hooks/useUser'
-import { formatItemWeight, getItemDisplayUnit } from '@/lib/weight'
+import { WeightValue } from '@/components/WeightValue'
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { Item, ItemCondition, ItemStatus } from '@/types/item'
 
 export const EmptyDash = () => (
@@ -77,60 +77,49 @@ const CONDITION_STYLES: Record<ItemCondition, string> = {
   worn: 'bg-warning/15 text-warning',
 }
 
-type ConditionCellProps = Props & {
-  score?: number | null
+const MS_PER_MONTH = (365.25 / 12) * 24 * 60 * 60 * 1000
+
+/** "Owned 5 months", "Owned 2.3 years"; null for a missing or future date. */
+function timeOwned(acquiredDate?: string | null): string | null {
+  if (!acquiredDate) return null
+  const months = (Date.now() - new Date(acquiredDate).getTime()) / MS_PER_MONTH
+  if (!(months >= 0)) return null
+  if (months < 0.5) return 'Owned less than a month'
+  if (months < 11.5) {
+    const m = Math.round(months)
+    return `Owned ${m} month${m === 1 ? '' : 's'}`
+  }
+  const years = parseFloat((months / 12).toFixed(1))
+  return `Owned ${years} year${years === 1 ? '' : 's'}`
 }
 
-function getScoreInfo(score: number) {
-  if (score >= 0.7) return { dotColor: 'bg-red-500', label: 'Replace soon' }
-  if (score >= 0.4) return { dotColor: 'bg-yellow-500', label: 'Moderate wear' }
-  return { dotColor: 'bg-emerald-500', label: 'Good condition' }
-}
-
-export const ConditionCell: FC<ConditionCellProps> = ({
+// The replacement score lives in the item flyout only; the table shows the
+// condition the user set and how long they've had it.
+export const ConditionCell: FC<Props> = ({
   cell: {
     row: { original },
   },
-  score,
 }) => {
   const { condition } = original
+  if (!condition) return <EmptyDash />
 
-  if (!condition && score == null) return <EmptyDash />
-
-  const pill = condition ? (
+  const pill = (
     <span
       className={`text-[10px] font-medium rounded-full px-2 py-0.5 leading-none capitalize ${CONDITION_STYLES[condition] || ''}`}
     >
       {condition}
     </span>
-  ) : null
+  )
 
-  if (score == null) return pill
-
-  const pct = Math.round(score * 100)
-  const { dotColor, label } = getScoreInfo(score)
-
-  const ownedYears = original.acquired_date
-    ? (
-        (Date.now() - new Date(original.acquired_date).getTime()) /
-        (365.25 * 24 * 60 * 60 * 1000)
-      ).toFixed(1)
-    : null
+  const owned = timeOwned(original.acquired_date)
+  if (!owned) return pill
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="inline-flex items-center gap-1.5 cursor-default">
-          <span className={`size-2 rounded-full shrink-0 ${dotColor}`} />
-          {pill}
-        </div>
+        <span className="inline-flex cursor-default">{pill}</span>
       </TooltipTrigger>
-      <TooltipContent>
-        <p className="font-medium text-background">{label} ({pct}%)</p>
-        {ownedYears && (
-          <p className="text-xs text-background/70">Owned {ownedYears}y</p>
-        )}
-      </TooltipContent>
+      <TooltipContent>{owned}</TooltipContent>
     </Tooltip>
   )
 }
@@ -157,14 +146,13 @@ export const WeightCell: FC<Props> = ({
     row: { original },
   },
 }) => {
-  const user = useUser()
+  const system = useWeightSystem()
   const { weight, unit, consumable } = original
   if (!weight) return <EmptyDash />
-  const targetUnit = getItemDisplayUnit(user.unit_weight)
   return (
     <div className="inline-flex items-center gap-1">
       {consumable && <FlameIcon color="white" size={16} strokeWidth={1} />}
-      <span>{formatItemWeight(weight, unit, targetUnit)}</span>
+      <WeightValue value={weight} unit={unit} system={system} />
     </div>
   )
 }
@@ -174,7 +162,7 @@ export const NotesCell: FC<Props> = ({
     row: { original },
   },
 }) => {
-  if (!original.notes) return null
+  if (!original.notes) return <EmptyDash />
 
   // Hover, not click: the note is the whole point of the icon.
   return (

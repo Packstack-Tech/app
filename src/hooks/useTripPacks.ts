@@ -1,7 +1,5 @@
 import { create } from 'zustand'
 
-import { SYSTEM_UNIT } from '@/lib/consts'
-import { getHideCalories, setHideCalories } from '@/lib/preferences'
 import { applyPackItemEdit } from '@/lib/worn'
 import { Item } from '@/types/item'
 import { PackItem, PackItemEditableKeys, TripPackKeys } from '@/types/pack'
@@ -33,7 +31,6 @@ interface TripPacksState {
    */
   revision: number
   checklistMode: boolean
-  displayUnitSystem: SYSTEM_UNIT | null
   synced: boolean
   isDragging: boolean
   addPack: (title: string) => void
@@ -67,10 +64,7 @@ interface TripPacksState {
   removeItemFromPack: (index: number, id: number) => void
   setCategoryItems: (items: PackItem[]) => void
   updateBaseItem: (itemId: number, updatedFields: Partial<Item>) => void
-  showCalories: boolean
   toggleChecklistMode: () => void
-  toggleShowCalories: () => void
-  setDisplayUnitSystem: (system: SYSTEM_UNIT) => void
 }
 
 export const initPack = {
@@ -114,8 +108,6 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
   loadedTripId: null,
   revision: 0,
   checklistMode: false,
-  showCalories: !getHideCalories(),   // shared with the gear closet's "Hide calories"
-  displayUnitSystem: null,
   synced: true,
   isDragging: false,
   packs: [initPack],
@@ -281,12 +273,4 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
 
   toggleChecklistMode: () =>
     set(state => ({ checklistMode: !state.checklistMode })),
-
-  toggleShowCalories: () =>
-    set(state => {
-      setHideCalories(state.showCalories)
-      return { showCalories: !state.showCalories }
-    }),
-
-  setDisplayUnitSystem: system => set({ displayUnitSystem: system }),
 }))

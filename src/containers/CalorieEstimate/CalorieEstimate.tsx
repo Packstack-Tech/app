@@ -3,6 +3,8 @@ import { DropletIcon, FlameIcon, InfoIcon } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { CalorieUpgrade } from '@/components/CalorieUpgrade'
+import { WeightValue } from '@/components/WeightValue'
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useTripPacks } from '@/hooks/useTripPacks'
 import { useUser } from '@/hooks/useUser'
@@ -66,7 +68,9 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
     return calculateDailyCalories(inputs)
   }, [missing, activeProfile, trip, totalPackWeight, user, safetyMargin])
 
-  const isMetric = user.unit_weight === 'METRIC'
+  // Display only: the calculation above runs on the account units.
+  const weightSystem = useWeightSystem()
+  const isMetric = weightSystem === 'METRIC'
   const foodWeightUnit = isMetric ? 'kg' : 'lb'
 
   const totalDays = useMemo(() => {
@@ -165,26 +169,49 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
 
               <div className="flex justify-between py-0.5">
                 <p className="text-muted-foreground">Food / day</p>
-                <p>
+                <WeightValue
+                  value={results.foodLbPerDay}
+                  unit="lb"
+                  system={weightSystem}
+                  format="precise"
+                >
                   {isMetric
                     ? `${(results.foodLbPerDay * 0.453592).toFixed(2)} ${foodWeightUnit}`
                     : `${results.foodLbPerDay} ${foodWeightUnit}`}
-                </p>
+                </WeightValue>
               </div>
 
               {/* Macros */}
               <div className="grid grid-cols-3 gap-1 py-1">
                 <div className="bg-muted/50 rounded px-1.5 py-1 text-center">
                   <p className="text-[10px] text-muted-foreground">Carbs</p>
-                  <p className="text-xs font-medium">{results.carbsG}g</p>
+                  <WeightValue
+                    className="block text-xs font-medium"
+                    value={results.carbsG}
+                    unit="g"
+                    system={weightSystem}
+                    format="small"
+                  />
                 </div>
                 <div className="bg-muted/50 rounded px-1.5 py-1 text-center">
                   <p className="text-[10px] text-muted-foreground">Fat</p>
-                  <p className="text-xs font-medium">{results.fatG}g</p>
+                  <WeightValue
+                    className="block text-xs font-medium"
+                    value={results.fatG}
+                    unit="g"
+                    system={weightSystem}
+                    format="small"
+                  />
                 </div>
                 <div className="bg-muted/50 rounded px-1.5 py-1 text-center">
                   <p className="text-[10px] text-muted-foreground">Protein</p>
-                  <p className="text-xs font-medium">{results.proteinG}g</p>
+                  <WeightValue
+                    className="block text-xs font-medium"
+                    value={results.proteinG}
+                    unit="g"
+                    system={weightSystem}
+                    format="small"
+                  />
                 </div>
               </div>
 
@@ -217,11 +244,16 @@ export const CalorieEstimate: FC<Props> = ({ trip }) => {
                   </div>
                   <div className="flex justify-between py-0.5">
                     <p className="text-muted-foreground">Total food</p>
-                    <p>
+                    <WeightValue
+                      value={results.totalTripFoodLb}
+                      unit="lb"
+                      system={weightSystem}
+                      format="precise"
+                    >
                       {isMetric
                         ? `${(results.totalTripFoodLb * 0.453592).toFixed(2)} ${foodWeightUnit}`
                         : `${results.totalTripFoodLb} ${foodWeightUnit}`}
-                    </p>
+                    </WeightValue>
                   </div>
                 </>
               )}

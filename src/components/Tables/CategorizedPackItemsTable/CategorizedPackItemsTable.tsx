@@ -11,8 +11,9 @@ import {
   Table,
   TableBody,
 } from '@/components/ui/Table'
+import { WeightValue } from '@/components/WeightValue'
+import { useWeightSystem } from '@/hooks/useDisplayPrefs'
 import { useTripPacks } from '@/hooks/useTripPacks'
-import { useUser } from '@/hooks/useUser'
 import { getConversionUnit, sumPackItemWeights } from '@/lib/weight'
 import { PackItem } from '@/types/pack'
 
@@ -31,14 +32,13 @@ export function CategorizedPackItemsTable<TData, TValue>({
   category,
   colgroup,
 }: DataTableProps<TData, TValue>) {
-  const user = useUser()
-  const { setCategoryItems, displayUnitSystem } = useTripPacks(
+  const { setCategoryItems } = useTripPacks(
     useShallow(store => ({
       setCategoryItems: store.setCategoryItems,
-      displayUnitSystem: store.displayUnitSystem,
     }))
   )
-  const unit = getConversionUnit(displayUnitSystem ?? user.unit_weight)
+  const system = useWeightSystem()
+  const unit = getConversionUnit(system)
 
   const table = useReactTable({
     data,
@@ -74,9 +74,13 @@ export function CategorizedPackItemsTable<TData, TValue>({
     <div>
       <div className="px-3 py-2 bg-muted flex justify-between items-center">
         <h3 className="font-semibold text-foreground text-sm">{category}</h3>
-        <span className="text-xs text-foreground">
-          {categoryWeight.toFixed(2)} {unit}
-        </span>
+        <WeightValue
+          className="text-xs text-foreground"
+          value={categoryWeight}
+          unit={unit}
+          system={system}
+          format="precise"
+        />
       </div>
       <Table>
         {colgroup}

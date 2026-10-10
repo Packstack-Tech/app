@@ -96,6 +96,40 @@ export function formatItemWeight(
   return `${rounded} ${targetItemUnit}`
 }
 
+export const oppositeSystem = (system: SYSTEM_UNIT): SYSTEM_UNIT =>
+  system === 'METRIC' ? 'IMPERIAL' : 'METRIC'
+
+export const unitSystemOf = (unit: Unit): SYSTEM_UNIT =>
+  unit === 'g' || unit === 'kg' ? 'METRIC' : 'IMPERIAL'
+
+/**
+ * The app's three ways of showing a weight:
+ * - item: g/oz, promoted to kg/lb past 1000 g / 16 oz (gear rows)
+ * - total: whole g/oz, or kg/lb to one decimal (closet and category totals)
+ * - precise: kg/lb to two decimals (pack breakdowns)
+ * - small: whole g, or oz to one decimal, never promoted (food macros)
+ */
+export type WeightFormat = 'item' | 'total' | 'precise' | 'small'
+
+/** Formats a weight (in grams) in a unit system using one of the styles above. */
+export function formatWeightIn(
+  grams: number,
+  system: SYSTEM_UNIT,
+  format: WeightFormat = 'item'
+): string {
+  if (format === 'total') return formatTotalWeight(grams, system)
+  if (format === 'small') {
+    return system === 'METRIC'
+      ? `${Math.round(grams)} g`
+      : `${(grams / CONVERSION_FACTORS.oz).toFixed(1)} oz`
+  }
+  if (format === 'precise') {
+    const unit = getConversionUnit(system)
+    return `${convertWeightValue(grams, 'g', unit).toFixed(2)} ${unit}`
+  }
+  return formatItemWeight(grams, 'g', getItemDisplayUnit(system))
+}
+
 /**
  * Sums the total weight of pack items, converting each to the target unit
  * and multiplying by quantity.

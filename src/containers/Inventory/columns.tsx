@@ -1,7 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table'
 
 import { numberSort, ordinalSort, orUndefined, stringSort } from '@/components/Tables/lib/sorting'
-import { ItemScores } from '@/hooks/useReplacementScores'
 import { Currency, formatCurrency } from '@/lib/currencies'
 import { ownedQuantity, ownedValue } from '@/lib/overpack'
 import { convertWeight } from '@/lib/weight'
@@ -17,10 +16,7 @@ import {
 
 const CONDITION_ORDER = ['new', 'good', 'fair', 'worn'] as const
 
-export const columns = (
-  currency: Currency,
-  scores: ItemScores,
-): ColumnDef<Item>[] => [
+export const columns = (currency: Currency): ColumnDef<Item>[] => [
   {
     id: 'name',
     header: 'Name',
@@ -64,12 +60,7 @@ export const columns = (
     accessorFn: item => orUndefined(item.condition),
     sortingFn: ordinalSort(CONDITION_ORDER),
     sortUndefined: 'last',
-    cell: ({ cell }: { cell: Cell<Item, unknown> }) => (
-      <ConditionCell
-        cell={cell}
-        score={scores.get(cell.row.original.id)}
-      />
-    ),
+    cell: ({ cell }: { cell: Cell<Item, unknown> }) => <ConditionCell cell={cell} />,
     meta: {
       style: { width: '8%' },
     },

@@ -10,8 +10,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/Dialog'
+import { WeightValue } from '@/components/WeightValue'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import { Mixpanel } from '@/lib/mixpanel'
+import { unitSystemOf } from '@/lib/weight'
 import { CategoryWeight } from '@/types/category'
 
 interface Props {
@@ -83,7 +85,7 @@ export const BreakdownDialog: FC<Props> = ({ data, label = 'View Breakdown' }) =
       ? sort.desc ? <ArrowDown size={12} /> : <ArrowUp size={12} />
       : <ArrowUpDown size={12} className="opacity-30" />
 
-  const aggregateUnit = data[0]?.unit || ''
+  const aggregateUnit = data[0]?.unit ?? 'kg'
   const valueFormat = (value: number) => `${value.toFixed(2)} ${aggregateUnit}`
   const totalWeight = data.reduce((sum, item) => sum + item.value, 0)
 
@@ -171,7 +173,12 @@ export const BreakdownDialog: FC<Props> = ({ data, label = 'View Breakdown' }) =
                     </td>
                     <td className="py-1.5">{label}</td>
                     <td className="text-right tabular-nums py-1.5">
-                      {valueFormat(value)}
+                      <WeightValue
+                        value={value}
+                        unit={aggregateUnit}
+                        system={unitSystemOf(aggregateUnit)}
+                        format="precise"
+                      />
                     </td>
                   </tr>
                 ))}
@@ -179,7 +186,12 @@ export const BreakdownDialog: FC<Props> = ({ data, label = 'View Breakdown' }) =
                   <td className="py-1.5"></td>
                   <td className="py-1.5 font-semibold">Total</td>
                   <td className="text-right tabular-nums py-1.5 font-semibold">
-                    {`${totalWeight.toFixed(2)} ${aggregateUnit}`}
+                    <WeightValue
+                      value={totalWeight}
+                      unit={aggregateUnit}
+                      system={unitSystemOf(aggregateUnit)}
+                      format="precise"
+                    />
                   </td>
                 </tr>
               </tbody>
