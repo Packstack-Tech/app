@@ -37,6 +37,8 @@ export function useSubscription() {
     Boolean(user?.is_subscribed) ||
     Boolean(customerInfo?.entitlements.active[ENTITLEMENT_ID])
 
+  const userEmail = user?.email
+
   const openUpgrade = useCallback(async (source: PaywallSource) => {
     if (!Purchases.isConfigured()) return
     Mixpanel.track('Paywall:Open', { source })
@@ -59,7 +61,12 @@ export function useSubscription() {
           shown: offering.identifier,
         })
       }
-      await purchases.presentPaywall({ offering: offering ?? undefined })
+      await purchases.presentPaywall({
+        offering: offering ?? undefined,
+        // Checkout uses the account email instead of asking for one, so the
+        // receipt address and RevenueCat's $email match the account.
+        customerEmail: userEmail || undefined,
+      })
       await refresh()
       await queryClient.invalidateQueries({ queryKey: [USER_QUERY] })
       Mixpanel.track('Paywall:Purchase', { source, offering: offering?.identifier })
@@ -72,7 +79,7 @@ export function useSubscription() {
       // for diagnostics without producing an unhandled rejection.
       console.error('Upgrade flow failed', e)
     }
-  }, [queryClient, refresh])
+  }, [queryClient, refresh, userEmail])
 
   const managementUrl = customerInfo?.managementURL ?? null
 
