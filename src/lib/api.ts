@@ -1,3 +1,4 @@
+import type { Attribution } from '@/lib/attribution'
 import {
   AuthResponse,
   ImportInventoryResponse,
@@ -66,8 +67,8 @@ export const sendOtp = (data: SendOtpRequest) =>
 export const verifyOtp = (data: VerifyOtpRequest) =>
   http.post<AuthResponse>('/user/verify-otp', data)
 
-export const googleAuth = (credential: string) =>
-  http.post<AuthResponse>('/user/google-auth', { credential })
+export const googleAuth = (credential: string, attribution?: Attribution) =>
+  http.post<AuthResponse>('/user/google-auth', { credential, attribution })
 
 export const logout = () => http.post('/user/logout')
 
@@ -114,7 +115,7 @@ export const getTripPacks = (tripId?: string | number) =>
 export const createPack = (data: PackPayload) => http.post<Pack>('/pack', data)
 
 export const updatePack = (packId: number, data: PackPayload) =>
-  http.put(`/pack/${packId}`, data)
+  http.put<Pack>(`/pack/${packId}`, data)
 
 export const deletePack = (packId: number) => http.delete(`/pack/${packId}`)
 

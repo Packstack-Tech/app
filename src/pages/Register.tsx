@@ -14,6 +14,7 @@ import {
   InputOTPSlot,
 } from '@/components/ui/InputOtp'
 import { Loading } from '@/components/ui/Loading'
+import { attributionProps } from '@/lib/attribution'
 import { Mixpanel } from '@/lib/mixpanel'
 import { handleException } from '@/lib/utils'
 import { useGoogleAuth, useSendOtp, useVerifyOtp } from '@/queries/user'
@@ -96,10 +97,14 @@ export const Register = () => {
       verifyOtp.mutate(
         { email, otp: code, is_registration: true },
         {
-          onSuccess: ({ user }) => {
+          onSuccess: ({ user, attribution }) => {
             Mixpanel.identify(`${user.id}`)
-            Mixpanel.track('User:Register')
-            Mixpanel.people.set({ $name: user.username, $email: user.email })
+            Mixpanel.track('User:Register', attributionProps(attribution))
+            Mixpanel.people.set({
+              $name: user.username,
+              $email: user.email,
+              ...attributionProps(attribution),
+            })
             navigate({ to: '/' })
           },
           onError: error => {
@@ -227,12 +232,13 @@ export const Register = () => {
         onCredential={credential => {
           setError(undefined)
           googleAuthMutation.mutate(credential, {
-            onSuccess: ({ user }) => {
+            onSuccess: ({ user, attribution }) => {
               Mixpanel.identify(`${user.id}`)
-              Mixpanel.track('User:Register:Google')
+              Mixpanel.track('User:Register:Google', attributionProps(attribution))
               Mixpanel.people.set({
                 $name: user.username,
                 $email: user.email,
+                ...attributionProps(attribution),
               })
               navigate({ to: '/' })
             },

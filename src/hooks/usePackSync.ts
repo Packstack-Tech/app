@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { useToast } from '@/hooks/useToast'
 import { useTripPacks } from '@/hooks/useTripPacks'
+import { conflictPack, isDirty } from '@/lib/packSync'
 import { withWornQuantity } from '@/lib/worn'
 import { useCreatePack, useUpdatePack } from '@/queries/pack'
 
@@ -16,6 +17,8 @@ export function usePackSync(tripId?: number) {
     revision,
     markSynced,
     assignPackId,
+    markPackSaved,
+    resolveConflict,
   } = useTripPacks(
     useShallow(store => ({
       packs: store.packs,
@@ -25,6 +28,8 @@ export function usePackSync(tripId?: number) {
       revision: store.revision,
       markSynced: store.markSynced,
       assignPackId: store.assignPackId,
+      markPackSaved: store.markPackSaved,
+      resolveConflict: store.resolveConflict,
     }))
   )
   const createPack = useCreatePack()
@@ -50,26 +55,44 @@ export function usePackSync(tripId?: number) {
     savingRef.current = true
 
     async function savePacks(id: number, sentRevision: number) {
+      let conflicted = false
       try {
         await Promise.all(
           packs.map(async (pack, index) => {
+            // Only what changed. Every save replaces a whole pack, so sending
+            // untouched ones too would only widen what a stale copy can undo.
+            if (!isDirty(pack)) return
             if (pack.id) {
-              await updatePack.mutateAsync({
-                id: pack.id,
-                data: { ...pack, items: withWornQuantity(pack.items), trip_id: id },
-              })
+              try {
+                const saved = await updatePack.mutateAsync({
+                  id: pack.id,
+                  data: {
+                    title: pack.title,
+                    items: withWornQuantity(pack.items),
+                    trip_id: id,
+                    version: pack.base?.version,
+                  },
+                })
+                markPackSaved(id, saved)
+              } catch (error) {
+                // Changed elsewhere since we loaded it: merge, then retry below.
+                const server = conflictPack(error)
+                if (!server) throw error
+                resolveConflict(id, server)
+                conflicted = true
+              }
             } else {
               const created = await createPack.mutateAsync({
                 title: pack.title,
                 items: withWornQuantity(pack.items),
                 trip_id: id,
               })
-              assignPackId(index, created.id, id)
+              assignPackId(index, created, id)
             }
           })
         )
         // False when a different trip loaded, or edits landed mid-flight.
-        const covered = markSynced(id, sentRevision)
+        const covered = !conflicted && markSynced(id, sentRevision)
         if (!covered) {
           // Only this branch retriggers. Bumping after a failure too would
           // retry a permanently-failing save in a tight loop.

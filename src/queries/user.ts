@@ -16,6 +16,7 @@ import {
   updateUser,
   verifyOtp,
 } from '@/lib/api'
+import { clearAttribution, getAttribution } from '@/lib/attribution'
 import { getCurrency } from '@/lib/currencies'
 import { useDisplayPrefs } from '@/lib/displayPrefs'
 import { Mixpanel } from '@/lib/mixpanel'
@@ -74,9 +75,13 @@ export const useVerifyOtp = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (params: VerifyOtpRequest) => {
-      const res = await verifyOtp(params)
+      // Ad attribution rides along on registrations; the API keeps it only
+      // when this call creates the account.
+      const attribution = params.is_registration ? getAttribution() : undefined
+      const res = await verifyOtp({ ...params, attribution })
       queryClient.setQueryData([USER_QUERY], res.data.user)
-      return res.data
+      clearAttribution()
+      return { ...res.data, attribution }
     },
   })
 }
@@ -85,9 +90,13 @@ export const useGoogleAuth = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (credential: string) => {
-      const res = await googleAuth(credential)
+      // Google sign-in creates the account when there isn't one, from the
+      // login page too, so attribution is always sent.
+      const attribution = getAttribution()
+      const res = await googleAuth(credential, attribution)
       queryClient.setQueryData([USER_QUERY], res.data.user)
-      return res.data
+      clearAttribution()
+      return { ...res.data, attribution }
     },
   })
 }

@@ -1,3 +1,5 @@
+import type { Attribution } from '@/lib/attribution'
+
 import { SortOrder } from './image'
 import { OverpackMode, User } from './user'
 
@@ -12,6 +14,8 @@ export type VerifyOtpRequest = {
   otp: string
   is_registration: boolean
   username?: string
+  /** Ad click / UTM data, stored only if this creates the account. */
+  attribution?: Attribution
 }
 
 export type AuthResponse = {
@@ -98,6 +102,8 @@ export type PackPayload = {
   title: string
   trip_id?: number
   items: PackItem[]
+  /** The pack version the edits were made against; the API 409s if stale. */
+  version?: number
 }
 
 export type UpdatePackItemPayload = {

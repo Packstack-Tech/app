@@ -14,6 +14,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/Tooltip'
 import { RevenueCatProvider } from '@/providers/RevenueCatProvider'
 
+import { captureAttribution } from './lib/attribution'
 import { queryClient } from './lib/queryClient'
 import { router } from './router'
 
@@ -22,6 +23,9 @@ if (!('theme' in localStorage) || localStorage.theme === 'dark') {
 } else {
   document.documentElement.classList.remove('dark')
 }
+
+// Before anything navigates: the ad click params are only on the landing URL.
+captureAttribution()
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,

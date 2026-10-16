@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 
+import { baseOf, fromServer, rebasePack } from '@/lib/packSync'
 import { applyPackItemEdit } from '@/lib/worn'
 import { Item } from '@/types/item'
-import { PackItem, PackItemEditableKeys, TripPackKeys } from '@/types/pack'
+import { Pack, PackItem, PackItemEditableKeys, TripPackKeys } from '@/types/pack'
 import { TripPack } from '@/types/pack'
 
 export type PackViewMode = 'pack' | 'all'
@@ -38,7 +39,14 @@ interface TripPacksState {
   updatePack: (index: number, key: TripPackKeys, value: string | number | null) => void
   selectPack: (index: number) => void
   setViewMode: (mode: PackViewMode) => void
-  setPacks: (packs: TripPack[], tripId: number) => void
+  setPacks: (packs: Pack[], tripId: number) => void
+  /**
+   * Takes a newer server copy of the trip's packs — a refetch on window focus,
+   * or after a save. Only while everything here is saved: unsaved edits are
+   * the save's to reconcile (see resolveConflict), and replacing them would
+   * lose them.
+   */
+  refreshPacks: (packs: Pack[], tripId: number) => void
   setDragging: (dragging: boolean) => void
   /**
    * Returns false when the save this completes no longer describes what we
@@ -46,7 +54,18 @@ interface TripPacksState {
    * flight. The caller must not treat those as saved.
    */
   markSynced: (tripId: number, revision: number) => boolean
-  assignPackId: (index: number, id: number, tripId: number) => void
+  assignPackId: (index: number, created: Pack, tripId: number) => void
+  /**
+   * Records a successful save: the server now holds `saved`, so later edits
+   * are made against its version. Not an edit — leaves revision alone, and
+   * leaves the items alone too, since edits may have landed mid-flight.
+   */
+  markPackSaved: (tripId: number, saved: Pack) => void
+  /**
+   * The save was refused because the server's copy changed. Replays the
+   * pack's edits onto `server` and leaves the store unsynced to retry.
+   */
+  resolveConflict: (tripId: number, server: Pack) => void
 
   updateItem: (
     id: number,
@@ -167,7 +186,7 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
 
   setPacks: (packs, tripId) =>
     set({
-      packs: [...packs].sort((a, b) => (a.id ?? Infinity) - (b.id ?? Infinity)),
+      packs: packs.map(fromServer).sort((a, b) => a.id! - b.id!),
       synced: true,
       loadedTripId: tripId,
       revision: 0,
@@ -176,6 +195,28 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
       // and every selected-pack action would silently no-op.
       selectedIndex: 0,
       viewMode: 'pack',
+    }),
+
+  refreshPacks: (packs, tripId) =>
+    set(state => {
+      if (state.loadedTripId !== tripId || !state.synced || state.isDragging) return state
+      const localById = new Map(state.packs.map(pack => [pack.id, pack]))
+      const next = packs
+        .map(server => {
+          const local = localById.get(server.id)
+          // A response that left before our last save landed.
+          if (local?.base && local.base.version > server.version) return local
+          return fromServer(server)
+        })
+        .sort((a, b) => a.id! - b.id!)
+      // Stay on the same pack, even if one before it went elsewhere.
+      const selectedId = state.packs[state.selectedIndex]?.id
+      const selectedIndex = Math.max(0, next.findIndex(pack => pack.id === selectedId))
+      return {
+        packs: next,
+        selectedIndex,
+        viewMode: next.length > 1 ? state.viewMode : 'pack',
+      }
     }),
 
   markSynced: (tripId, revision) => {
@@ -189,7 +230,7 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
     return true
   },
 
-  assignPackId: (index, id, tripId) =>
+  assignPackId: (index, created, tripId) =>
     set(state => {
       // A create resolving after the user opened another trip would otherwise
       // stamp this id onto whichever pack now sits at that position.
@@ -201,7 +242,30 @@ export const useTripPacks = create<TripPacksState>((set, get) => ({
       // shifts the array, and without this the id would be stamped onto a
       // pack that already has one — orphaning this one server-side.
       if (pack.id) return state
-      return { packs: replacePack(state.packs, index, { ...pack, id }) }
+      return {
+        packs: replacePack(state.packs, index, { ...pack, id: created.id, base: baseOf(created) }),
+      }
+    }),
+
+  markPackSaved: (tripId, saved) =>
+    set(state => {
+      if (state.loadedTripId !== tripId) return state
+      const index = state.packs.findIndex(pack => pack.id === saved.id)
+      if (index === -1) return state
+      const pack = state.packs[index]
+      return { packs: replacePack(state.packs, index, { ...pack, base: baseOf(saved) }) }
+    }),
+
+  resolveConflict: (tripId, server) =>
+    set(state => {
+      if (state.loadedTripId !== tripId) return state
+      const index = state.packs.findIndex(pack => pack.id === server.id)
+      if (index === -1) return state
+      return {
+        packs: replacePack(state.packs, index, rebasePack(state.packs[index], server)),
+        synced: false,
+        revision: state.revision + 1,
+      }
     }),
 
   addItem: item =>

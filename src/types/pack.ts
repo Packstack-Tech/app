@@ -20,6 +20,8 @@ type BasePack = {
 export type Pack = BasePack & {
   id: number
   user_id: number
+  /** Bumped by the API on every change; sent back on save (see lib/packSync). */
+  version: number
   items: PackItem[]
   weight_breakdown: PackWeightBreakdown
   category_weights: PackCategoryWeight[]
@@ -48,10 +50,28 @@ export type PackFormProps = {
   title: string
 }
 
+/** One pack item's saved fields, as compared and merged by lib/packSync. */
+export type SyncedItem = {
+  item_id: number
+  quantity: number
+  worn_quantity: number
+  checked: boolean
+  sort_order: number
+}
+
+/** The server's copy of a pack that this client's edits were made against. */
+export type PackBase = {
+  version: number
+  title: string
+  items: SyncedItem[]
+}
+
 export type TripPack = {
   id?: number
   title: string
   items: PackItem[]
+  /** Absent until the pack exists on the server. */
+  base?: PackBase
 }
 
 export type TripPackKeys = keyof TripPack
