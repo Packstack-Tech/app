@@ -7,6 +7,11 @@
  * localStorage until the visitor registers, sent with the registration, and
  * stored on the user by the API, which reports the sign-up -- and later the
  * purchase -- to Google Ads (api/app/utils/ad_conversions.py).
+ *
+ * Visitors in the EEA, UK and Switzerland are asked first: packstack.io shows a
+ * consent banner and records the answer in a `ps_consent` cookie on
+ * .packstack.io (and as `ps_consent` on links into the app). Without a "yes",
+ * nothing is kept or sent for them.
  */
 
 export type Attribution = {
@@ -21,6 +26,8 @@ export type Attribution = {
   landing?: string
   /** When the click/landing happened, ms since epoch. */
   ts?: number
+  /** Set when a visitor in the consent region accepted the banner. */
+  consent?: 'granted'
 }
 
 const KEYS = [
@@ -32,6 +39,45 @@ const STORAGE_KEY = 'ps_attr'
 const COOKIE = 'ps_attr'
 // Google accepts click conversions up to 90 days after the click.
 const MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000
+
+// Same rule as the banner on packstack.io (public/src/layouts/BaseLayout.astro):
+// every Europe/* time zone plus the EU/EEA ones elsewhere.
+const CONSENT_ZONES = [
+  'Asia/Nicosia', 'Asia/Famagusta', 'Atlantic/Reykjavik', 'Atlantic/Canary',
+  'Atlantic/Madeira', 'Atlantic/Azores', 'Atlantic/Faroe', 'Arctic/Longyearbyen',
+  'Indian/Reunion', 'Indian/Mayotte', 'America/Guadeloupe', 'America/Martinique',
+  'America/Cayenne', 'America/Marigot',
+]
+
+function consentRequired(): boolean {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+    return tz.startsWith('Europe/') || CONSENT_ZONES.includes(tz)
+  } catch {
+    return false
+  }
+}
+
+function consentCookie(): 'granted' | 'denied' | null {
+  try {
+    const match = document.cookie.match(/(?:^|; )ps_consent=(granted|denied)/)
+    return match ? (match[1] as 'granted' | 'denied') : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The record as it may be kept, or null when the visitor hasn't agreed: a
+ * "no" on the banner always wins; in the consent region a "yes" is needed.
+ */
+function withConsent(a: Attribution | null): Attribution | null {
+  if (!a) return null
+  const cookie = consentCookie()
+  if (cookie === 'denied') return null
+  if (cookie === 'granted' || a.consent === 'granted') return { ...a, consent: 'granted' }
+  return consentRequired() ? null : a
+}
 
 const hasClickId = (a?: Attribution | null) => !!a && CLICK_IDS.some(k => !!a[k])
 
@@ -70,6 +116,7 @@ function fromUrl(): Attribution | null {
     const ts = Number(params.get('ps_ts'))
     found.ts = Number.isFinite(ts) && ts > 0 && ts <= Date.now() ? ts : Date.now()
     found.landing = (params.get('ps_landing') || window.location.pathname).slice(0, 255)
+    if (params.get('ps_consent') === 'granted') found.consent = 'granted'
     return found
   } catch {
     return null
@@ -89,8 +136,16 @@ function pick(current: Attribution | null, incoming: Attribution | null): Attrib
 
 /** Call once on startup. */
 export function captureAttribution(): void {
-  const best = pick(pick(readStored(), readCookie()), fromUrl())
-  if (!best) return
+  const best = withConsent(pick(pick(readStored(), readCookie()), fromUrl()))
+  if (!best) {
+    // Nothing, or a visitor who hasn't agreed (or has since said no).
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      // ignore
+    }
+    return
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(best))
   } catch {
@@ -100,7 +155,7 @@ export function captureAttribution(): void {
 
 /** What to send with a registration, if anything. */
 export function getAttribution(): Attribution | undefined {
-  return pick(readStored(), readCookie()) ?? undefined
+  return withConsent(pick(readStored(), readCookie())) ?? undefined
 }
 
 /** Mixpanel props describing where a new user came from. */
