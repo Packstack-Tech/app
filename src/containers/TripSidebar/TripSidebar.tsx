@@ -142,7 +142,7 @@ export const TripSidebar: FC<Props> = ({ trip, onEditDetails }) => {
       <SidebarSeparator className="mx-4" />
 
       <SidebarContent className="overflow-hidden">
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 min-h-0" constrainWidth>
           <SidebarGroup>
             <SidebarGroupContent>
               {detailRows.length > 0 && (

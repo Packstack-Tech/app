@@ -220,7 +220,7 @@ export const InventorySidebar = () => {
             <TooltipContent>Create Gear</TooltipContent>
           </Tooltip>
         </div>
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 min-h-0" constrainWidth>
           {items.length === 0 && search && (
             <div className="text-center py-6 text-sm text-muted-foreground">
               No gear matching "{search}"
@@ -264,7 +264,7 @@ export const InventorySidebar = () => {
             onChange={e => setKitSearch(e.target.value)}
           />
         </div>
-        <ScrollArea className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 min-h-0" constrainWidth>
           {filteredKits.length === 0 && (
             <div className="text-center py-6 text-sm text-muted-foreground">
               {kits && kits.length > 0 ? (

@@ -139,7 +139,7 @@ export const KitEditor: FC<Props> = ({ kit, onBack }) => {
               Kit Items ({selectedItems.size})
             </Label>
           </div>
-          <ScrollArea className="flex-1 min-h-0">
+          <ScrollArea className="flex-1 min-h-0" constrainWidth>
             {selectedItems.size === 0 && (
               <div className="p-6 text-center text-sm text-muted-foreground">
                 Select items from inventory to add them to this kit.
@@ -210,7 +210,7 @@ export const KitEditor: FC<Props> = ({ kit, onBack }) => {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <ScrollArea className="flex-1 min-h-0">
+          <ScrollArea className="flex-1 min-h-0" constrainWidth>
             {categories.map(category => (
               <div key={category.category?.category_id || 'uncategorized'}>
                 <div className="text-muted-foreground text-xs bg-muted p-1 px-3 sticky top-0">

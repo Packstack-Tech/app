@@ -64,7 +64,7 @@ export const PacksPage: FC = () => {
 
   return (
     <div className="flex flex-1 min-h-0">
-      <ScrollArea className="flex-1 min-h-0">
+      <ScrollArea className="flex-1 min-h-0" constrainWidth>
         <div className="max-w-5xl mx-auto flex flex-col gap-8 p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
