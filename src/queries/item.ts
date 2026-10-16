@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/useToast'
 import {
   archiveItem,
   bulkArchiveItems,
+  bulkCategorizeItems,
   bulkDeleteItems,
   bulkRestoreItems,
   cloneItem,
@@ -192,6 +193,23 @@ export const useBulkDeleteItems = () => {
       toast({ title: 'Items permanently deleted' })
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
       queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+    },
+  })
+}
+
+export const useBulkCategorizeItems = () => {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  return useMutation({
+    mutationFn: async ({ ids, categoryId }: { ids: number[], categoryId: number | null }) => {
+      await bulkCategorizeItems(ids, categoryId)
+      Mixpanel.track('Item:BulkCategorize', { count: ids.length })
+    },
+    onSuccess: () => {
+      toast({ title: 'Category updated' })
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: GROUPED_INVENTORY_QUERY })
+      queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY] })
     },
   })
 }

@@ -27,6 +27,7 @@ import { SpecsSection } from '@/containers/ItemDetail/sections/SpecsSection'
 import { useToast } from '@/hooks/useToast'
 import { useUser } from '@/hooks/useUser'
 import { Mixpanel } from '@/lib/mixpanel'
+import { productName } from '@/lib/productName'
 import { getItemDisplayUnit } from '@/lib/weight'
 import { useCloneItem, useCreateItem, useInventory, useUpdateItem } from '@/queries/item'
 import { Item, ItemForm as ItemFormValues, Unit } from '@/types/item'
@@ -253,7 +254,7 @@ export const ItemDetailPage: FC<Props> = ({ mode, itemId, inline, onClose, onCre
 
   const itemName = form.watch('itemname')
   const brandDisplay = item?.brand?.name
-  const productDisplay = item?.product?.name
+  const productDisplay = item ? productName(item) : undefined
   const heroTitle = itemName || (isEdit ? 'Untitled Item' : 'New Item')
   // Names the task, not the item. The item's name is the first field in the
   // form and, when editing, the hero line below — repeating it in the chrome

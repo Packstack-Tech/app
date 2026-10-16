@@ -3,6 +3,7 @@ import { Cell, ColumnDef } from '@tanstack/react-table'
 import { numberSort, ordinalSort, orUndefined, stringSort } from '@/components/Tables/lib/sorting'
 import { Currency, formatCurrency } from '@/lib/currencies'
 import { ownedQuantity, ownedValue } from '@/lib/overpack'
+import { productName, variantName } from '@/lib/productName'
 import { convertWeight } from '@/lib/weight'
 import { Item, Unit } from '@/types/item'
 
@@ -42,10 +43,12 @@ export const columns = (currency: Currency): ColumnDef<Item>[] => [
   {
     id: 'product',
     header: 'Product',
-    accessorFn: ({ product, product_variant }) => {
+    accessorFn: item => {
+      const product = productName(item)
       if (!product) return undefined
-      if (!product_variant) return product.name
-      return `${product.name} ${product_variant.name}`
+      const variant = variantName(item)
+      if (!variant) return product
+      return `${product} ${variant}`
     },
     sortingFn: stringSort,
     sortUndefined: 'last',

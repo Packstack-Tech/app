@@ -1,6 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 
 import { Currency, formatCurrency } from '@/lib/currencies'
+import { productName, variantName } from '@/lib/productName'
 import { PackItem } from '@/types/pack'
 
 import {
@@ -32,11 +33,11 @@ export const columns = (currency: Currency): ColumnDef<PackItem>[] => [
   },
   {
     header: 'Product',
-    accessorFn: ({ item: { brand, product, product_variant } }) => {
-      if (!brand) return null
-      if (!product) return brand.name
-      if (!product_variant) return `${brand.name} ${product.name}`
-      return `${brand.name} ${product.name} ${product_variant.name}`
+    accessorFn: ({ item }) => {
+      if (!item.brand) return null
+      return [item.brand.name, productName(item), variantName(item)]
+        .filter(Boolean)
+        .join(' ')
     },
     meta: {
       style: {

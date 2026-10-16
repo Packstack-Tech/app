@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/AlertDialog'
 import { WeightValue } from '@/components/WeightValue'
 import { useUser } from '@/hooks/useUser'
+import { productName } from '@/lib/productName'
 import { useInventory, usePermanentlyDeleteItem } from '@/queries/item'
 import { Item, Unit } from '@/types/item'
 
@@ -60,7 +61,7 @@ export const RecentlyAddedGear: FC<Props> = ({ onEdit }) => {
       </p>
       <ul>
         {recent.map(item => {
-          const secondary = [item.brand?.name, item.product?.name]
+          const secondary = [item.brand?.name, productName(item)]
             .filter(Boolean)
             .join(' · ')
 

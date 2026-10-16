@@ -31,6 +31,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
@@ -48,8 +49,15 @@ import { Mixpanel } from '@/lib/mixpanel'
 import { ownedValue } from '@/lib/overpack'
 import { cn } from '@/lib/utils'
 import { ItemDetailPage } from '@/pages/ItemDetail'
+import { useMyCategories } from '@/queries/category'
 import { useGroupedInventory } from '@/queries/item'
-import { useBulkArchiveItems, useBulkDeleteItems, useBulkRestoreItems, useInventory } from '@/queries/item'
+import {
+  useBulkArchiveItems,
+  useBulkCategorizeItems,
+  useBulkDeleteItems,
+  useBulkRestoreItems,
+  useInventory,
+} from '@/queries/item'
 import { ItemCondition, ItemStatus } from '@/types/item'
 
 const CONVERSION: Record<string, number> = { g: 1, kg: 1000, oz: 28.3495, lb: 453.592 }
@@ -106,6 +114,8 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   const bulkArchive = useBulkArchiveItems()
   const bulkRestore = useBulkRestoreItems()
   const bulkDelete = useBulkDeleteItems()
+  const bulkCategorize = useBulkCategorizeItems()
+  const { data: myCategories } = useMyCategories()
   const [confirmAction, setConfirmAction] = useState<'archive' | 'delete' | null>(null)
 
   const toggleItem = useCallback((id: number) => {
@@ -156,6 +166,13 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
   const handleBulkRestore = () => {
     const ids = Array.from(selectedIds)
     bulkRestore.mutate(ids, { onSuccess: () => setSelectedIds(new Set()) })
+  }
+
+  // Select value is a Category id, or 'none' to uncategorize.
+  const handleBulkCategorize = (value: string) => {
+    const ids = Array.from(selectedIds)
+    const categoryId = value === 'none' ? null : Number(value)
+    bulkCategorize.mutate({ ids, categoryId }, { onSuccess: () => setSelectedIds(new Set()) })
   }
 
   const handleBulkDelete = () => {
@@ -420,6 +437,25 @@ export const InventoryPage = ({ initialItemId, initialShowNew }: InventoryPagePr
                   </span>
                   {selectionCount > 0 && (
                     <>
+                      {/* Always shows the placeholder: picking applies at once. */}
+                      <Select
+                        value=""
+                        onValueChange={handleBulkCategorize}
+                        disabled={bulkCategorize.isPending}
+                      >
+                        <SelectTrigger size="sm" className="w-auto !h-7 text-xs">
+                          <SelectValue placeholder="Assign Category..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {myCategories?.categories.map(c => (
+                            <SelectItem key={c.id} value={String(c.category_id)}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                          {!!myCategories?.categories.length && <SelectSeparator />}
+                          <SelectItem value="none">Uncategorized</SelectItem>
+                        </SelectContent>
+                      </Select>
                       {hasActive && (
                         <Button
                           variant="outline"

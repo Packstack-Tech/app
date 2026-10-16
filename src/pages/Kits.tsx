@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { Button, Input } from '@/components/ui'
 import { KitEditor } from '@/containers/KitForm'
 import { useKitLimit } from '@/hooks/useKitLimit'
+import { productName } from '@/lib/productName'
 import { cn } from '@/lib/utils'
 import { useKits } from '@/queries/kit'
 import { Kit } from '@/types/kit'
@@ -153,9 +154,9 @@ export const KitsPage = () => {
                         >
                           <div className="min-w-0 truncate">
                             <span className="text-foreground">{ki.item.name}</span>
-                            {(ki.item.brand?.name || ki.item.product?.name) && (
+                            {(ki.item.brand?.name || productName(ki.item)) && (
                               <span className="ml-2 text-muted-foreground">
-                                {[ki.item.brand?.name, ki.item.product?.name]
+                                {[ki.item.brand?.name, productName(ki.item)]
                                   .filter(Boolean)
                                   .join(' ')}
                               </span>

@@ -3,6 +3,7 @@ import { CircleIcon, Plus } from 'lucide-react'
 
 import { WeightValue } from '@/components/WeightValue'
 import { useWeightSystem } from '@/hooks/useDisplayPrefs'
+import { productName, variantName } from '@/lib/productName'
 import { Item } from '@/types/item'
 
 interface Props {
@@ -15,8 +16,8 @@ export const InventoryItem: FC<Props> = ({ item, selected, onClick }) => {
   const system = useWeightSystem()
   const brand = [
     item.brand?.name,
-    item.product?.name,
-    item.product_variant?.name,
+    productName(item),
+    variantName(item),
   ]
     .filter(Boolean)
     .join(' ')

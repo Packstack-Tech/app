@@ -2,6 +2,7 @@ import { saveAs } from 'file-saver'
 
 import { groupByCategory } from '@/lib/categorize'
 import { Currency, formatCurrency } from '@/lib/currencies'
+import { productName, variantName } from '@/lib/productName'
 import { wornQuantity } from '@/lib/worn'
 import { Item } from '@/types/item'
 import { PackItem } from '@/types/pack'
@@ -36,6 +37,7 @@ export const downloadInventory = (items?: Item[]) => {
         name,
         brand,
         product,
+        catalog_product,
         category,
         weight,
         unit,
@@ -48,7 +50,7 @@ export const downloadInventory = (items?: Item[]) => {
         [
           name,
           brand?.name || '',
-          product?.name || '',
+          productName({ product, catalog_product }) || '',
           category?.category.name || '',
           weight,
           unit,
@@ -70,11 +72,10 @@ export const downloadInventory = (items?: Item[]) => {
 }
 
 function formatProduct(item: Item): string {
-  const { brand, product, product_variant } = item
-  if (!brand) return ''
-  if (!product) return brand.name
-  if (!product_variant) return `${brand.name} ${product.name}`
-  return `${brand.name} ${product.name} ${product_variant.name}`
+  if (!item.brand) return ''
+  return [item.brand.name, productName(item), variantName(item)]
+    .filter(Boolean)
+    .join(' ')
 }
 
 type PackingListOptions = {

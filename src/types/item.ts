@@ -54,6 +54,7 @@ export type CatalogProduct = {
   id: number
   brand_name: string
   product_name: string
+  status?: string
   display_name: string
   kcal?: number | null
   weight?: number

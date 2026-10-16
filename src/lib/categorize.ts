@@ -42,6 +42,9 @@ export function groupByCategory<T>(
       return group
     })
     .sort(
-      (a, b) => (a.category?.sort_order ?? 0) - (b.category?.sort_order ?? 0)
+      // Uncategorized (no category) always sorts last
+      (a, b) =>
+        (a.category ? 0 : 1) - (b.category ? 0 : 1) ||
+        (a.category?.sort_order ?? 0) - (b.category?.sort_order ?? 0)
     )
 }

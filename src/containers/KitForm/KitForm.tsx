@@ -5,6 +5,7 @@ import { Button, Input } from '@/components/ui'
 import { Label } from '@/components/ui/Label'
 import { ScrollArea } from '@/components/ui/ScrollArea'
 import { useCategorizedItems } from '@/hooks/useCategorizedItems'
+import { productName } from '@/lib/productName'
 import { useCreateKit, useDeleteKit, useUpdateKit } from '@/queries/kit'
 import { Item } from '@/types/item'
 import { Kit, KitItemPayload } from '@/types/kit'
@@ -155,9 +156,9 @@ export const KitEditor: FC<Props> = ({ kit, onBack }) => {
                       <div className="text-sm font-medium truncate">
                         {item.name}
                       </div>
-                      {(item.brand?.name || item.product?.name) && (
+                      {(item.brand?.name || productName(item)) && (
                         <div className="text-xs text-muted-foreground truncate">
-                          {item.brand?.name} {item.product?.name}
+                          {item.brand?.name} {productName(item)}
                         </div>
                       )}
                     </div>
@@ -229,9 +230,9 @@ export const KitEditor: FC<Props> = ({ kit, onBack }) => {
                       }`}
                     >
                       <div className="text-sm font-medium">{item.name}</div>
-                      {(item.brand?.name || item.product?.name) && (
+                      {(item.brand?.name || productName(item)) && (
                         <div className="text-muted-foreground text-xs">
-                          {item.brand?.name} {item.product?.name}
+                          {item.brand?.name} {productName(item)}
                         </div>
                       )}
                     </button>

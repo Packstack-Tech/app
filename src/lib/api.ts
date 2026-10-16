@@ -219,6 +219,10 @@ export const bulkRestoreItems = (ids: number[]) =>
 export const bulkDeleteItems = (ids: number[]) =>
   http.post('/item/bulk-delete', ids)
 
+/** `categoryId` is a Category id (as item update takes); null uncategorizes. */
+export const bulkCategorizeItems = (ids: number[], categoryId: number | null) =>
+  http.put('/item/bulk-category', { ids, category_id: categoryId })
+
 export const updateItem = (data: EditItem) => http.put<Item>('/item', data)
 /** Copies an item's core characteristics into a new closet item (not notes,
  *  lifecycle, history or quantity). */

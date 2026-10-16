@@ -24,7 +24,7 @@ export const useCategorizedItems = ({
   const fuseItems = useMemo(
     () =>
       new Fuse(allItems, {
-        keys: ['name', 'product.name', 'brand.name'],
+        keys: ['name', 'product.name', 'catalog_product.product_name', 'brand.name'],
       }),
     [allItems]
   )
